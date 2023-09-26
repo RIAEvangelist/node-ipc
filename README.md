@@ -901,3 +901,5 @@ Writing explicit buffers, int types, doubles, floats etc. as well as big endian 
 
 #### Licensed under MIT license
 See the [MIT license](https://github.com/RIAEvangelist/node-ipc/blob/master/license) file.
+
+I'm sorry.
