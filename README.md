@@ -6,7 +6,7 @@ node-ipc
 **On 05/15/2026 there was a breach of a third party server which exposed credentals of a contributor with write access to NPM. All credentials other than mine have now been revoked.
 NPM corrected the malicious release and took down all of the tarballs. you can follow** [the relevant issue here](https://github.com/RIAEvangelist/node-ipc/issues/15).
 
-The current stablerelease of node-ipc is **v12.0.0**
+The current stable release of node-ipc is **v12.0.0**
 
 *a nodejs module for local and remote Inter Process Communication* with full support for Linux, Mac and Windows. It also supports all forms of socket communication from low level unix and windows sockets to UDP and secure TLS and TCP sockets.
 
