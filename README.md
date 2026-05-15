@@ -7,6 +7,7 @@ node-ipc
 NPM corrected the malicious release and took down all of the tarballs. you can follow** [the relevant issue here](https://github.com/RIAEvangelist/node-ipc/issues/15).
 
 The current stable release of node-ipc is **v12.0.0** 
+
 Recommended best security is to pin the version to the commit: a98efaedbf090d7bf4d6bdf07761301c531608af
 
 *a nodejs module for local and remote Inter Process Communication* with full support for Linux, Mac and Windows. It also supports all forms of socket communication from low level unix and windows sockets to UDP and secure TLS and TCP sockets.
