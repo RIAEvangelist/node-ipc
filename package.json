@@ -64,5 +64,8 @@
   "bugs": {
     "url": "https://github.com/RIAEvangelist/node-ipc/issues"
   },
-  "homepage": "http://riaevangelist.github.io/node-ipc/"
+  "homepage": "http://riaevangelist.github.io/node-ipc/",
+  "overrides": {
+    "brace-expansion": "5.0.9"
+  }
 }
