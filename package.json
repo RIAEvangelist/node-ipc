@@ -25,13 +25,12 @@
     "c8": "^7.7.3",
     "esbuild": "^0.12.28",
     "lcov2badge": "^0.1.2",
-    "node-cmd": "^4.0.0",
     "node-http-server": "^8.1.4",
-    "vanilla-test": "^1.4.8"
+    "vanilla-test": "2.1.0"
   },
   "scripts": {
     "prepare": "esbuild node-ipc.js --bundle --format=cjs --target=es2018 --platform=node --outfile=node-ipc.cjs",
-    "test": "npm i && c8 -r lcov -r html node test/CI.js && c8 report && node ./lcov.js",
+    "test": "c8 -r lcov -r html node test/CI.js && c8 report && node ./lcov.js",
     "coverage": "echo 'See your coverage report at http://localhost:8080' && node-http-server port=8080 root=./coverage/"
   },
   "keywords": [

@@ -1,14 +1,16 @@
 import ipc from '../../node-ipc.js';
 import process from 'process';
 
-const dieAfter = 30e3;
+const dieAfter = 120e3;
+let timeout;
 
-function killServerProcess(){
-    process.exit(0);
+function exitServerProcess(code=0){
+    clearTimeout(timeout);
+    process.exit(code);
 }
 
-setTimeout(
-    killServerProcess,
+timeout=setTimeout(
+    () => exitServerProcess(1),
     dieAfter
 );
 
@@ -38,16 +40,19 @@ ipc.serveNet(
 
         ipc.server.on(
             'END',
-            killServerProcess
+            () => exitServerProcess(0)
         );
 
         console.log('TCP server up');
+        if(process.send){
+            process.send({type:'ready'});
+        }
     }
 );
 
 ipc.server.start();
 
 export {
-    killServerProcess as default,
-    killServerProcess
+    exitServerProcess as default,
+    exitServerProcess
 }

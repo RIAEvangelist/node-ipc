@@ -20,12 +20,13 @@ async function run(){
 
     var transmit_delay = 1000;
 
+    let retryingClient;
     try{
         test.expects(
             'TCP client to connection attempts to be limited by the "maxRetries" parameter.'
         );
         
-        const ipc=new IPCModule;
+        const ipc=retryingClient=new IPCModule;
 
         ipc.config.id ='testClient';
         ipc.config.retry = 60;
@@ -55,28 +56,28 @@ async function run(){
 
         await delay(ipc.config.retry*ipc.config.maxRetries + transmit_delay);
         
-        ipc.config.stopRetrying = true;
-        
-        ipc.of.tcpFakeServer.emit('END');
-
-        ipc.disconnect('tcpFakeServer');
-
         test.compare(errorCount,ipc.config.maxRetries);
 
     }catch(err){
         fail(err);
+    }finally{
+        if(retryingClient){
+            retryingClient.config.stopRetrying=true;
+            retryingClient.disconnect('tcpFakeServer');
+        }
     }
     cleanup();
 
 
 
 
+    let stoppedClient;
     try{
         test.expects(
             'TCP client not to try to reconnect when "stopRetrying" is set to true.'
         );
         
-        const ipc=new IPCModule;
+        const ipc=stoppedClient=new IPCModule;
         ipc.config.maxRetries = 3;
         ipc.config.stopRetrying = true;
         ipc.silent=true;
@@ -106,22 +107,23 @@ async function run(){
         test.compare(errorCount,0);
         test.compare(ipc.of.tcpFakeServer.retriesRemaining,ipc.config.maxRetries);
 
-        ipc.disconnect('tcpFakeServer');
-
     }catch(err){
         fail(err);
+    }finally{
+        stoppedClient?.disconnect('tcpFakeServer');
     }
     cleanup();
 
 
 
 
+    let connectedClient;
     try{
         test.expects(
             'TCP client to connect to server named "tcpServer" and receive a message.'
         );
         
-        const ipc=new IPCModule;
+        const ipc=connectedClient=new IPCModule;
         
         ipc.config.maxRetries = 3;
         ipc.config.stopRetrying = true;
@@ -173,16 +175,19 @@ async function run(){
         test.compare(data.id,'tcpServer');
         test.compare(data.message,'I am TCP server!');
         
-        ipc.of.tcpServer.emit(
-            'END'
-        );
-
-        ipc.disconnect('tcpServer');
-
     }catch(err){
         fail(err);
+    }finally{
+        if(connectedClient?.of.tcpServer){
+            if(!connectedClient.of.tcpServer.socket?.destroyed){
+                connectedClient.of.tcpServer.emit('END');
+            }
+            connectedClient.disconnect('tcpServer');
+        }
     }
     cleanup();
+
+    return test.report();
 }
 
 export {

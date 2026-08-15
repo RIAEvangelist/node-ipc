@@ -1,15 +1,17 @@
 import ipc from '../../node-ipc.js';
 import process from 'process';
 
-const dieAfter = 30e3;
+const dieAfter = 120e3;
+let timeout;
 
-function killClientProcess(){
-    process.exit(0);
+function exitClientProcess(code=0){
+    clearTimeout(timeout);
+    process.exit(code);
 }
 
 
-setTimeout(
-    killClientProcess,
+timeout=setTimeout(
+    () => exitClientProcess(1),
     dieAfter
 );
 
@@ -34,10 +36,14 @@ ipc.connectToNet(
 
         ipc.of.testWorld.on(
             'END',
-            killClientProcess
+            () => exitClientProcess(0)
         )
     }
 );
+
+if(process.send){
+    process.send({type:'ready'});
+}
 
 export {
     dieAfter as default,

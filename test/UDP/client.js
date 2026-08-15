@@ -20,12 +20,13 @@ async function run(){
 
     var transmit_delay = 1000;
 
+    let udp4;
     try{
         test.expects(
             'UDP4 server to connect to "udpServer" and receive message.'
         );
         
-        const ipc=new IPCModule;
+        const ipc=udp4=new IPCModule;
 
         ipc.config.networkPort=8009;
         ipc.config.id ='testClient';
@@ -80,22 +81,25 @@ async function run(){
         test.compare(serverID,expectedServerID);
         test.compare(message,expectedMessage);
 
-        ipc.server.stop();
-
     }catch(err){
         fail(err);
+    }finally{
+        if(udp4?.server?.server){
+            udp4.server.stop();
+        }
     }
     cleanup();
 
 
 
 
+    let udp6;
     try{
         test.expects(
             'UDP6 server to connect to "udp6Server" and receive message.'
         );
         
-        const ipc=new IPCModule;
+        const ipc=udp6=new IPCModule;
 
         ipc.config.networkPort=8007;
         ipc.config.id ='testClient';
@@ -151,12 +155,16 @@ async function run(){
         test.compare(serverID,expectedServerID);
         test.compare(message,expectedMessage);
 
-        ipc.server.stop();
-
     }catch(err){
         fail(err);
+    }finally{
+        if(udp6?.server?.server){
+            udp6.server.stop();
+        }
     }
     cleanup();
+
+    return test.report();
 }
 
 export {

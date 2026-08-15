@@ -22,12 +22,13 @@ async function run(){
 
     var transmit_delay = 1000;
 
+    let serverIPC;
     try{
         test.expects(
             'Server to detect TCP client connection.'
         );
 
-        const ipc=new IPCModule;
+        const ipc=serverIPC=new IPCModule;
         
         ipc.config.id ='testWorld';
         ipc.config.retry = 1000;
@@ -58,16 +59,19 @@ async function run(){
                 
         await delay(transmit_delay*2);
         
-        ipc.server.broadcast('END');
-        ipc.config.stopRetrying = true;
-        ipc.server.stop();
-
         test.compare(requiredCount,requiredCounter);
 
     }catch(err){
         fail(err);
+    }finally{
+        if(serverIPC?.server?.server?.listening){
+            serverIPC.server.broadcast('END');
+            serverIPC.server.stop();
+        }
     }
     cleanup();
+
+    return test.report();
 
 }
 

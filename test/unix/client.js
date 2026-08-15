@@ -20,12 +20,17 @@ async function run(){
 
     var transmit_delay = 1000;
 
+    let unixClient;
     try{
         test.expects(
             'unix client to connect to "unixServer" and receive a message.'
         );
         
-        const ipc=new IPCModule;
+        const ipc=unixClient=new IPCModule;
+
+        if(process.env.NODE_IPC_TEST_SOCKET_ROOT){
+            ipc.config.socketRoot=process.env.NODE_IPC_TEST_SOCKET_ROOT;
+        }
         
         ipc.config.id ='testClient';
         ipc.config.retry = 900;
@@ -64,39 +69,52 @@ async function run(){
 
         await delay(transmit_delay);
 
-        ipc.config.stopRetrying=true;
-
-        ipc.of.unixServer.emit(
-            'END'
-        );
+        test.compare(serverID,expectedServerID);
+        test.compare(serverMessage,expectedMessage);
 
         
         
 
     }catch(err){
         fail(err);
+    }finally{
+        if(unixClient){
+            unixClient.config.stopRetrying=true;
+            if(unixClient.of.unixServer){
+                if(!unixClient.of.unixServer.socket?.destroyed){
+                    unixClient.of.unixServer.emit('END');
+                }
+                unixClient.disconnect('unixServer');
+            }
+        }
     }
     cleanup();
 
 
 
 
+    let syncClient;
     try{
         test.expects(
             'the unix client to send synchronously when config.sync is set to true'
         );
         
-        const ipc=new IPCModule;
+        const ipc=syncClient=new IPCModule;
+
+        if(process.env.NODE_IPC_TEST_SOCKET_ROOT){
+            ipc.config.socketRoot=process.env.NODE_IPC_TEST_SOCKET_ROOT;
+        }
 
         ipc.config.sync = true;
         ipc.config.silent = true;
 
         const messageTotal=5;
         let responseCounter = 0;
+        let responseError;
 
         ipc.connectTo(
             'unixServerSync',
-            '/tmp/app.unixServerSync',
+            ipc.config.socketRoot+ipc.config.appspace+'unixServerSync',
             function open(){
                 ipc.of.unixServerSync.on(
                     'connect',
@@ -116,8 +134,9 @@ async function run(){
                             'message',
                             function gotMessage(data){
                                 if(data.message!=='Response from unix server'){
-                                    throw new Error("data.message!=='Response from unix server'");
-                                };
+                                    responseError=new Error("data.message!=='Response from unix server'");
+                                    return;
+                                }
                                 responseCounter++;
                             }
                         );
@@ -128,15 +147,23 @@ async function run(){
 
         await delay(transmit_delay);
 
-        ipc.config.stopRetrying=true;
+        if(responseError){
+            throw responseError;
+        }
         
         test.compare(responseCounter,messageTotal);
-
-        ipc.of.unixServerSync.emit(
-            'END'
-        );
     }catch(err){
         fail(err);
+    }finally{
+        if(syncClient){
+            syncClient.config.stopRetrying=true;
+            if(syncClient.of.unixServerSync){
+                if(!syncClient.of.unixServerSync.socket?.destroyed){
+                    syncClient.of.unixServerSync.emit('END');
+                }
+                syncClient.disconnect('unixServerSync');
+            }
+        }
     }
     cleanup();
 
@@ -156,6 +183,8 @@ async function run(){
     //     fail(err);
     // }
     // cleanup();
+
+    return test.report();
 
 }
 
