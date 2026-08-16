@@ -1,14 +1,10 @@
-node-ipc
-================
+[![node-ipc - local and remote inter-process communication for Node.js](https://raw.githubusercontent.com/RIAEvangelist/node-ipc/main/assets/node-ipc-header.png)](https://riaevangelist.github.io/node-ipc/)
+
+# node-ipc
 
 [![Sponsor RIAEvangelist to help development of node-ipc](https://img.shields.io/static/v1?label=Sponsor%20Me%20On%20Github&message=%E2%9D%A4&logo=GitHub&link=https://github.com/sponsors/RIAEvangelist)](https://github.com/sponsors/RIAEvangelist)
 
-**On 05/15/2026 there was a breach of a third party server which exposed credentals of a contributor with write access to NPM. All credentials other than mine have now been revoked.
-NPM corrected the malicious release and took down all of the tarballs. you can follow** [the relevant issue here](https://github.com/RIAEvangelist/node-ipc/issues/15).
-
-The current stable release of node-ipc is **v12.0.0** 
-
-Recommended best security is to pin the version to the commit: [aea41314fdb5c359f67151759116aca61c787391](https://github.com/RIAEvangelist/node-ipc/commit/aea41314fdb5c359f67151759116aca61c787391)
+**Current official build: [node-ipc v12.0.0](https://www.npmjs.com/package/node-ipc/v/12.0.0)**
 
 *a nodejs module for local and remote Inter Process Communication* with full support for Linux, Mac and Windows. It also supports all forms of socket communication from low level unix and windows sockets to UDP and secure TLS and TCP sockets.
 
