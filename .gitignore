@@ -1,5 +1,5 @@
 /nbproject/private/
 /node_modules/
+/coverage/
 /nbproject
 npm-debug.log
-node-ipc.cjs

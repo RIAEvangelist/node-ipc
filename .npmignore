@@ -2,3 +2,5 @@ spec
 example
 coverage
 test
+/node-ipc.cjs
+/.codex-*.lock.json

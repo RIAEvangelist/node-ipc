@@ -1,0 +1,19 @@
+{
+    "entry": "./test/CI.js",
+    "reportsDirectory": "./coverage",
+    "thresholds": {
+        "statements": 0,
+        "branches": 0,
+        "functions": 0,
+        "lines": 0
+    },
+    "node": {
+        "include": [
+            "node-ipc.js",
+            "dao/**/*.js",
+            "entities/**/*.js",
+            "helpers/**/*.js",
+            "services/**/*.js"
+        ]
+    }
+}

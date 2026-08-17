@@ -10,23 +10,26 @@
 
 A great solution for complex multiprocess **Neural Networking** in Node.JS
 
-`npm install node-ipc`
+`npm install --save-exact node-ipc@12.0.0`
 
-#### for node <v14
+Use an exact, reviewed version or the commit pinned above. Do not use a mutable tag or version range for security-sensitive deployments.
 
-`npm install node-ipc@^9.0.0`
+#### Runtime
 
-#### including v10 or greater into your code
+The next major requires Node.js 22.12.0 or newer. Version 12 remains the legacy Node release line.
+
+`node-ipc` ships native ES modules only. Node.js loads the same entry point through `import` or synchronous `require()`; no transpiled CommonJS bundle is generated.
+
+#### Use
 
 ```js
+import ipc from 'node-ipc';
 
-//es6
-import ipc from 'node-ipc'
-
-//commonjs
-const ipc = require('node-ipc').default;	   
-		 
+const ipc = require('node-ipc').default;
 ```
+
+CommonJS loading uses Node.js 22.12+'s native [`require(esm)` support](https://nodejs.org/api/modules.html#loading-ecmascript-modules-using-require).
+Node.js 22.12 may print its experimental feature warning; 22.13 and newer do not print it by default.
 
 #### NPM Stats
 
@@ -39,11 +42,10 @@ GitHub info :
 ![node-ipc GitHub Release](https://img.shields.io/github/release/RIAEvangelist/node-ipc.svg) ![GitHub license node-ipc license](https://img.shields.io/github/license/RIAEvangelist/node-ipc.svg) ![open issues for node-ipc on GitHub](https://img.shields.io/github/issues/RIAEvangelist/node-ipc.svg)
 
 Code Coverage Info :  
-![lcov node-ipc](/coverage/lcov.svg)  
-Run `npm run coverage` to host a local version of the coverage report on [localhost:8080](http://localhost:8080) This is the same format as Istanbul and NYC. It should be very familiar.
+Run `npm run coverage` to host a local version of the coverage report on [localhost:8080](http://localhost:8080).
 
 Testing done with [vanilla-test](https://github.com/RIAEvangelist/vanilla-test)  
-`vanilla-test` integrates with [c8](https://github.com/bcoe/c8) for native ESM coverage without the need to transpile your code. At the time of writing, this is the only way to natively test ESM, and it is amazing!
+`vanilla-test` provides native V8 coverage for the ESM test suite without transpilation or bundling.
 
 Package details websites :
 * [GitHub.io site](http://riaevangelist.github.io/node-ipc/ "node-ipc documentation"). A prettier version of this site.
@@ -51,15 +53,9 @@ Package details websites :
 
 This work is licenced via the MIT Licence.
 
-#### Older versions of node
-
-the latest versions of `node-ipc` may work with the --harmony flag. Officially though, we support node v4 and newer with es5 and es6
-
 #### Testing
 
-` npm test ` will run the jasmine tests with istanbul for node-ipc and generate a coverage report in the spec folder.
-
-You may want to install jasmine and istanbul globally with ` sudo npm install -g jasmine istanbul `
+`npm test` runs the Vanilla Test suite, native V8 coverage, both module loaders, and an installed-package smoke test. Reports are written to `coverage/node/`.
 
 ----
 #### Contents
@@ -81,8 +77,8 @@ You may want to install jasmine and istanbul globally with ` sudo npm install -g
     2. [Client for Unix||Windows Sockets & TCP Sockets](#client-for-unix-sockets--tcp-sockets)
     4. [Server & Client for UDP Sockets](#server--client-for-udp-sockets)
     5. [Raw Buffers, Real Time and / or Binary Sockets](#raw-buffer-or-binary-sockets)
-7. [Working with TLS/SSL Socket Servers & Clients](https://github.com/RIAEvangelist/node-ipc/tree/master/example/TLSSocket)
-8. [Node Code Examples](https://github.com/RIAEvangelist/node-ipc/tree/master/example)
+7. [Working with TLS/SSL Socket Servers & Clients](https://github.com/RIAEvangelist/node-ipc/tree/main/example/TLSSocket)
+8. [Node Code Examples](https://github.com/RIAEvangelist/node-ipc/tree/main/example)
 
 
 ----
@@ -90,10 +86,10 @@ You may want to install jasmine and istanbul globally with ` sudo npm install -g
 
 | Type      | Stability |Definition |
 |-----------|-----------|-----------|
-|Unix Socket or Windows Socket| Stable    | Gives Linux, Mac, and Windows lightning fast communication and avoids the network card to reduce overhead and latency. [Local Unix and Windows Socket examples ](https://github.com/RIAEvangelist/node-ipc/tree/master/example/unixWindowsSocket/ "Unix and Windows Socket Node IPC examples")  |
-|TCP Socket | Stable    | Gives the most reliable communication across the network. Can be used for local IPC as well, but is slower than #1's Unix Socket Implementation because TCP sockets go through the network card while Unix Sockets and Windows Sockets do not. [Local or remote network TCP Socket examples ](https://github.com/RIAEvangelist/node-ipc/tree/master/example/TCPSocket/ "TCP Socket Node IPC examples") |
-|TLS Socket | Stable    | Configurable and secure network socket over SSL. Equivalent to https. [TLS/SSL documentation](https://github.com/RIAEvangelist/node-ipc/tree/master/example/TLSSocket) |
-|UDP Sockets| Stable    | Gives the **fastest network communication**. UDP is less reliable but much faster than TCP. It is best used for streaming non critical data like sound, video, or multiplayer game data as it can drop packets depending on network connectivity and other factors. UDP can be used for local IPC as well, but is slower than #1's Unix Socket or Windows Socket Implementation because UDP sockets go through the network card while Unix and Windows Sockets do not. [Local or remote network UDP Socket examples ](https://github.com/RIAEvangelist/node-ipc/tree/master/example/UDPSocket/ "UDP Socket Node IPC examples") |  
+|Unix Socket or Windows Socket| Stable    | Gives Linux, Mac, and Windows lightning fast communication and avoids the network card to reduce overhead and latency. [Local Unix and Windows Socket examples ](https://github.com/RIAEvangelist/node-ipc/tree/main/example/unixWindowsSocket/ "Unix and Windows Socket Node IPC examples")  |
+|TCP Socket | Stable    | Gives the most reliable communication across the network. Can be used for local IPC as well, but is slower than #1's Unix Socket Implementation because TCP sockets go through the network card while Unix Sockets and Windows Sockets do not. [Local or remote network TCP Socket examples ](https://github.com/RIAEvangelist/node-ipc/tree/main/example/TCPSocket/ "TCP Socket Node IPC examples") |
+|TLS Socket | Stable    | Encrypted network socket. It is secure only when certificate identities are verified; use mTLS or application authentication when clients must be identified. [TLS documentation](https://github.com/RIAEvangelist/node-ipc/tree/main/example/TLSSocket) |
+|UDP Sockets| Stable    | Gives the **fastest network communication**. UDP is less reliable but much faster than TCP. It is best used for streaming non critical data like sound, video, or multiplayer game data as it can drop packets depending on network connectivity and other factors. UDP can be used for local IPC as well, but is slower than #1's Unix Socket or Windows Socket Implementation because UDP sockets go through the network card while Unix and Windows Sockets do not. [Local or remote network UDP Socket examples ](https://github.com/RIAEvangelist/node-ipc/tree/main/example/UDPSocket/ "UDP Socket Node IPC examples") |
 
 | OS  | Supported Sockets  |
 |-----|--------------------|
@@ -259,9 +255,9 @@ or explicitly setting the path with callback
 
 `ipc.connectToNet(id,host,port,callback)`  
 
-Used to connect as a client to a TCP or [TLS socket](https://github.com/RIAEvangelist/node-ipc/tree/master/example/TLSSocket) via the network card. This can be local or remote, if local, it is recommended that you use the Unix and Windows Socket Implementaion of `connectTo` instead as it is much faster since it avoids the network card altogether.
+Used to connect as a client to a TCP or [TLS socket](https://github.com/RIAEvangelist/node-ipc/tree/main/example/TLSSocket) via the network card. This can be local or remote, if local, it is recommended that you use the Unix and Windows Socket Implementaion of `connectTo` instead as it is much faster since it avoids the network card altogether.
 
-For TLS and SSL Sockets see the [node-ipc TLS and SSL docs](https://github.com/RIAEvangelist/node-ipc/tree/master/example/TLSSocket). They have a few additional requirements, and things to know about and so have their own doc.
+For TLS and SSL Sockets see the [node-ipc TLS and SSL docs](https://github.com/RIAEvangelist/node-ipc/tree/main/example/TLSSocket). They have a few additional requirements, and things to know about and so have their own doc.
 
 | variable | required | definition |
 |----------|----------|------------|
@@ -541,7 +537,7 @@ Sometimes you might need explicit and independent instances of node-ipc. Just fo
 
 ----
 ### Basic Examples
-You can find [Advanced Examples](https://github.com/RIAEvangelist/node-ipc/tree/master/example) in the examples folder. In the examples you will find more complex demos including multi client examples.
+You can find [Advanced Examples](https://github.com/RIAEvangelist/node-ipc/tree/main/example) in the examples folder. In the examples you will find more complex demos including multi client examples.
 
 #### Server for Unix Sockets, Windows Sockets & TCP Sockets
 The server is the process keeping a socket for IPC open. Multiple sockets can connect to this server and talk to it. It can also broadcast to all clients or emit to a specific client. This is the most basic example which will work for local Unix and Windows Sockets as well as local or remote network TCP Sockets.
@@ -903,6 +899,6 @@ Writing explicit buffers, int types, doubles, floats etc. as well as big endian 
 ```
 
 #### Licensed under MIT license
-See the [MIT license](https://github.com/RIAEvangelist/node-ipc/blob/master/license) file.
+See the [MIT license](https://github.com/RIAEvangelist/node-ipc/blob/main/license) file.
 
 I'm sorry.
