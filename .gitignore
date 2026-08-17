@@ -1,5 +1,7 @@
 /nbproject/private/
 /node_modules/
 /coverage/
+/benchmark/oracle/bin/
+/benchmark/results/
 /nbproject
 npm-debug.log

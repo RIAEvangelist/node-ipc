@@ -22,8 +22,11 @@
     "vanilla-test": "2.1.1"
   },
   "scripts": {
-    "test": "vanilla-test coverage node && node ./test/runtime-smoke.js && node ./test/package-smoke.js",
-    "coverage": "echo 'See your coverage report at http://localhost:8080' && node-http-server port=8080 root=./coverage/node/"
+    "benchmark": "node ./benchmark/run.js",
+    "benchmark:quick": "node ./benchmark/run.js --quick",
+    "benchmark:test": "node ./benchmark/test.js",
+    "coverage": "echo 'See your coverage report at http://localhost:8080' && node-http-server port=8080 root=./coverage/node/",
+    "test": "vanilla-test coverage node && node ./test/runtime-smoke.js && node ./test/package-smoke.js"
   },
   "keywords": [
     "IPC",

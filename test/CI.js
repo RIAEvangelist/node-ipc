@@ -9,6 +9,7 @@ import {run as TCPClientRun} from './TCP/client.js';
 import {run as TCPServerRun} from './TCP/server.js';
 import {run as UDPRun} from './UDP/client.js';
 import {run as unixClientRun} from './unix/client.js';
+import {run as benchmarkRun} from '../benchmark/test.js';
 
 const projectRoot=fileURLToPath(new URL('../',import.meta.url));
 const fixtureReadyTimeout=10e3;
@@ -27,7 +28,8 @@ const suiteDefinitions=[
     ['TCP client',TCPClientRun],
     ['TCP server',TCPServerRun],
     ['UDP',UDPRun],
-    ['Unix socket',unixClientRun]
+    ['Unix socket',unixClientRun],
+    ['Benchmark regression',benchmarkRun]
 ];
 
 async function run(){
