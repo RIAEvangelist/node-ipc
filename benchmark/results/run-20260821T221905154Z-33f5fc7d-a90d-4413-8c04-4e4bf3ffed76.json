@@ -1,0 +1,4413 @@
+{
+  "schemaVersion": 2,
+  "id": "run-20260821T221905154Z-33f5fc7d-a90d-4413-8c04-4e4bf3ffed76",
+  "generatedAt": "2026-08-21T22:19:05.154Z",
+  "record": {
+    "file": "run-20260821T221905154Z-33f5fc7d-a90d-4413-8c04-4e4bf3ffed76.json",
+    "recordedAt": "2026-08-21T22:19:05.217Z"
+  },
+  "repository": {
+    "capture": "pre-and-post-execution",
+    "commit": "1379eaae9d2897b453fd1b4070323806fa794e95",
+    "dirty": false,
+    "changedDuringRun": false,
+    "preExecution": {
+      "capturedAt": "2026-08-21T22:13:46.012Z",
+      "commit": "1379eaae9d2897b453fd1b4070323806fa794e95",
+      "dirty": false,
+      "statusSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "postExecution": {
+      "capturedAt": "2026-08-21T22:19:05.214Z",
+      "commit": "1379eaae9d2897b453fd1b4070323806fa794e95",
+      "dirty": false,
+      "statusSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "system": {
+    "architecture": "x64",
+    "cpu": {
+      "count": 4,
+      "model": "Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz"
+    },
+    "environment": {
+      "githubRepository": "RIAEvangelist/node-ipc",
+      "imageOS": "win25-vs2026",
+      "imageVersion": "20260818.207.1",
+      "nodeLane": "22.12.0",
+      "npm": "npm/10.9.0",
+      "osLane": "windows-latest",
+      "provider": "github-actions",
+      "runAttempt": "1",
+      "runId": "32532034623",
+      "runnerArchitecture": "X64",
+      "runnerEnvironment": "github-hosted",
+      "sourceRef": "refs/heads/main",
+      "sourceSha": "1379eaae9d2897b453fd1b4070323806fa794e95",
+      "workflow": "Record benchmark snapshots",
+      "workflowRef": "RIAEvangelist/node-ipc/.github/workflows/benchmark-snapshot.yml@refs/heads/main",
+      "workflowSha": "1379eaae9d2897b453fd1b4070323806fa794e95"
+    },
+    "machine": {
+      "id": "0b9671793823cff1"
+    },
+    "node": "v22.12.0",
+    "platform": "win32",
+    "release": "10.0.26100",
+    "totalMemoryBytes": 17174360064
+  },
+  "oracle": {
+    "build": {
+      "binarySha256": "37c09e5b775771e3a62565aae9162e45b9be770d095bd823b721673faeb4de0f",
+      "compiler": "clang",
+      "flags": [
+        "-O3",
+        "-std=c11",
+        "-lws2_32"
+      ],
+      "sourceSha256": "729044e837aa22519037e4e7a59ebce3c2cf637893d5bdaf49de36382be8af56",
+      "target": {
+        "architecture": "x64",
+        "name": "raw-echo.exe",
+        "platform": "win32"
+      },
+      "version": "clang version 20.1.8"
+    },
+    "implementation": "standard-c",
+    "source": {
+      "sha256": "729044e837aa22519037e4e7a59ebce3c2cf637893d5bdaf49de36382be8af56"
+    }
+  },
+  "evidence": {
+    "authority": "snapshot-noisy",
+    "classification": "clean-c-oracle-snapshot",
+    "comparison": {
+      "adapters": [
+        "node-net"
+      ],
+      "state": "baseline-only"
+    },
+    "packageFootprintStatus": "measured",
+    "privacy": {
+      "excluded": [
+        "absolute-paths",
+        "ephemeral-ports",
+        "process-ids"
+      ],
+      "sanitized": true
+    },
+    "publishable": true,
+    "rankingEligible": false,
+    "reasons": [
+      "no-comparable-node-ipc-adapter"
+    ]
+  },
+  "config": {
+    "adapters": [
+      "node-net"
+    ],
+    "host": "127.0.0.1",
+    "oracle": "c",
+    "passes": [
+      "speed",
+      "resource",
+      "latency"
+    ],
+    "payloadBytes": 64,
+    "quick": false,
+    "samplesPerPass": 7,
+    "timeoutMs": 600000,
+    "warmupFrames": 100000,
+    "frames": {
+      "latency": 1000000,
+      "resource": 1000000,
+      "speed": 1000000
+    },
+    "footprint": true
+  },
+  "samples": [
+    {
+      "adapter": "node-net",
+      "cleanup": {
+        "clean": true,
+        "endpointClosed": true,
+        "endpointReusable": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "naturalExit": true,
+        "oracle": {
+          "type": "cleanup",
+          "acceptedConnections": 1,
+          "activeSocketsAfterClose": 0,
+          "bytesIn": 70400000,
+          "bytesOut": 70400000,
+          "destroyedSockets": 0,
+          "cpuSeconds": 0.140625
+        },
+        "worker": {
+          "openSockets": 0,
+          "pendingBytes": 0,
+          "socketsClosed": 1,
+          "socketsCreated": 1,
+          "activeResourceDelta": [],
+          "clean": true
+        }
+      },
+      "gc": {
+        "durationMs": 0,
+        "events": 0,
+        "exposed": true,
+        "forcedRuns": 15,
+        "observed": false
+      },
+      "index": 0,
+      "memory": {
+        "oracle": {
+          "end": null,
+          "start": null
+        },
+        "worker": {
+          "afterCleanupGc": {
+            "rss": 42131456,
+            "heapTotal": 9695232,
+            "heapUsed": 4998656,
+            "external": 1922051,
+            "arrayBuffers": 10667
+          },
+          "afterImport": {
+            "rss": 37568512,
+            "heapTotal": 7335936,
+            "heapUsed": 4693232,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "beforeCleanupGc": {
+            "rss": 43196416,
+            "heapTotal": 9695232,
+            "heapUsed": 6500640,
+            "external": 3017539,
+            "arrayBuffers": 1106155
+          },
+          "beforeImport": {
+            "rss": 37265408,
+            "heapTotal": 7335936,
+            "heapUsed": 4632792,
+            "external": 1914370,
+            "arrayBuffers": 10651
+          },
+          "connected": {
+            "rss": 37736448,
+            "heapTotal": 7335936,
+            "heapUsed": 4741672,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "heapReclaimedBytes": 1501984,
+          "postRun": {
+            "rss": 43155456,
+            "heapTotal": 9695232,
+            "heapUsed": 6461480,
+            "external": 3017539,
+            "arrayBuffers": 1106155
+          },
+          "peak": {
+            "rss": 43196416,
+            "heapTotal": 9695232,
+            "heapUsed": 6498776,
+            "external": 3017539,
+            "arrayBuffers": 1106155
+          },
+          "ready": {
+            "rss": 39694336,
+            "heapTotal": 7598080,
+            "heapUsed": 4912216,
+            "external": 1922099,
+            "arrayBuffers": 10715
+          }
+        }
+      },
+      "metrics": {
+        "bytesPerSecond": 148099261.67889953,
+        "cpu": {
+          "user": 328000,
+          "system": 172000
+        },
+        "elapsedNs": "432142600",
+        "eventLoopDelayNs": null,
+        "eventLoopUtilization": {
+          "idle": 0,
+          "active": 432.5609000000404,
+          "utilization": 1
+        },
+        "framesPerSecond": 2314050.963732805,
+        "millisecondsPerMillion": 432.1426,
+        "resourceUsage": {
+          "end": {
+            "userCPUTime": 484000,
+            "systemCPUTime": 343000,
+            "maxRSS": 42144,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 29653,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          },
+          "start": {
+            "userCPUTime": 156000,
+            "systemCPUTime": 171000,
+            "maxRSS": 40772,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 13597,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          }
+        },
+        "oracle": {
+          "cpuToWallRatio": 0.21034702435059424,
+          "saturated": false,
+          "wallNs": "668538100"
+        },
+        "baselineMillisecondsPerMillion": 432.1426,
+        "deltaMillisecondsPerMillion": 0
+      },
+      "exact": {
+        "byteCountsVerified": true,
+        "configuredFrames": 1000000,
+        "receivedBytes": 64000000,
+        "receivedFrames": 1000000,
+        "sentBytes": 64000000,
+        "sentFrames": 1000000,
+        "oracleBytes": 70400000,
+        "oracleByteCountVerified": true
+      },
+      "latencyNs": null,
+      "package": {
+        "name": "node:net",
+        "bundled": true,
+        "dependencyCount": 0,
+        "fileCount": 0,
+        "installedBytes": 0
+      },
+      "pass": "speed",
+      "processExit": {
+        "oracle": {
+          "code": 0,
+          "signal": null
+        },
+        "worker": {
+          "code": 0,
+          "signal": null
+        }
+      }
+    },
+    {
+      "adapter": "node-net",
+      "cleanup": {
+        "clean": true,
+        "endpointClosed": true,
+        "endpointReusable": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "naturalExit": true,
+        "oracle": {
+          "type": "cleanup",
+          "acceptedConnections": 1,
+          "activeSocketsAfterClose": 0,
+          "bytesIn": 70400000,
+          "bytesOut": 70400000,
+          "destroyedSockets": 0,
+          "cpuSeconds": 0.15625
+        },
+        "worker": {
+          "openSockets": 0,
+          "pendingBytes": 0,
+          "socketsClosed": 1,
+          "socketsCreated": 1,
+          "activeResourceDelta": [],
+          "clean": true
+        }
+      },
+      "gc": {
+        "durationMs": 0,
+        "events": 0,
+        "exposed": true,
+        "forcedRuns": 15,
+        "observed": false
+      },
+      "index": 1,
+      "memory": {
+        "oracle": {
+          "end": null,
+          "start": null
+        },
+        "worker": {
+          "afterCleanupGc": {
+            "rss": 42139648,
+            "heapTotal": 9695232,
+            "heapUsed": 4990128,
+            "external": 1922051,
+            "arrayBuffers": 10667
+          },
+          "afterImport": {
+            "rss": 37814272,
+            "heapTotal": 7335936,
+            "heapUsed": 4693232,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "beforeCleanupGc": {
+            "rss": 42881024,
+            "heapTotal": 9695232,
+            "heapUsed": 6096816,
+            "external": 2679811,
+            "arrayBuffers": 768427
+          },
+          "beforeImport": {
+            "rss": 37609472,
+            "heapTotal": 7335936,
+            "heapUsed": 4632792,
+            "external": 1914370,
+            "arrayBuffers": 10651
+          },
+          "connected": {
+            "rss": 37953536,
+            "heapTotal": 7335936,
+            "heapUsed": 4741672,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "heapReclaimedBytes": 1106688,
+          "postRun": {
+            "rss": 42795008,
+            "heapTotal": 9695232,
+            "heapUsed": 6057656,
+            "external": 2679811,
+            "arrayBuffers": 768427
+          },
+          "peak": {
+            "rss": 42881024,
+            "heapTotal": 9695232,
+            "heapUsed": 6094952,
+            "external": 2679811,
+            "arrayBuffers": 768427
+          },
+          "ready": {
+            "rss": 40259584,
+            "heapTotal": 7335936,
+            "heapUsed": 4903664,
+            "external": 1922099,
+            "arrayBuffers": 10715
+          }
+        }
+      },
+      "metrics": {
+        "bytesPerSecond": 169051749.11769515,
+        "cpu": {
+          "user": 125000,
+          "system": 281000
+        },
+        "elapsedNs": "378582300",
+        "eventLoopDelayNs": null,
+        "eventLoopUtilization": {
+          "idle": 0,
+          "active": 379.0078999999678,
+          "utilization": 1
+        },
+        "framesPerSecond": 2641433.5799639868,
+        "millisecondsPerMillion": 378.5823,
+        "resourceUsage": {
+          "end": {
+            "userCPUTime": 359000,
+            "systemCPUTime": 406000,
+            "maxRSS": 42312,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 29772,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          },
+          "start": {
+            "userCPUTime": 234000,
+            "systemCPUTime": 125000,
+            "maxRSS": 41200,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 13826,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          }
+        },
+        "oracle": {
+          "cpuToWallRatio": 0.2505219273625901,
+          "saturated": false,
+          "wallNs": "623697900"
+        },
+        "baselineMillisecondsPerMillion": 378.5823,
+        "deltaMillisecondsPerMillion": 0
+      },
+      "exact": {
+        "byteCountsVerified": true,
+        "configuredFrames": 1000000,
+        "receivedBytes": 64000000,
+        "receivedFrames": 1000000,
+        "sentBytes": 64000000,
+        "sentFrames": 1000000,
+        "oracleBytes": 70400000,
+        "oracleByteCountVerified": true
+      },
+      "latencyNs": null,
+      "package": {
+        "name": "node:net",
+        "bundled": true,
+        "dependencyCount": 0,
+        "fileCount": 0,
+        "installedBytes": 0
+      },
+      "pass": "speed",
+      "processExit": {
+        "oracle": {
+          "code": 0,
+          "signal": null
+        },
+        "worker": {
+          "code": 0,
+          "signal": null
+        }
+      }
+    },
+    {
+      "adapter": "node-net",
+      "cleanup": {
+        "clean": true,
+        "endpointClosed": true,
+        "endpointReusable": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "naturalExit": true,
+        "oracle": {
+          "type": "cleanup",
+          "acceptedConnections": 1,
+          "activeSocketsAfterClose": 0,
+          "bytesIn": 70400000,
+          "bytesOut": 70400000,
+          "destroyedSockets": 0,
+          "cpuSeconds": 0.203125
+        },
+        "worker": {
+          "openSockets": 0,
+          "pendingBytes": 0,
+          "socketsClosed": 1,
+          "socketsCreated": 1,
+          "activeResourceDelta": [],
+          "clean": true
+        }
+      },
+      "gc": {
+        "durationMs": 0,
+        "events": 0,
+        "exposed": true,
+        "forcedRuns": 15,
+        "observed": false
+      },
+      "index": 2,
+      "memory": {
+        "oracle": {
+          "end": null,
+          "start": null
+        },
+        "worker": {
+          "afterCleanupGc": {
+            "rss": 42258432,
+            "heapTotal": 9695232,
+            "heapUsed": 4988440,
+            "external": 1922051,
+            "arrayBuffers": 10667
+          },
+          "afterImport": {
+            "rss": 37867520,
+            "heapTotal": 7335936,
+            "heapUsed": 4693232,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "beforeCleanupGc": {
+            "rss": 42856448,
+            "heapTotal": 9695232,
+            "heapUsed": 6302520,
+            "external": 2853763,
+            "arrayBuffers": 942379
+          },
+          "beforeImport": {
+            "rss": 37576704,
+            "heapTotal": 7335936,
+            "heapUsed": 4632792,
+            "external": 1914370,
+            "arrayBuffers": 10651
+          },
+          "connected": {
+            "rss": 37965824,
+            "heapTotal": 7335936,
+            "heapUsed": 4741672,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "heapReclaimedBytes": 1314080,
+          "postRun": {
+            "rss": 42737664,
+            "heapTotal": 9695232,
+            "heapUsed": 6263360,
+            "external": 2853763,
+            "arrayBuffers": 942379
+          },
+          "peak": {
+            "rss": 42856448,
+            "heapTotal": 9695232,
+            "heapUsed": 6300656,
+            "external": 2853763,
+            "arrayBuffers": 942379
+          },
+          "ready": {
+            "rss": 40136704,
+            "heapTotal": 7598080,
+            "heapUsed": 4903688,
+            "external": 1922099,
+            "arrayBuffers": 10715
+          }
+        }
+      },
+      "metrics": {
+        "bytesPerSecond": 176371557.55100378,
+        "cpu": {
+          "user": 265000,
+          "system": 203000
+        },
+        "elapsedNs": "362870300",
+        "eventLoopDelayNs": null,
+        "eventLoopUtilization": {
+          "idle": 0,
+          "active": 363.2693999999901,
+          "utilization": 1
+        },
+        "framesPerSecond": 2755805.586734434,
+        "millisecondsPerMillion": 362.8703,
+        "resourceUsage": {
+          "end": {
+            "userCPUTime": 515000,
+            "systemCPUTime": 328000,
+            "maxRSS": 42108,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 30098,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          },
+          "start": {
+            "userCPUTime": 250000,
+            "systemCPUTime": 125000,
+            "maxRSS": 40724,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 13612,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          }
+        },
+        "oracle": {
+          "cpuToWallRatio": 0.34858629701045524,
+          "saturated": false,
+          "wallNs": "582710800"
+        },
+        "baselineMillisecondsPerMillion": 362.8703,
+        "deltaMillisecondsPerMillion": 0
+      },
+      "exact": {
+        "byteCountsVerified": true,
+        "configuredFrames": 1000000,
+        "receivedBytes": 64000000,
+        "receivedFrames": 1000000,
+        "sentBytes": 64000000,
+        "sentFrames": 1000000,
+        "oracleBytes": 70400000,
+        "oracleByteCountVerified": true
+      },
+      "latencyNs": null,
+      "package": {
+        "name": "node:net",
+        "bundled": true,
+        "dependencyCount": 0,
+        "fileCount": 0,
+        "installedBytes": 0
+      },
+      "pass": "speed",
+      "processExit": {
+        "oracle": {
+          "code": 0,
+          "signal": null
+        },
+        "worker": {
+          "code": 0,
+          "signal": null
+        }
+      }
+    },
+    {
+      "adapter": "node-net",
+      "cleanup": {
+        "clean": true,
+        "endpointClosed": true,
+        "endpointReusable": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "naturalExit": true,
+        "oracle": {
+          "type": "cleanup",
+          "acceptedConnections": 1,
+          "activeSocketsAfterClose": 0,
+          "bytesIn": 70400000,
+          "bytesOut": 70400000,
+          "destroyedSockets": 0,
+          "cpuSeconds": 0.15625
+        },
+        "worker": {
+          "openSockets": 0,
+          "pendingBytes": 0,
+          "socketsClosed": 1,
+          "socketsCreated": 1,
+          "activeResourceDelta": [],
+          "clean": true
+        }
+      },
+      "gc": {
+        "durationMs": 0,
+        "events": 0,
+        "exposed": true,
+        "forcedRuns": 15,
+        "observed": false
+      },
+      "index": 3,
+      "memory": {
+        "oracle": {
+          "end": null,
+          "start": null
+        },
+        "worker": {
+          "afterCleanupGc": {
+            "rss": 42299392,
+            "heapTotal": 9695232,
+            "heapUsed": 4988328,
+            "external": 1922051,
+            "arrayBuffers": 10667
+          },
+          "afterImport": {
+            "rss": 37851136,
+            "heapTotal": 7335936,
+            "heapUsed": 4693232,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "beforeCleanupGc": {
+            "rss": 42188800,
+            "heapTotal": 9695232,
+            "heapUsed": 5164256,
+            "external": 1942531,
+            "arrayBuffers": 31147
+          },
+          "beforeImport": {
+            "rss": 37605376,
+            "heapTotal": 7335936,
+            "heapUsed": 4632792,
+            "external": 1914370,
+            "arrayBuffers": 10651
+          },
+          "connected": {
+            "rss": 37998592,
+            "heapTotal": 7335936,
+            "heapUsed": 4741672,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "heapReclaimedBytes": 175928,
+          "postRun": {
+            "rss": 42098688,
+            "heapTotal": 9695232,
+            "heapUsed": 5125096,
+            "external": 1942531,
+            "arrayBuffers": 31147
+          },
+          "peak": {
+            "rss": 42188800,
+            "heapTotal": 9695232,
+            "heapUsed": 5162392,
+            "external": 1942531,
+            "arrayBuffers": 31147
+          },
+          "ready": {
+            "rss": 40300544,
+            "heapTotal": 7335936,
+            "heapUsed": 4903712,
+            "external": 1922099,
+            "arrayBuffers": 10715
+          }
+        }
+      },
+      "metrics": {
+        "bytesPerSecond": 182267844.8763939,
+        "cpu": {
+          "user": 234000,
+          "system": 156000
+        },
+        "elapsedNs": "351131600",
+        "eventLoopDelayNs": null,
+        "eventLoopUtilization": {
+          "idle": 0,
+          "active": 351.53330000001006,
+          "utilization": 1
+        },
+        "framesPerSecond": 2847935.076193655,
+        "millisecondsPerMillion": 351.1316,
+        "resourceUsage": {
+          "end": {
+            "userCPUTime": 390000,
+            "systemCPUTime": 296000,
+            "maxRSS": 42152,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 30228,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          },
+          "start": {
+            "userCPUTime": 156000,
+            "systemCPUTime": 140000,
+            "maxRSS": 40868,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 13710,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          }
+        },
+        "oracle": {
+          "cpuToWallRatio": 0.26971136999566736,
+          "saturated": false,
+          "wallNs": "579323000"
+        },
+        "baselineMillisecondsPerMillion": 351.1316,
+        "deltaMillisecondsPerMillion": 0
+      },
+      "exact": {
+        "byteCountsVerified": true,
+        "configuredFrames": 1000000,
+        "receivedBytes": 64000000,
+        "receivedFrames": 1000000,
+        "sentBytes": 64000000,
+        "sentFrames": 1000000,
+        "oracleBytes": 70400000,
+        "oracleByteCountVerified": true
+      },
+      "latencyNs": null,
+      "package": {
+        "name": "node:net",
+        "bundled": true,
+        "dependencyCount": 0,
+        "fileCount": 0,
+        "installedBytes": 0
+      },
+      "pass": "speed",
+      "processExit": {
+        "oracle": {
+          "code": 0,
+          "signal": null
+        },
+        "worker": {
+          "code": 0,
+          "signal": null
+        }
+      }
+    },
+    {
+      "adapter": "node-net",
+      "cleanup": {
+        "clean": true,
+        "endpointClosed": true,
+        "endpointReusable": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "naturalExit": true,
+        "oracle": {
+          "type": "cleanup",
+          "acceptedConnections": 1,
+          "activeSocketsAfterClose": 0,
+          "bytesIn": 70400000,
+          "bytesOut": 70400000,
+          "destroyedSockets": 0,
+          "cpuSeconds": 0.125
+        },
+        "worker": {
+          "openSockets": 0,
+          "pendingBytes": 0,
+          "socketsClosed": 1,
+          "socketsCreated": 1,
+          "activeResourceDelta": [],
+          "clean": true
+        }
+      },
+      "gc": {
+        "durationMs": 0,
+        "events": 0,
+        "exposed": true,
+        "forcedRuns": 15,
+        "observed": false
+      },
+      "index": 4,
+      "memory": {
+        "oracle": {
+          "end": null,
+          "start": null
+        },
+        "worker": {
+          "afterCleanupGc": {
+            "rss": 42283008,
+            "heapTotal": 9695232,
+            "heapUsed": 4989848,
+            "external": 1922051,
+            "arrayBuffers": 10667
+          },
+          "afterImport": {
+            "rss": 37826560,
+            "heapTotal": 7335936,
+            "heapUsed": 4693232,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "beforeCleanupGc": {
+            "rss": 42733568,
+            "heapTotal": 9695232,
+            "heapUsed": 6274352,
+            "external": 2827203,
+            "arrayBuffers": 915819
+          },
+          "beforeImport": {
+            "rss": 37593088,
+            "heapTotal": 7335936,
+            "heapUsed": 4632792,
+            "external": 1914370,
+            "arrayBuffers": 10651
+          },
+          "connected": {
+            "rss": 37965824,
+            "heapTotal": 7335936,
+            "heapUsed": 4741672,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "heapReclaimedBytes": 1284504,
+          "postRun": {
+            "rss": 42586112,
+            "heapTotal": 9695232,
+            "heapUsed": 6235192,
+            "external": 2827203,
+            "arrayBuffers": 915819
+          },
+          "peak": {
+            "rss": 42733568,
+            "heapTotal": 9695232,
+            "heapUsed": 6272488,
+            "external": 2827203,
+            "arrayBuffers": 915819
+          },
+          "ready": {
+            "rss": 40058880,
+            "heapTotal": 7598080,
+            "heapUsed": 4903688,
+            "external": 1922099,
+            "arrayBuffers": 10715
+          }
+        }
+      },
+      "metrics": {
+        "bytesPerSecond": 183222278.68394873,
+        "cpu": {
+          "user": 203000,
+          "system": 188000
+        },
+        "elapsedNs": "349302500",
+        "eventLoopDelayNs": null,
+        "eventLoopUtilization": {
+          "idle": 0,
+          "active": 349.7147999999579,
+          "utilization": 1
+        },
+        "framesPerSecond": 2862848.104436699,
+        "millisecondsPerMillion": 349.3025,
+        "resourceUsage": {
+          "end": {
+            "userCPUTime": 421000,
+            "systemCPUTime": 281000,
+            "maxRSS": 42204,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 30282,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          },
+          "start": {
+            "userCPUTime": 218000,
+            "systemCPUTime": 93000,
+            "maxRSS": 41004,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 13861,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          }
+        },
+        "oracle": {
+          "cpuToWallRatio": 0.21183790908865974,
+          "saturated": false,
+          "wallNs": "590073800"
+        },
+        "baselineMillisecondsPerMillion": 349.3025,
+        "deltaMillisecondsPerMillion": 0
+      },
+      "exact": {
+        "byteCountsVerified": true,
+        "configuredFrames": 1000000,
+        "receivedBytes": 64000000,
+        "receivedFrames": 1000000,
+        "sentBytes": 64000000,
+        "sentFrames": 1000000,
+        "oracleBytes": 70400000,
+        "oracleByteCountVerified": true
+      },
+      "latencyNs": null,
+      "package": {
+        "name": "node:net",
+        "bundled": true,
+        "dependencyCount": 0,
+        "fileCount": 0,
+        "installedBytes": 0
+      },
+      "pass": "speed",
+      "processExit": {
+        "oracle": {
+          "code": 0,
+          "signal": null
+        },
+        "worker": {
+          "code": 0,
+          "signal": null
+        }
+      }
+    },
+    {
+      "adapter": "node-net",
+      "cleanup": {
+        "clean": true,
+        "endpointClosed": true,
+        "endpointReusable": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "naturalExit": true,
+        "oracle": {
+          "type": "cleanup",
+          "acceptedConnections": 1,
+          "activeSocketsAfterClose": 0,
+          "bytesIn": 70400000,
+          "bytesOut": 70400000,
+          "destroyedSockets": 0,
+          "cpuSeconds": 0.15625
+        },
+        "worker": {
+          "openSockets": 0,
+          "pendingBytes": 0,
+          "socketsClosed": 1,
+          "socketsCreated": 1,
+          "activeResourceDelta": [],
+          "clean": true
+        }
+      },
+      "gc": {
+        "durationMs": 0,
+        "events": 0,
+        "exposed": true,
+        "forcedRuns": 15,
+        "observed": false
+      },
+      "index": 5,
+      "memory": {
+        "oracle": {
+          "end": null,
+          "start": null
+        },
+        "worker": {
+          "afterCleanupGc": {
+            "rss": 42209280,
+            "heapTotal": 9695232,
+            "heapUsed": 4988328,
+            "external": 1922051,
+            "arrayBuffers": 10667
+          },
+          "afterImport": {
+            "rss": 37867520,
+            "heapTotal": 7335936,
+            "heapUsed": 4693232,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "beforeCleanupGc": {
+            "rss": 43278336,
+            "heapTotal": 9695232,
+            "heapUsed": 6645976,
+            "external": 3122115,
+            "arrayBuffers": 1210731
+          },
+          "beforeImport": {
+            "rss": 37629952,
+            "heapTotal": 7335936,
+            "heapUsed": 4632792,
+            "external": 1914370,
+            "arrayBuffers": 10651
+          },
+          "connected": {
+            "rss": 37986304,
+            "heapTotal": 7335936,
+            "heapUsed": 4741672,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "heapReclaimedBytes": 1657648,
+          "postRun": {
+            "rss": 43163648,
+            "heapTotal": 9695232,
+            "heapUsed": 6606712,
+            "external": 3122115,
+            "arrayBuffers": 1210731
+          },
+          "peak": {
+            "rss": 43274240,
+            "heapTotal": 9695232,
+            "heapUsed": 6644112,
+            "external": 3122115,
+            "arrayBuffers": 1210731
+          },
+          "ready": {
+            "rss": 39948288,
+            "heapTotal": 7598080,
+            "heapUsed": 4903688,
+            "external": 1922099,
+            "arrayBuffers": 10715
+          }
+        }
+      },
+      "metrics": {
+        "bytesPerSecond": 184344274.4540601,
+        "cpu": {
+          "user": 204000,
+          "system": 219000
+        },
+        "elapsedNs": "347176500",
+        "eventLoopDelayNs": null,
+        "eventLoopUtilization": {
+          "idle": 0,
+          "active": 347.58010000002105,
+          "utilization": 1
+        },
+        "framesPerSecond": 2880379.288344689,
+        "millisecondsPerMillion": 347.1765,
+        "resourceUsage": {
+          "end": {
+            "userCPUTime": 375000,
+            "systemCPUTime": 375000,
+            "maxRSS": 42152,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 29716,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          },
+          "start": {
+            "userCPUTime": 171000,
+            "systemCPUTime": 156000,
+            "maxRSS": 40960,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 13898,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          }
+        },
+        "oracle": {
+          "cpuToWallRatio": 0.266819398359398,
+          "saturated": false,
+          "wallNs": "585602100"
+        },
+        "baselineMillisecondsPerMillion": 347.1765,
+        "deltaMillisecondsPerMillion": 0
+      },
+      "exact": {
+        "byteCountsVerified": true,
+        "configuredFrames": 1000000,
+        "receivedBytes": 64000000,
+        "receivedFrames": 1000000,
+        "sentBytes": 64000000,
+        "sentFrames": 1000000,
+        "oracleBytes": 70400000,
+        "oracleByteCountVerified": true
+      },
+      "latencyNs": null,
+      "package": {
+        "name": "node:net",
+        "bundled": true,
+        "dependencyCount": 0,
+        "fileCount": 0,
+        "installedBytes": 0
+      },
+      "pass": "speed",
+      "processExit": {
+        "oracle": {
+          "code": 0,
+          "signal": null
+        },
+        "worker": {
+          "code": 0,
+          "signal": null
+        }
+      }
+    },
+    {
+      "adapter": "node-net",
+      "cleanup": {
+        "clean": true,
+        "endpointClosed": true,
+        "endpointReusable": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "naturalExit": true,
+        "oracle": {
+          "type": "cleanup",
+          "acceptedConnections": 1,
+          "activeSocketsAfterClose": 0,
+          "bytesIn": 70400000,
+          "bytesOut": 70400000,
+          "destroyedSockets": 0,
+          "cpuSeconds": 0.109375
+        },
+        "worker": {
+          "openSockets": 0,
+          "pendingBytes": 0,
+          "socketsClosed": 1,
+          "socketsCreated": 1,
+          "activeResourceDelta": [],
+          "clean": true
+        }
+      },
+      "gc": {
+        "durationMs": 0,
+        "events": 0,
+        "exposed": true,
+        "forcedRuns": 15,
+        "observed": false
+      },
+      "index": 6,
+      "memory": {
+        "oracle": {
+          "end": null,
+          "start": null
+        },
+        "worker": {
+          "afterCleanupGc": {
+            "rss": 41902080,
+            "heapTotal": 9695232,
+            "heapUsed": 4988400,
+            "external": 1922051,
+            "arrayBuffers": 10667
+          },
+          "afterImport": {
+            "rss": 37863424,
+            "heapTotal": 7335936,
+            "heapUsed": 4693232,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "beforeCleanupGc": {
+            "rss": 42962944,
+            "heapTotal": 9695232,
+            "heapUsed": 6652040,
+            "external": 3204035,
+            "arrayBuffers": 1292651
+          },
+          "beforeImport": {
+            "rss": 37634048,
+            "heapTotal": 7335936,
+            "heapUsed": 4632792,
+            "external": 1914370,
+            "arrayBuffers": 10651
+          },
+          "connected": {
+            "rss": 38031360,
+            "heapTotal": 7335936,
+            "heapUsed": 4741672,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "heapReclaimedBytes": 1663640,
+          "postRun": {
+            "rss": 42856448,
+            "heapTotal": 9695232,
+            "heapUsed": 6612880,
+            "external": 3204035,
+            "arrayBuffers": 1292651
+          },
+          "peak": {
+            "rss": 42962944,
+            "heapTotal": 9695232,
+            "heapUsed": 6650176,
+            "external": 3204035,
+            "arrayBuffers": 1292651
+          },
+          "ready": {
+            "rss": 40239104,
+            "heapTotal": 7598080,
+            "heapUsed": 4903992,
+            "external": 1922099,
+            "arrayBuffers": 10715
+          }
+        }
+      },
+      "metrics": {
+        "bytesPerSecond": 186277517.40967143,
+        "cpu": {
+          "user": 266000,
+          "system": 156000
+        },
+        "elapsedNs": "343573400",
+        "eventLoopDelayNs": null,
+        "eventLoopUtilization": {
+          "idle": 0,
+          "active": 344.0028000000166,
+          "utilization": 1
+        },
+        "framesPerSecond": 2910586.209526116,
+        "millisecondsPerMillion": 343.5734,
+        "resourceUsage": {
+          "end": {
+            "userCPUTime": 437000,
+            "systemCPUTime": 265000,
+            "maxRSS": 42008,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 29974,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          },
+          "start": {
+            "userCPUTime": 171000,
+            "systemCPUTime": 109000,
+            "maxRSS": 41056,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 14060,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          }
+        },
+        "oracle": {
+          "cpuToWallRatio": 0.18750528229166682,
+          "saturated": false,
+          "wallNs": "583316900"
+        },
+        "baselineMillisecondsPerMillion": 343.5734,
+        "deltaMillisecondsPerMillion": 0
+      },
+      "exact": {
+        "byteCountsVerified": true,
+        "configuredFrames": 1000000,
+        "receivedBytes": 64000000,
+        "receivedFrames": 1000000,
+        "sentBytes": 64000000,
+        "sentFrames": 1000000,
+        "oracleBytes": 70400000,
+        "oracleByteCountVerified": true
+      },
+      "latencyNs": null,
+      "package": {
+        "name": "node:net",
+        "bundled": true,
+        "dependencyCount": 0,
+        "fileCount": 0,
+        "installedBytes": 0
+      },
+      "pass": "speed",
+      "processExit": {
+        "oracle": {
+          "code": 0,
+          "signal": null
+        },
+        "worker": {
+          "code": 0,
+          "signal": null
+        }
+      }
+    },
+    {
+      "adapter": "node-net",
+      "cleanup": {
+        "clean": true,
+        "endpointClosed": true,
+        "endpointReusable": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "naturalExit": true,
+        "oracle": {
+          "type": "cleanup",
+          "acceptedConnections": 1,
+          "activeSocketsAfterClose": 0,
+          "bytesIn": 70400000,
+          "bytesOut": 70400000,
+          "destroyedSockets": 0,
+          "cpuSeconds": 0.140625
+        },
+        "worker": {
+          "openSockets": 0,
+          "pendingBytes": 0,
+          "socketsClosed": 1,
+          "socketsCreated": 1,
+          "activeResourceDelta": [],
+          "clean": true
+        }
+      },
+      "gc": {
+        "durationMs": 10.746200000401586,
+        "events": 62,
+        "exposed": true,
+        "forcedRuns": 15,
+        "observed": true
+      },
+      "index": 0,
+      "memory": {
+        "oracle": {
+          "end": null,
+          "start": null
+        },
+        "worker": {
+          "afterCleanupGc": {
+            "rss": 43282432,
+            "heapTotal": 9957376,
+            "heapUsed": 5054536,
+            "external": 1922051,
+            "arrayBuffers": 10667
+          },
+          "afterImport": {
+            "rss": 37953536,
+            "heapTotal": 7335936,
+            "heapUsed": 4693208,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "beforeCleanupGc": {
+            "rss": 43974656,
+            "heapTotal": 10481664,
+            "heapUsed": 6468304,
+            "external": 2706435,
+            "arrayBuffers": 795051
+          },
+          "beforeImport": {
+            "rss": 37732352,
+            "heapTotal": 7335936,
+            "heapUsed": 4632768,
+            "external": 1914370,
+            "arrayBuffers": 10651
+          },
+          "connected": {
+            "rss": 38125568,
+            "heapTotal": 7335936,
+            "heapUsed": 4741648,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "heapReclaimedBytes": 1413768,
+          "postRun": {
+            "rss": 43917312,
+            "heapTotal": 10219520,
+            "heapUsed": 6437664,
+            "external": 2706435,
+            "arrayBuffers": 795051
+          },
+          "peak": {
+            "rss": 44355584,
+            "heapTotal": 10481664,
+            "heapUsed": 7040680,
+            "external": 3249219,
+            "arrayBuffers": 1272235
+          },
+          "ready": {
+            "rss": 40513536,
+            "heapTotal": 7598080,
+            "heapUsed": 4903760,
+            "external": 1922099,
+            "arrayBuffers": 10715
+          }
+        }
+      },
+      "metrics": {
+        "bytesPerSecond": 155231821.74729908,
+        "cpu": {
+          "user": 266000,
+          "system": 219000
+        },
+        "elapsedNs": "412286600",
+        "eventLoopDelayNs": {
+          "maximum": 11567103,
+          "p50": 9961471,
+          "p95": 10584063,
+          "p99": 11567103
+        },
+        "eventLoopUtilization": {
+          "idle": 0,
+          "active": 413.3943999999901,
+          "utilization": 1
+        },
+        "framesPerSecond": 2425497.214801548,
+        "millisecondsPerMillion": 412.2866,
+        "resourceUsage": {
+          "end": {
+            "userCPUTime": 453000,
+            "systemCPUTime": 375000,
+            "maxRSS": 43468,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 29092,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          },
+          "start": {
+            "userCPUTime": 187000,
+            "systemCPUTime": 156000,
+            "maxRSS": 41320,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 13645,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          }
+        },
+        "oracle": {
+          "cpuToWallRatio": 0.21765732155117815,
+          "saturated": false,
+          "wallNs": "646084400"
+        },
+        "baselineMillisecondsPerMillion": 412.2866,
+        "deltaMillisecondsPerMillion": 0
+      },
+      "exact": {
+        "byteCountsVerified": true,
+        "configuredFrames": 1000000,
+        "receivedBytes": 64000000,
+        "receivedFrames": 1000000,
+        "sentBytes": 64000000,
+        "sentFrames": 1000000,
+        "oracleBytes": 70400000,
+        "oracleByteCountVerified": true
+      },
+      "latencyNs": null,
+      "package": {
+        "name": "node:net",
+        "bundled": true,
+        "dependencyCount": 0,
+        "fileCount": 0,
+        "installedBytes": 0
+      },
+      "pass": "resource",
+      "processExit": {
+        "oracle": {
+          "code": 0,
+          "signal": null
+        },
+        "worker": {
+          "code": 0,
+          "signal": null
+        }
+      }
+    },
+    {
+      "adapter": "node-net",
+      "cleanup": {
+        "clean": true,
+        "endpointClosed": true,
+        "endpointReusable": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "naturalExit": true,
+        "oracle": {
+          "type": "cleanup",
+          "acceptedConnections": 1,
+          "activeSocketsAfterClose": 0,
+          "bytesIn": 70400000,
+          "bytesOut": 70400000,
+          "destroyedSockets": 0,
+          "cpuSeconds": 0.1875
+        },
+        "worker": {
+          "openSockets": 0,
+          "pendingBytes": 0,
+          "socketsClosed": 1,
+          "socketsCreated": 1,
+          "activeResourceDelta": [],
+          "clean": true
+        }
+      },
+      "gc": {
+        "durationMs": 12.16620000009425,
+        "events": 62,
+        "exposed": true,
+        "forcedRuns": 15,
+        "observed": true
+      },
+      "index": 1,
+      "memory": {
+        "oracle": {
+          "end": null,
+          "start": null
+        },
+        "worker": {
+          "afterCleanupGc": {
+            "rss": 43495424,
+            "heapTotal": 9957376,
+            "heapUsed": 5046936,
+            "external": 1922051,
+            "arrayBuffers": 10667
+          },
+          "afterImport": {
+            "rss": 37924864,
+            "heapTotal": 7335936,
+            "heapUsed": 4693208,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "beforeCleanupGc": {
+            "rss": 43393024,
+            "heapTotal": 10481664,
+            "heapUsed": 5603384,
+            "external": 2024387,
+            "arrayBuffers": 113003
+          },
+          "beforeImport": {
+            "rss": 37699584,
+            "heapTotal": 7335936,
+            "heapUsed": 4632768,
+            "external": 1914370,
+            "arrayBuffers": 10651
+          },
+          "connected": {
+            "rss": 38060032,
+            "heapTotal": 7335936,
+            "heapUsed": 4741648,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "heapReclaimedBytes": 556448,
+          "postRun": {
+            "rss": 43302912,
+            "heapTotal": 10219520,
+            "heapUsed": 5572744,
+            "external": 2024387,
+            "arrayBuffers": 113003
+          },
+          "peak": {
+            "rss": 44445696,
+            "heapTotal": 10481664,
+            "heapUsed": 7073304,
+            "external": 3249219,
+            "arrayBuffers": 1272235
+          },
+          "ready": {
+            "rss": 40210432,
+            "heapTotal": 7598080,
+            "heapUsed": 4903664,
+            "external": 1922099,
+            "arrayBuffers": 10715
+          }
+        }
+      },
+      "metrics": {
+        "bytesPerSecond": 136496788.593134,
+        "cpu": {
+          "user": 344000,
+          "system": 297000
+        },
+        "elapsedNs": "468875500",
+        "eventLoopDelayNs": {
+          "maximum": 10698751,
+          "p50": 9994239,
+          "p95": 10338303,
+          "p99": 10698751
+        },
+        "eventLoopUtilization": {
+          "idle": 0,
+          "active": 470.26270000007935,
+          "utilization": 1
+        },
+        "framesPerSecond": 2132762.3217677185,
+        "millisecondsPerMillion": 468.8755,
+        "resourceUsage": {
+          "end": {
+            "userCPUTime": 531000,
+            "systemCPUTime": 453000,
+            "maxRSS": 43864,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 28956,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          },
+          "start": {
+            "userCPUTime": 187000,
+            "systemCPUTime": 156000,
+            "maxRSS": 40976,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 13661,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          }
+        },
+        "oracle": {
+          "cpuToWallRatio": 0.25453828181093874,
+          "saturated": false,
+          "wallNs": "736627900"
+        },
+        "baselineMillisecondsPerMillion": 468.8755,
+        "deltaMillisecondsPerMillion": 0
+      },
+      "exact": {
+        "byteCountsVerified": true,
+        "configuredFrames": 1000000,
+        "receivedBytes": 64000000,
+        "receivedFrames": 1000000,
+        "sentBytes": 64000000,
+        "sentFrames": 1000000,
+        "oracleBytes": 70400000,
+        "oracleByteCountVerified": true
+      },
+      "latencyNs": null,
+      "package": {
+        "name": "node:net",
+        "bundled": true,
+        "dependencyCount": 0,
+        "fileCount": 0,
+        "installedBytes": 0
+      },
+      "pass": "resource",
+      "processExit": {
+        "oracle": {
+          "code": 0,
+          "signal": null
+        },
+        "worker": {
+          "code": 0,
+          "signal": null
+        }
+      }
+    },
+    {
+      "adapter": "node-net",
+      "cleanup": {
+        "clean": true,
+        "endpointClosed": true,
+        "endpointReusable": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "naturalExit": true,
+        "oracle": {
+          "type": "cleanup",
+          "acceptedConnections": 1,
+          "activeSocketsAfterClose": 0,
+          "bytesIn": 70400000,
+          "bytesOut": 70400000,
+          "destroyedSockets": 0,
+          "cpuSeconds": 0.203125
+        },
+        "worker": {
+          "openSockets": 0,
+          "pendingBytes": 0,
+          "socketsClosed": 1,
+          "socketsCreated": 1,
+          "activeResourceDelta": [],
+          "clean": true
+        }
+      },
+      "gc": {
+        "durationMs": 11.40340000030119,
+        "events": 62,
+        "exposed": true,
+        "forcedRuns": 15,
+        "observed": true
+      },
+      "index": 2,
+      "memory": {
+        "oracle": {
+          "end": null,
+          "start": null
+        },
+        "worker": {
+          "afterCleanupGc": {
+            "rss": 43388928,
+            "heapTotal": 9957376,
+            "heapUsed": 5046936,
+            "external": 1922051,
+            "arrayBuffers": 10667
+          },
+          "afterImport": {
+            "rss": 37920768,
+            "heapTotal": 7335936,
+            "heapUsed": 4693208,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "beforeCleanupGc": {
+            "rss": 43229184,
+            "heapTotal": 10481664,
+            "heapUsed": 5638328,
+            "external": 2024387,
+            "arrayBuffers": 113003
+          },
+          "beforeImport": {
+            "rss": 37699584,
+            "heapTotal": 7335936,
+            "heapUsed": 4632768,
+            "external": 1914370,
+            "arrayBuffers": 10651
+          },
+          "connected": {
+            "rss": 38031360,
+            "heapTotal": 7335936,
+            "heapUsed": 4741648,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "heapReclaimedBytes": 591392,
+          "postRun": {
+            "rss": 43134976,
+            "heapTotal": 10219520,
+            "heapUsed": 5607688,
+            "external": 2024387,
+            "arrayBuffers": 113003
+          },
+          "peak": {
+            "rss": 43954176,
+            "heapTotal": 10481664,
+            "heapUsed": 6987192,
+            "external": 3249219,
+            "arrayBuffers": 1272235
+          },
+          "ready": {
+            "rss": 40075264,
+            "heapTotal": 7598080,
+            "heapUsed": 4903664,
+            "external": 1922099,
+            "arrayBuffers": 10715
+          }
+        }
+      },
+      "metrics": {
+        "bytesPerSecond": 141752517.3807413,
+        "cpu": {
+          "user": 281000,
+          "system": 281000
+        },
+        "elapsedNs": "451491100",
+        "eventLoopDelayNs": {
+          "maximum": 11206655,
+          "p50": 10010623,
+          "p95": 10485759,
+          "p99": 11206655
+        },
+        "eventLoopUtilization": {
+          "idle": 0,
+          "active": 452.8981999999378,
+          "utilization": 1
+        },
+        "framesPerSecond": 2214883.084074083,
+        "millisecondsPerMillion": 451.4911,
+        "resourceUsage": {
+          "end": {
+            "userCPUTime": 562000,
+            "systemCPUTime": 406000,
+            "maxRSS": 43556,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 30198,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          },
+          "start": {
+            "userCPUTime": 281000,
+            "systemCPUTime": 125000,
+            "maxRSS": 40772,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 13726,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          }
+        },
+        "oracle": {
+          "cpuToWallRatio": 0.2826142791273233,
+          "saturated": false,
+          "wallNs": "718735800"
+        },
+        "baselineMillisecondsPerMillion": 451.4911,
+        "deltaMillisecondsPerMillion": 0
+      },
+      "exact": {
+        "byteCountsVerified": true,
+        "configuredFrames": 1000000,
+        "receivedBytes": 64000000,
+        "receivedFrames": 1000000,
+        "sentBytes": 64000000,
+        "sentFrames": 1000000,
+        "oracleBytes": 70400000,
+        "oracleByteCountVerified": true
+      },
+      "latencyNs": null,
+      "package": {
+        "name": "node:net",
+        "bundled": true,
+        "dependencyCount": 0,
+        "fileCount": 0,
+        "installedBytes": 0
+      },
+      "pass": "resource",
+      "processExit": {
+        "oracle": {
+          "code": 0,
+          "signal": null
+        },
+        "worker": {
+          "code": 0,
+          "signal": null
+        }
+      }
+    },
+    {
+      "adapter": "node-net",
+      "cleanup": {
+        "clean": true,
+        "endpointClosed": true,
+        "endpointReusable": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "naturalExit": true,
+        "oracle": {
+          "type": "cleanup",
+          "acceptedConnections": 1,
+          "activeSocketsAfterClose": 0,
+          "bytesIn": 70400000,
+          "bytesOut": 70400000,
+          "destroyedSockets": 0,
+          "cpuSeconds": 0.203125
+        },
+        "worker": {
+          "openSockets": 0,
+          "pendingBytes": 0,
+          "socketsClosed": 1,
+          "socketsCreated": 1,
+          "activeResourceDelta": [],
+          "clean": true
+        }
+      },
+      "gc": {
+        "durationMs": 11.891700000269338,
+        "events": 62,
+        "exposed": true,
+        "forcedRuns": 15,
+        "observed": true
+      },
+      "index": 3,
+      "memory": {
+        "oracle": {
+          "end": null,
+          "start": null
+        },
+        "worker": {
+          "afterCleanupGc": {
+            "rss": 43384832,
+            "heapTotal": 9957376,
+            "heapUsed": 5048024,
+            "external": 1922051,
+            "arrayBuffers": 10667
+          },
+          "afterImport": {
+            "rss": 37949440,
+            "heapTotal": 7335936,
+            "heapUsed": 4693208,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "beforeCleanupGc": {
+            "rss": 43245568,
+            "heapTotal": 10743808,
+            "heapUsed": 5711760,
+            "external": 2089987,
+            "arrayBuffers": 178603
+          },
+          "beforeImport": {
+            "rss": 37634048,
+            "heapTotal": 7335936,
+            "heapUsed": 4632768,
+            "external": 1914370,
+            "arrayBuffers": 10651
+          },
+          "connected": {
+            "rss": 38019072,
+            "heapTotal": 7335936,
+            "heapUsed": 4741648,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "heapReclaimedBytes": 663736,
+          "postRun": {
+            "rss": 43143168,
+            "heapTotal": 10481664,
+            "heapUsed": 5681120,
+            "external": 2089987,
+            "arrayBuffers": 178603
+          },
+          "peak": {
+            "rss": 44507136,
+            "heapTotal": 10743808,
+            "heapUsed": 7082776,
+            "external": 3249219,
+            "arrayBuffers": 1255979
+          },
+          "ready": {
+            "rss": 40402944,
+            "heapTotal": 7598080,
+            "heapUsed": 4903568,
+            "external": 1922099,
+            "arrayBuffers": 10715
+          }
+        }
+      },
+      "metrics": {
+        "bytesPerSecond": 145738072.24964932,
+        "cpu": {
+          "user": 375000,
+          "system": 172000
+        },
+        "elapsedNs": "439144000",
+        "eventLoopDelayNs": {
+          "maximum": 10805247,
+          "p50": 9986047,
+          "p95": 10526719,
+          "p99": 10805247
+        },
+        "eventLoopUtilization": {
+          "idle": 0,
+          "active": 440.29790000000503,
+          "utilization": 1
+        },
+        "framesPerSecond": 2277157.3789007706,
+        "millisecondsPerMillion": 439.144,
+        "resourceUsage": {
+          "end": {
+            "userCPUTime": 578000,
+            "systemCPUTime": 343000,
+            "maxRSS": 43736,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 30495,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          },
+          "start": {
+            "userCPUTime": 203000,
+            "systemCPUTime": 171000,
+            "maxRSS": 41044,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 13752,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          }
+        },
+        "oracle": {
+          "cpuToWallRatio": 0.2810215251766233,
+          "saturated": false,
+          "wallNs": "722809400"
+        },
+        "baselineMillisecondsPerMillion": 439.144,
+        "deltaMillisecondsPerMillion": 0
+      },
+      "exact": {
+        "byteCountsVerified": true,
+        "configuredFrames": 1000000,
+        "receivedBytes": 64000000,
+        "receivedFrames": 1000000,
+        "sentBytes": 64000000,
+        "sentFrames": 1000000,
+        "oracleBytes": 70400000,
+        "oracleByteCountVerified": true
+      },
+      "latencyNs": null,
+      "package": {
+        "name": "node:net",
+        "bundled": true,
+        "dependencyCount": 0,
+        "fileCount": 0,
+        "installedBytes": 0
+      },
+      "pass": "resource",
+      "processExit": {
+        "oracle": {
+          "code": 0,
+          "signal": null
+        },
+        "worker": {
+          "code": 0,
+          "signal": null
+        }
+      }
+    },
+    {
+      "adapter": "node-net",
+      "cleanup": {
+        "clean": true,
+        "endpointClosed": true,
+        "endpointReusable": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "naturalExit": true,
+        "oracle": {
+          "type": "cleanup",
+          "acceptedConnections": 1,
+          "activeSocketsAfterClose": 0,
+          "bytesIn": 70400000,
+          "bytesOut": 70400000,
+          "destroyedSockets": 0,
+          "cpuSeconds": 0.1875
+        },
+        "worker": {
+          "openSockets": 0,
+          "pendingBytes": 0,
+          "socketsClosed": 1,
+          "socketsCreated": 1,
+          "activeResourceDelta": [],
+          "clean": true
+        }
+      },
+      "gc": {
+        "durationMs": 10.726100000087172,
+        "events": 62,
+        "exposed": true,
+        "forcedRuns": 15,
+        "observed": true
+      },
+      "index": 4,
+      "memory": {
+        "oracle": {
+          "end": null,
+          "start": null
+        },
+        "worker": {
+          "afterCleanupGc": {
+            "rss": 43503616,
+            "heapTotal": 9957376,
+            "heapUsed": 5054264,
+            "external": 1922051,
+            "arrayBuffers": 10667
+          },
+          "afterImport": {
+            "rss": 37863424,
+            "heapTotal": 7335936,
+            "heapUsed": 4693208,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "beforeCleanupGc": {
+            "rss": 43290624,
+            "heapTotal": 10481664,
+            "heapUsed": 5745424,
+            "external": 2122691,
+            "arrayBuffers": 211307
+          },
+          "beforeImport": {
+            "rss": 37629952,
+            "heapTotal": 7335936,
+            "heapUsed": 4632768,
+            "external": 1914370,
+            "arrayBuffers": 10651
+          },
+          "connected": {
+            "rss": 37998592,
+            "heapTotal": 7335936,
+            "heapUsed": 4741648,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "heapReclaimedBytes": 691160,
+          "postRun": {
+            "rss": 43220992,
+            "heapTotal": 10219520,
+            "heapUsed": 5714784,
+            "external": 2122691,
+            "arrayBuffers": 211307
+          },
+          "peak": {
+            "rss": 44466176,
+            "heapTotal": 10481664,
+            "heapUsed": 7095032,
+            "external": 3249219,
+            "arrayBuffers": 1255979
+          },
+          "ready": {
+            "rss": 40169472,
+            "heapTotal": 7598080,
+            "heapUsed": 4903664,
+            "external": 1922099,
+            "arrayBuffers": 10715
+          }
+        }
+      },
+      "metrics": {
+        "bytesPerSecond": 153553037.33906022,
+        "cpu": {
+          "user": 234000,
+          "system": 266000
+        },
+        "elapsedNs": "416794100",
+        "eventLoopDelayNs": {
+          "maximum": 10493951,
+          "p50": 9986047,
+          "p95": 10297343,
+          "p99": 10493951
+        },
+        "eventLoopUtilization": {
+          "idle": 0.4639,
+          "active": 417.44330000001605,
+          "utilization": 0.998889944944715
+        },
+        "framesPerSecond": 2399266.208422816,
+        "millisecondsPerMillion": 416.7941,
+        "resourceUsage": {
+          "end": {
+            "userCPUTime": 484000,
+            "systemCPUTime": 328000,
+            "maxRSS": 43760,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 31683,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          },
+          "start": {
+            "userCPUTime": 250000,
+            "systemCPUTime": 62000,
+            "maxRSS": 40544,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 13821,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          }
+        },
+        "oracle": {
+          "cpuToWallRatio": 0.2833646797639081,
+          "saturated": false,
+          "wallNs": "661691500"
+        },
+        "baselineMillisecondsPerMillion": 416.7941,
+        "deltaMillisecondsPerMillion": 0
+      },
+      "exact": {
+        "byteCountsVerified": true,
+        "configuredFrames": 1000000,
+        "receivedBytes": 64000000,
+        "receivedFrames": 1000000,
+        "sentBytes": 64000000,
+        "sentFrames": 1000000,
+        "oracleBytes": 70400000,
+        "oracleByteCountVerified": true
+      },
+      "latencyNs": null,
+      "package": {
+        "name": "node:net",
+        "bundled": true,
+        "dependencyCount": 0,
+        "fileCount": 0,
+        "installedBytes": 0
+      },
+      "pass": "resource",
+      "processExit": {
+        "oracle": {
+          "code": 0,
+          "signal": null
+        },
+        "worker": {
+          "code": 0,
+          "signal": null
+        }
+      }
+    },
+    {
+      "adapter": "node-net",
+      "cleanup": {
+        "clean": true,
+        "endpointClosed": true,
+        "endpointReusable": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "naturalExit": true,
+        "oracle": {
+          "type": "cleanup",
+          "acceptedConnections": 1,
+          "activeSocketsAfterClose": 0,
+          "bytesIn": 70400000,
+          "bytesOut": 70400000,
+          "destroyedSockets": 0,
+          "cpuSeconds": 0.15625
+        },
+        "worker": {
+          "openSockets": 0,
+          "pendingBytes": 0,
+          "socketsClosed": 1,
+          "socketsCreated": 1,
+          "activeResourceDelta": [],
+          "clean": true
+        }
+      },
+      "gc": {
+        "durationMs": 9.672299999045208,
+        "events": 62,
+        "exposed": true,
+        "forcedRuns": 15,
+        "observed": true
+      },
+      "index": 5,
+      "memory": {
+        "oracle": {
+          "end": null,
+          "start": null
+        },
+        "worker": {
+          "afterCleanupGc": {
+            "rss": 43184128,
+            "heapTotal": 9957376,
+            "heapUsed": 5052488,
+            "external": 1922051,
+            "arrayBuffers": 10667
+          },
+          "afterImport": {
+            "rss": 37867520,
+            "heapTotal": 7335936,
+            "heapUsed": 4693208,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "beforeCleanupGc": {
+            "rss": 43065344,
+            "heapTotal": 10219520,
+            "heapUsed": 5714240,
+            "external": 2089987,
+            "arrayBuffers": 178603
+          },
+          "beforeImport": {
+            "rss": 37642240,
+            "heapTotal": 7335936,
+            "heapUsed": 4632768,
+            "external": 1914370,
+            "arrayBuffers": 10651
+          },
+          "connected": {
+            "rss": 37994496,
+            "heapTotal": 7335936,
+            "heapUsed": 4741648,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "heapReclaimedBytes": 661752,
+          "postRun": {
+            "rss": 42971136,
+            "heapTotal": 9957376,
+            "heapUsed": 5683568,
+            "external": 2089987,
+            "arrayBuffers": 178603
+          },
+          "peak": {
+            "rss": 43896832,
+            "heapTotal": 10219520,
+            "heapUsed": 7095768,
+            "external": 3249219,
+            "arrayBuffers": 1255979
+          },
+          "ready": {
+            "rss": 40267776,
+            "heapTotal": 7598080,
+            "heapUsed": 4903688,
+            "external": 1922099,
+            "arrayBuffers": 10715
+          }
+        }
+      },
+      "metrics": {
+        "bytesPerSecond": 172420528.28033423,
+        "cpu": {
+          "user": 218000,
+          "system": 266000
+        },
+        "elapsedNs": "371185500",
+        "eventLoopDelayNs": {
+          "maximum": 10420223,
+          "p50": 9994239,
+          "p95": 10264575,
+          "p99": 10420223
+        },
+        "eventLoopUtilization": {
+          "idle": 0,
+          "active": 372.25979999999976,
+          "utilization": 1
+        },
+        "framesPerSecond": 2694070.7543802224,
+        "millisecondsPerMillion": 371.1855,
+        "resourceUsage": {
+          "end": {
+            "userCPUTime": 421000,
+            "systemCPUTime": 359000,
+            "maxRSS": 43332,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 30290,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          },
+          "start": {
+            "userCPUTime": 203000,
+            "systemCPUTime": 93000,
+            "maxRSS": 41000,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 13906,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          }
+        },
+        "oracle": {
+          "cpuToWallRatio": 0.26030534274841793,
+          "saturated": false,
+          "wallNs": "600256600"
+        },
+        "baselineMillisecondsPerMillion": 371.1855,
+        "deltaMillisecondsPerMillion": 0
+      },
+      "exact": {
+        "byteCountsVerified": true,
+        "configuredFrames": 1000000,
+        "receivedBytes": 64000000,
+        "receivedFrames": 1000000,
+        "sentBytes": 64000000,
+        "sentFrames": 1000000,
+        "oracleBytes": 70400000,
+        "oracleByteCountVerified": true
+      },
+      "latencyNs": null,
+      "package": {
+        "name": "node:net",
+        "bundled": true,
+        "dependencyCount": 0,
+        "fileCount": 0,
+        "installedBytes": 0
+      },
+      "pass": "resource",
+      "processExit": {
+        "oracle": {
+          "code": 0,
+          "signal": null
+        },
+        "worker": {
+          "code": 0,
+          "signal": null
+        }
+      }
+    },
+    {
+      "adapter": "node-net",
+      "cleanup": {
+        "clean": true,
+        "endpointClosed": true,
+        "endpointReusable": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "naturalExit": true,
+        "oracle": {
+          "type": "cleanup",
+          "acceptedConnections": 1,
+          "activeSocketsAfterClose": 0,
+          "bytesIn": 70400000,
+          "bytesOut": 70400000,
+          "destroyedSockets": 0,
+          "cpuSeconds": 0.125
+        },
+        "worker": {
+          "openSockets": 0,
+          "pendingBytes": 0,
+          "socketsClosed": 1,
+          "socketsCreated": 1,
+          "activeResourceDelta": [],
+          "clean": true
+        }
+      },
+      "gc": {
+        "durationMs": 9.811400000122376,
+        "events": 62,
+        "exposed": true,
+        "forcedRuns": 15,
+        "observed": true
+      },
+      "index": 6,
+      "memory": {
+        "oracle": {
+          "end": null,
+          "start": null
+        },
+        "worker": {
+          "afterCleanupGc": {
+            "rss": 42962944,
+            "heapTotal": 9957376,
+            "heapUsed": 5054536,
+            "external": 1922051,
+            "arrayBuffers": 10667
+          },
+          "afterImport": {
+            "rss": 37830656,
+            "heapTotal": 7335936,
+            "heapUsed": 4693208,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "beforeCleanupGc": {
+            "rss": 43593728,
+            "heapTotal": 10481664,
+            "heapUsed": 6540384,
+            "external": 2761667,
+            "arrayBuffers": 850283
+          },
+          "beforeImport": {
+            "rss": 37588992,
+            "heapTotal": 7335936,
+            "heapUsed": 4632768,
+            "external": 1914370,
+            "arrayBuffers": 10651
+          },
+          "connected": {
+            "rss": 37969920,
+            "heapTotal": 7335936,
+            "heapUsed": 4741648,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "heapReclaimedBytes": 1485848,
+          "postRun": {
+            "rss": 43495424,
+            "heapTotal": 10219520,
+            "heapUsed": 6509712,
+            "external": 2761667,
+            "arrayBuffers": 850283
+          },
+          "peak": {
+            "rss": 43790336,
+            "heapTotal": 10481664,
+            "heapUsed": 7136640,
+            "external": 3249219,
+            "arrayBuffers": 1272235
+          },
+          "ready": {
+            "rss": 40148992,
+            "heapTotal": 7598080,
+            "heapUsed": 4903664,
+            "external": 1922099,
+            "arrayBuffers": 10715
+          }
+        }
+      },
+      "metrics": {
+        "bytesPerSecond": 172772043.75559992,
+        "cpu": {
+          "user": 266000,
+          "system": 218000
+        },
+        "elapsedNs": "370430300",
+        "eventLoopDelayNs": {
+          "maximum": 10764287,
+          "p50": 10002431,
+          "p95": 10272767,
+          "p99": 10764287
+        },
+        "eventLoopUtilization": {
+          "idle": 0,
+          "active": 371.5083999999333,
+          "utilization": 1
+        },
+        "framesPerSecond": 2699563.1836812487,
+        "millisecondsPerMillion": 370.4303,
+        "resourceUsage": {
+          "end": {
+            "userCPUTime": 437000,
+            "systemCPUTime": 343000,
+            "maxRSS": 43024,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 31873,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          },
+          "start": {
+            "userCPUTime": 171000,
+            "systemCPUTime": 125000,
+            "maxRSS": 41012,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 13993,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          }
+        },
+        "oracle": {
+          "cpuToWallRatio": 0.20774489591565226,
+          "saturated": false,
+          "wallNs": "601699500"
+        },
+        "baselineMillisecondsPerMillion": 370.4303,
+        "deltaMillisecondsPerMillion": 0
+      },
+      "exact": {
+        "byteCountsVerified": true,
+        "configuredFrames": 1000000,
+        "receivedBytes": 64000000,
+        "receivedFrames": 1000000,
+        "sentBytes": 64000000,
+        "sentFrames": 1000000,
+        "oracleBytes": 70400000,
+        "oracleByteCountVerified": true
+      },
+      "latencyNs": null,
+      "package": {
+        "name": "node:net",
+        "bundled": true,
+        "dependencyCount": 0,
+        "fileCount": 0,
+        "installedBytes": 0
+      },
+      "pass": "resource",
+      "processExit": {
+        "oracle": {
+          "code": 0,
+          "signal": null
+        },
+        "worker": {
+          "code": 0,
+          "signal": null
+        }
+      }
+    },
+    {
+      "adapter": "node-net",
+      "cleanup": {
+        "clean": true,
+        "endpointClosed": true,
+        "endpointReusable": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "naturalExit": true,
+        "oracle": {
+          "type": "cleanup",
+          "acceptedConnections": 1,
+          "activeSocketsAfterClose": 0,
+          "bytesIn": 70400000,
+          "bytesOut": 70400000,
+          "destroyedSockets": 0,
+          "cpuSeconds": 17.0625
+        },
+        "worker": {
+          "openSockets": 0,
+          "pendingBytes": 0,
+          "socketsClosed": 1,
+          "socketsCreated": 1,
+          "activeResourceDelta": [],
+          "clean": true
+        }
+      },
+      "gc": {
+        "durationMs": 0,
+        "events": 0,
+        "exposed": true,
+        "forcedRuns": 15,
+        "observed": false
+      },
+      "index": 0,
+      "memory": {
+        "oracle": {
+          "end": null,
+          "start": null
+        },
+        "worker": {
+          "afterCleanupGc": {
+            "rss": 48726016,
+            "heapTotal": 7598080,
+            "heapUsed": 4988552,
+            "external": 9922051,
+            "arrayBuffers": 8010667
+          },
+          "afterImport": {
+            "rss": 37892096,
+            "heapTotal": 7335936,
+            "heapUsed": 4693208,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "beforeCleanupGc": {
+            "rss": 48726016,
+            "heapTotal": 7598080,
+            "heapUsed": 5456632,
+            "external": 9947779,
+            "arrayBuffers": 8036395
+          },
+          "beforeImport": {
+            "rss": 37650432,
+            "heapTotal": 7335936,
+            "heapUsed": 4632792,
+            "external": 1914370,
+            "arrayBuffers": 10651
+          },
+          "connected": {
+            "rss": 38006784,
+            "heapTotal": 7335936,
+            "heapUsed": 4741648,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "heapReclaimedBytes": 468080,
+          "postRun": {
+            "rss": 48640000,
+            "heapTotal": 7598080,
+            "heapUsed": 5421184,
+            "external": 9947779,
+            "arrayBuffers": 8036395
+          },
+          "peak": {
+            "rss": 48726016,
+            "heapTotal": 7598080,
+            "heapUsed": 5454768,
+            "external": 9947779,
+            "arrayBuffers": 8036395
+          },
+          "ready": {
+            "rss": 40325120,
+            "heapTotal": 7598080,
+            "heapUsed": 4903664,
+            "external": 1922099,
+            "arrayBuffers": 10715
+          }
+        }
+      },
+      "metrics": {
+        "bytesPerSecond": 1503387.5467489222,
+        "cpu": {
+          "user": 12984000,
+          "system": 20610000
+        },
+        "elapsedNs": "42570526900",
+        "eventLoopDelayNs": null,
+        "eventLoopUtilization": {
+          "idle": 10584.516300000001,
+          "active": 31986.64220000002,
+          "utilization": 0.7513688451771874
+        },
+        "framesPerSecond": 23490.43041795191,
+        "millisecondsPerMillion": 42570.5269,
+        "resourceUsage": {
+          "end": {
+            "userCPUTime": 13234000,
+            "systemCPUTime": 20703000,
+            "maxRSS": 47500,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 18338,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          },
+          "start": {
+            "userCPUTime": 250000,
+            "systemCPUTime": 93000,
+            "maxRSS": 41052,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 13818,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          }
+        },
+        "oracle": {
+          "cpuToWallRatio": 0.39828125967801575,
+          "saturated": false,
+          "wallNs": "42840328500"
+        },
+        "baselineMillisecondsPerMillion": 42570.5269,
+        "deltaMillisecondsPerMillion": 0
+      },
+      "exact": {
+        "byteCountsVerified": true,
+        "configuredFrames": 1000000,
+        "receivedBytes": 64000000,
+        "receivedFrames": 1000000,
+        "sentBytes": 64000000,
+        "sentFrames": 1000000,
+        "oracleBytes": 70400000,
+        "oracleByteCountVerified": true
+      },
+      "latencyNs": {
+        "maximum": "7375200",
+        "mean": "42469",
+        "minimum": "13500",
+        "p50": "41100",
+        "p95": "57500",
+        "p99": "76200"
+      },
+      "package": {
+        "name": "node:net",
+        "bundled": true,
+        "dependencyCount": 0,
+        "fileCount": 0,
+        "installedBytes": 0
+      },
+      "pass": "latency",
+      "processExit": {
+        "oracle": {
+          "code": 0,
+          "signal": null
+        },
+        "worker": {
+          "code": 0,
+          "signal": null
+        }
+      }
+    },
+    {
+      "adapter": "node-net",
+      "cleanup": {
+        "clean": true,
+        "endpointClosed": true,
+        "endpointReusable": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "naturalExit": true,
+        "oracle": {
+          "type": "cleanup",
+          "acceptedConnections": 1,
+          "activeSocketsAfterClose": 0,
+          "bytesIn": 70400000,
+          "bytesOut": 70400000,
+          "destroyedSockets": 0,
+          "cpuSeconds": 17.25
+        },
+        "worker": {
+          "openSockets": 0,
+          "pendingBytes": 0,
+          "socketsClosed": 1,
+          "socketsCreated": 1,
+          "activeResourceDelta": [],
+          "clean": true
+        }
+      },
+      "gc": {
+        "durationMs": 0,
+        "events": 0,
+        "exposed": true,
+        "forcedRuns": 15,
+        "observed": false
+      },
+      "index": 1,
+      "memory": {
+        "oracle": {
+          "end": null,
+          "start": null
+        },
+        "worker": {
+          "afterCleanupGc": {
+            "rss": 48775168,
+            "heapTotal": 7598080,
+            "heapUsed": 5020936,
+            "external": 9922051,
+            "arrayBuffers": 8010667
+          },
+          "afterImport": {
+            "rss": 37933056,
+            "heapTotal": 7335936,
+            "heapUsed": 4693208,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "beforeCleanupGc": {
+            "rss": 48713728,
+            "heapTotal": 7598080,
+            "heapUsed": 5416728,
+            "external": 9943491,
+            "arrayBuffers": 8032107
+          },
+          "beforeImport": {
+            "rss": 37666816,
+            "heapTotal": 7335936,
+            "heapUsed": 4632792,
+            "external": 1914370,
+            "arrayBuffers": 10651
+          },
+          "connected": {
+            "rss": 37965824,
+            "heapTotal": 7335936,
+            "heapUsed": 4741648,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "heapReclaimedBytes": 395792,
+          "postRun": {
+            "rss": 48975872,
+            "heapTotal": 7598080,
+            "heapUsed": 5381280,
+            "external": 9943491,
+            "arrayBuffers": 8032107
+          },
+          "peak": {
+            "rss": 48713728,
+            "heapTotal": 7598080,
+            "heapUsed": 5414864,
+            "external": 9943491,
+            "arrayBuffers": 8032107
+          },
+          "ready": {
+            "rss": 40263680,
+            "heapTotal": 7598080,
+            "heapUsed": 4903568,
+            "external": 1922099,
+            "arrayBuffers": 10715
+          }
+        }
+      },
+      "metrics": {
+        "bytesPerSecond": 1541369.3354180194,
+        "cpu": {
+          "user": 12797000,
+          "system": 21797000
+        },
+        "elapsedNs": "41521521500",
+        "eventLoopDelayNs": null,
+        "eventLoopUtilization": {
+          "idle": 8308.687600000001,
+          "active": 33213.503299999924,
+          "utilization": 0.7998976590611451
+        },
+        "framesPerSecond": 24083.895865906554,
+        "millisecondsPerMillion": 41521.5215,
+        "resourceUsage": {
+          "end": {
+            "userCPUTime": 13109000,
+            "systemCPUTime": 21859000,
+            "maxRSS": 47828,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 18996,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          },
+          "start": {
+            "userCPUTime": 312000,
+            "systemCPUTime": 62000,
+            "maxRSS": 41128,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 13643,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          }
+        },
+        "oracle": {
+          "cpuToWallRatio": 0.4125980166951509,
+          "saturated": false,
+          "wallNs": "41808247500"
+        },
+        "baselineMillisecondsPerMillion": 41521.5215,
+        "deltaMillisecondsPerMillion": 0
+      },
+      "exact": {
+        "byteCountsVerified": true,
+        "configuredFrames": 1000000,
+        "receivedBytes": 64000000,
+        "receivedFrames": 1000000,
+        "sentBytes": 64000000,
+        "sentFrames": 1000000,
+        "oracleBytes": 70400000,
+        "oracleByteCountVerified": true
+      },
+      "latencyNs": {
+        "maximum": "6377300",
+        "mean": "41406",
+        "minimum": "13000",
+        "p50": "40900",
+        "p95": "59400",
+        "p99": "81700"
+      },
+      "package": {
+        "name": "node:net",
+        "bundled": true,
+        "dependencyCount": 0,
+        "fileCount": 0,
+        "installedBytes": 0
+      },
+      "pass": "latency",
+      "processExit": {
+        "oracle": {
+          "code": 0,
+          "signal": null
+        },
+        "worker": {
+          "code": 0,
+          "signal": null
+        }
+      }
+    },
+    {
+      "adapter": "node-net",
+      "cleanup": {
+        "clean": true,
+        "endpointClosed": true,
+        "endpointReusable": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "naturalExit": true,
+        "oracle": {
+          "type": "cleanup",
+          "acceptedConnections": 1,
+          "activeSocketsAfterClose": 0,
+          "bytesIn": 70400000,
+          "bytesOut": 70400000,
+          "destroyedSockets": 0,
+          "cpuSeconds": 15.640625
+        },
+        "worker": {
+          "openSockets": 0,
+          "pendingBytes": 0,
+          "socketsClosed": 1,
+          "socketsCreated": 1,
+          "activeResourceDelta": [],
+          "clean": true
+        }
+      },
+      "gc": {
+        "durationMs": 0,
+        "events": 0,
+        "exposed": true,
+        "forcedRuns": 15,
+        "observed": false
+      },
+      "index": 2,
+      "memory": {
+        "oracle": {
+          "end": null,
+          "start": null
+        },
+        "worker": {
+          "afterCleanupGc": {
+            "rss": 48820224,
+            "heapTotal": 7598080,
+            "heapUsed": 5022336,
+            "external": 9922051,
+            "arrayBuffers": 8010667
+          },
+          "afterImport": {
+            "rss": 37978112,
+            "heapTotal": 7335936,
+            "heapUsed": 4693208,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "beforeCleanupGc": {
+            "rss": 48820224,
+            "heapTotal": 7598080,
+            "heapUsed": 5418904,
+            "external": 9941635,
+            "arrayBuffers": 8030251
+          },
+          "beforeImport": {
+            "rss": 37658624,
+            "heapTotal": 7335936,
+            "heapUsed": 4632792,
+            "external": 1914370,
+            "arrayBuffers": 10651
+          },
+          "connected": {
+            "rss": 38117376,
+            "heapTotal": 7335936,
+            "heapUsed": 4741648,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "heapReclaimedBytes": 396568,
+          "postRun": {
+            "rss": 48701440,
+            "heapTotal": 7598080,
+            "heapUsed": 5383456,
+            "external": 9941635,
+            "arrayBuffers": 8030251
+          },
+          "peak": {
+            "rss": 48820224,
+            "heapTotal": 7598080,
+            "heapUsed": 5417040,
+            "external": 9941635,
+            "arrayBuffers": 8030251
+          },
+          "ready": {
+            "rss": 39702528,
+            "heapTotal": 7598080,
+            "heapUsed": 4903664,
+            "external": 1922099,
+            "arrayBuffers": 10715
+          }
+        }
+      },
+      "metrics": {
+        "bytesPerSecond": 1563765.2257986458,
+        "cpu": {
+          "user": 13500000,
+          "system": 22094000
+        },
+        "elapsedNs": "40926859700",
+        "eventLoopDelayNs": null,
+        "eventLoopUtilization": {
+          "idle": 7169.2085,
+          "active": 33758.30910000002,
+          "utilization": 0.82483158226044
+        },
+        "framesPerSecond": 24433.83165310384,
+        "millisecondsPerMillion": 40926.8597,
+        "resourceUsage": {
+          "end": {
+            "userCPUTime": 13718000,
+            "systemCPUTime": 22250000,
+            "maxRSS": 47560,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 19694,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          },
+          "start": {
+            "userCPUTime": 218000,
+            "systemCPUTime": 156000,
+            "maxRSS": 40812,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 13865,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          }
+        },
+        "oracle": {
+          "cpuToWallRatio": 0.3792010365293424,
+          "saturated": false,
+          "wallNs": "41246261200"
+        },
+        "baselineMillisecondsPerMillion": 40926.8597,
+        "deltaMillisecondsPerMillion": 0
+      },
+      "exact": {
+        "byteCountsVerified": true,
+        "configuredFrames": 1000000,
+        "receivedBytes": 64000000,
+        "receivedFrames": 1000000,
+        "sentBytes": 64000000,
+        "sentFrames": 1000000,
+        "oracleBytes": 70400000,
+        "oracleByteCountVerified": true
+      },
+      "latencyNs": {
+        "maximum": "4706000",
+        "mean": "40801",
+        "minimum": "13900",
+        "p50": "40700",
+        "p95": "59400",
+        "p99": "81600"
+      },
+      "package": {
+        "name": "node:net",
+        "bundled": true,
+        "dependencyCount": 0,
+        "fileCount": 0,
+        "installedBytes": 0
+      },
+      "pass": "latency",
+      "processExit": {
+        "oracle": {
+          "code": 0,
+          "signal": null
+        },
+        "worker": {
+          "code": 0,
+          "signal": null
+        }
+      }
+    },
+    {
+      "adapter": "node-net",
+      "cleanup": {
+        "clean": true,
+        "endpointClosed": true,
+        "endpointReusable": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "naturalExit": true,
+        "oracle": {
+          "type": "cleanup",
+          "acceptedConnections": 1,
+          "activeSocketsAfterClose": 0,
+          "bytesIn": 70400000,
+          "bytesOut": 70400000,
+          "destroyedSockets": 0,
+          "cpuSeconds": 13.796875
+        },
+        "worker": {
+          "openSockets": 0,
+          "pendingBytes": 0,
+          "socketsClosed": 1,
+          "socketsCreated": 1,
+          "activeResourceDelta": [],
+          "clean": true
+        }
+      },
+      "gc": {
+        "durationMs": 0,
+        "events": 0,
+        "exposed": true,
+        "forcedRuns": 15,
+        "observed": false
+      },
+      "index": 3,
+      "memory": {
+        "oracle": {
+          "end": null,
+          "start": null
+        },
+        "worker": {
+          "afterCleanupGc": {
+            "rss": 48832512,
+            "heapTotal": 7598080,
+            "heapUsed": 5013248,
+            "external": 9922051,
+            "arrayBuffers": 8010667
+          },
+          "afterImport": {
+            "rss": 37879808,
+            "heapTotal": 7335936,
+            "heapUsed": 4693208,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "beforeCleanupGc": {
+            "rss": 48762880,
+            "heapTotal": 7598080,
+            "heapUsed": 5472000,
+            "external": 9947139,
+            "arrayBuffers": 8035755
+          },
+          "beforeImport": {
+            "rss": 37654528,
+            "heapTotal": 7335936,
+            "heapUsed": 4632792,
+            "external": 1914370,
+            "arrayBuffers": 10651
+          },
+          "connected": {
+            "rss": 37990400,
+            "heapTotal": 7335936,
+            "heapUsed": 4741648,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "heapReclaimedBytes": 458752,
+          "postRun": {
+            "rss": 48648192,
+            "heapTotal": 7598080,
+            "heapUsed": 5436552,
+            "external": 9947139,
+            "arrayBuffers": 8035755
+          },
+          "peak": {
+            "rss": 48762880,
+            "heapTotal": 7598080,
+            "heapUsed": 5470136,
+            "external": 9947139,
+            "arrayBuffers": 8035755
+          },
+          "ready": {
+            "rss": 40337408,
+            "heapTotal": 7598080,
+            "heapUsed": 4903664,
+            "external": 1922099,
+            "arrayBuffers": 10715
+          }
+        }
+      },
+      "metrics": {
+        "bytesPerSecond": 1669590.3846515808,
+        "cpu": {
+          "user": 12766000,
+          "system": 22657000
+        },
+        "elapsedNs": "38332755500",
+        "eventLoopDelayNs": null,
+        "eventLoopUtilization": {
+          "idle": 3100.9076999999997,
+          "active": 35232.58209999998,
+          "utilization": 0.9191070858359469
+        },
+        "framesPerSecond": 26087.34976018095,
+        "millisecondsPerMillion": 38332.7555,
+        "resourceUsage": {
+          "end": {
+            "userCPUTime": 12953000,
+            "systemCPUTime": 22750000,
+            "maxRSS": 47804,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 19306,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          },
+          "start": {
+            "userCPUTime": 187000,
+            "systemCPUTime": 93000,
+            "maxRSS": 41320,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 13621,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          }
+        },
+        "oracle": {
+          "cpuToWallRatio": 0.3569862438527826,
+          "saturated": false,
+          "wallNs": "38648197900"
+        },
+        "baselineMillisecondsPerMillion": 38332.7555,
+        "deltaMillisecondsPerMillion": 0
+      },
+      "exact": {
+        "byteCountsVerified": true,
+        "configuredFrames": 1000000,
+        "receivedBytes": 64000000,
+        "receivedFrames": 1000000,
+        "sentBytes": 64000000,
+        "sentFrames": 1000000,
+        "oracleBytes": 70400000,
+        "oracleByteCountVerified": true
+      },
+      "latencyNs": {
+        "maximum": "7772700",
+        "mean": "38196",
+        "minimum": "13600",
+        "p50": "33900",
+        "p95": "57900",
+        "p99": "85400"
+      },
+      "package": {
+        "name": "node:net",
+        "bundled": true,
+        "dependencyCount": 0,
+        "fileCount": 0,
+        "installedBytes": 0
+      },
+      "pass": "latency",
+      "processExit": {
+        "oracle": {
+          "code": 0,
+          "signal": null
+        },
+        "worker": {
+          "code": 0,
+          "signal": null
+        }
+      }
+    },
+    {
+      "adapter": "node-net",
+      "cleanup": {
+        "clean": true,
+        "endpointClosed": true,
+        "endpointReusable": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "naturalExit": true,
+        "oracle": {
+          "type": "cleanup",
+          "acceptedConnections": 1,
+          "activeSocketsAfterClose": 0,
+          "bytesIn": 70400000,
+          "bytesOut": 70400000,
+          "destroyedSockets": 0,
+          "cpuSeconds": 16.9375
+        },
+        "worker": {
+          "openSockets": 0,
+          "pendingBytes": 0,
+          "socketsClosed": 1,
+          "socketsCreated": 1,
+          "activeResourceDelta": [],
+          "clean": true
+        }
+      },
+      "gc": {
+        "durationMs": 0,
+        "events": 0,
+        "exposed": true,
+        "forcedRuns": 15,
+        "observed": false
+      },
+      "index": 4,
+      "memory": {
+        "oracle": {
+          "end": null,
+          "start": null
+        },
+        "worker": {
+          "afterCleanupGc": {
+            "rss": 48091136,
+            "heapTotal": 7598080,
+            "heapUsed": 5004448,
+            "external": 9922051,
+            "arrayBuffers": 8010667
+          },
+          "afterImport": {
+            "rss": 37793792,
+            "heapTotal": 7335936,
+            "heapUsed": 4693208,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "beforeCleanupGc": {
+            "rss": 48091136,
+            "heapTotal": 7598080,
+            "heapUsed": 5655552,
+            "external": 9959619,
+            "arrayBuffers": 8048235
+          },
+          "beforeImport": {
+            "rss": 37466112,
+            "heapTotal": 7335936,
+            "heapUsed": 4632792,
+            "external": 1914370,
+            "arrayBuffers": 10651
+          },
+          "connected": {
+            "rss": 37912576,
+            "heapTotal": 7335936,
+            "heapUsed": 4741648,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "heapReclaimedBytes": 651104,
+          "postRun": {
+            "rss": 48070656,
+            "heapTotal": 7598080,
+            "heapUsed": 5620104,
+            "external": 9959619,
+            "arrayBuffers": 8048235
+          },
+          "peak": {
+            "rss": 48091136,
+            "heapTotal": 7598080,
+            "heapUsed": 5653688,
+            "external": 9959619,
+            "arrayBuffers": 8048235
+          },
+          "ready": {
+            "rss": 40099840,
+            "heapTotal": 7598080,
+            "heapUsed": 4903664,
+            "external": 1922099,
+            "arrayBuffers": 10715
+          }
+        }
+      },
+      "metrics": {
+        "bytesPerSecond": 1498510.657184188,
+        "cpu": {
+          "user": 13547000,
+          "system": 20265000
+        },
+        "elapsedNs": "42709072300",
+        "eventLoopDelayNs": null,
+        "eventLoopUtilization": {
+          "idle": 10915.9594,
+          "active": 31793.807399999987,
+          "utilization": 0.7444153827597111
+        },
+        "framesPerSecond": 23414.229018502938,
+        "millisecondsPerMillion": 42709.0723,
+        "resourceUsage": {
+          "end": {
+            "userCPUTime": 13765000,
+            "systemCPUTime": 20390000,
+            "maxRSS": 46944,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 18890,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          },
+          "start": {
+            "userCPUTime": 218000,
+            "systemCPUTime": 125000,
+            "maxRSS": 41148,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 13690,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          }
+        },
+        "oracle": {
+          "cpuToWallRatio": 0.3933516444726502,
+          "saturated": false,
+          "wallNs": "43059436100"
+        },
+        "baselineMillisecondsPerMillion": 42709.0723,
+        "deltaMillisecondsPerMillion": 0
+      },
+      "exact": {
+        "byteCountsVerified": true,
+        "configuredFrames": 1000000,
+        "receivedBytes": 64000000,
+        "receivedFrames": 1000000,
+        "sentBytes": 64000000,
+        "sentFrames": 1000000,
+        "oracleBytes": 70400000,
+        "oracleByteCountVerified": true
+      },
+      "latencyNs": {
+        "maximum": "6005300",
+        "mean": "42607",
+        "minimum": "13100",
+        "p50": "41200",
+        "p95": "57100",
+        "p99": "74900"
+      },
+      "package": {
+        "name": "node:net",
+        "bundled": true,
+        "dependencyCount": 0,
+        "fileCount": 0,
+        "installedBytes": 0
+      },
+      "pass": "latency",
+      "processExit": {
+        "oracle": {
+          "code": 0,
+          "signal": null
+        },
+        "worker": {
+          "code": 0,
+          "signal": null
+        }
+      }
+    },
+    {
+      "adapter": "node-net",
+      "cleanup": {
+        "clean": true,
+        "endpointClosed": true,
+        "endpointReusable": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "naturalExit": true,
+        "oracle": {
+          "type": "cleanup",
+          "acceptedConnections": 1,
+          "activeSocketsAfterClose": 0,
+          "bytesIn": 70400000,
+          "bytesOut": 70400000,
+          "destroyedSockets": 0,
+          "cpuSeconds": 17.5625
+        },
+        "worker": {
+          "openSockets": 0,
+          "pendingBytes": 0,
+          "socketsClosed": 1,
+          "socketsCreated": 1,
+          "activeResourceDelta": [],
+          "clean": true
+        }
+      },
+      "gc": {
+        "durationMs": 0,
+        "events": 0,
+        "exposed": true,
+        "forcedRuns": 15,
+        "observed": false
+      },
+      "index": 5,
+      "memory": {
+        "oracle": {
+          "end": null,
+          "start": null
+        },
+        "worker": {
+          "afterCleanupGc": {
+            "rss": 47153152,
+            "heapTotal": 7598080,
+            "heapUsed": 5009256,
+            "external": 9922051,
+            "arrayBuffers": 8010667
+          },
+          "afterImport": {
+            "rss": 35946496,
+            "heapTotal": 7335936,
+            "heapUsed": 4693208,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "beforeCleanupGc": {
+            "rss": 47108096,
+            "heapTotal": 7598080,
+            "heapUsed": 5888480,
+            "external": 9974787,
+            "arrayBuffers": 8063403
+          },
+          "beforeImport": {
+            "rss": 35614720,
+            "heapTotal": 7335936,
+            "heapUsed": 4632792,
+            "external": 1914370,
+            "arrayBuffers": 10651
+          },
+          "connected": {
+            "rss": 36077568,
+            "heapTotal": 7335936,
+            "heapUsed": 4741648,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "heapReclaimedBytes": 879224,
+          "postRun": {
+            "rss": 46993408,
+            "heapTotal": 7598080,
+            "heapUsed": 5853032,
+            "external": 9974787,
+            "arrayBuffers": 8063403
+          },
+          "peak": {
+            "rss": 47108096,
+            "heapTotal": 7598080,
+            "heapUsed": 5886616,
+            "external": 9974787,
+            "arrayBuffers": 8063403
+          },
+          "ready": {
+            "rss": 38735872,
+            "heapTotal": 7598080,
+            "heapUsed": 4903664,
+            "external": 1922099,
+            "arrayBuffers": 10715
+          }
+        }
+      },
+      "metrics": {
+        "bytesPerSecond": 1495067.3173916019,
+        "cpu": {
+          "user": 13953000,
+          "system": 20688000
+        },
+        "elapsedNs": "42807437000",
+        "eventLoopDelayNs": null,
+        "eventLoopUtilization": {
+          "idle": 9786.8988,
+          "active": 33021.32389999993,
+          "utilization": 0.7713780628411836
+        },
+        "framesPerSecond": 23360.42683424378,
+        "millisecondsPerMillion": 42807.437,
+        "resourceUsage": {
+          "end": {
+            "userCPUTime": 14187000,
+            "systemCPUTime": 20875000,
+            "maxRSS": 46244,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 18629,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          },
+          "start": {
+            "userCPUTime": 234000,
+            "systemCPUTime": 187000,
+            "maxRSS": 39712,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 13582,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          }
+        },
+        "oracle": {
+          "cpuToWallRatio": 0.4075688017735519,
+          "saturated": false,
+          "wallNs": "43090884100"
+        },
+        "baselineMillisecondsPerMillion": 42807.437,
+        "deltaMillisecondsPerMillion": 0
+      },
+      "exact": {
+        "byteCountsVerified": true,
+        "configuredFrames": 1000000,
+        "receivedBytes": 64000000,
+        "receivedFrames": 1000000,
+        "sentBytes": 64000000,
+        "sentFrames": 1000000,
+        "oracleBytes": 70400000,
+        "oracleByteCountVerified": true
+      },
+      "latencyNs": {
+        "maximum": "4807000",
+        "mean": "42696",
+        "minimum": "13500",
+        "p50": "41300",
+        "p95": "61100",
+        "p99": "81500"
+      },
+      "package": {
+        "name": "node:net",
+        "bundled": true,
+        "dependencyCount": 0,
+        "fileCount": 0,
+        "installedBytes": 0
+      },
+      "pass": "latency",
+      "processExit": {
+        "oracle": {
+          "code": 0,
+          "signal": null
+        },
+        "worker": {
+          "code": 0,
+          "signal": null
+        }
+      }
+    },
+    {
+      "adapter": "node-net",
+      "cleanup": {
+        "clean": true,
+        "endpointClosed": true,
+        "endpointReusable": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "naturalExit": true,
+        "oracle": {
+          "type": "cleanup",
+          "acceptedConnections": 1,
+          "activeSocketsAfterClose": 0,
+          "bytesIn": 70400000,
+          "bytesOut": 70400000,
+          "destroyedSockets": 0,
+          "cpuSeconds": 16.640625
+        },
+        "worker": {
+          "openSockets": 0,
+          "pendingBytes": 0,
+          "socketsClosed": 1,
+          "socketsCreated": 1,
+          "activeResourceDelta": [],
+          "clean": true
+        }
+      },
+      "gc": {
+        "durationMs": 0,
+        "events": 0,
+        "exposed": true,
+        "forcedRuns": 15,
+        "observed": false
+      },
+      "index": 6,
+      "memory": {
+        "oracle": {
+          "end": null,
+          "start": null
+        },
+        "worker": {
+          "afterCleanupGc": {
+            "rss": 47747072,
+            "heapTotal": 7598080,
+            "heapUsed": 5008472,
+            "external": 9922051,
+            "arrayBuffers": 8010667
+          },
+          "afterImport": {
+            "rss": 36085760,
+            "heapTotal": 7335936,
+            "heapUsed": 4693208,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "beforeCleanupGc": {
+            "rss": 47747072,
+            "heapTotal": 7598080,
+            "heapUsed": 5505984,
+            "external": 9950403,
+            "arrayBuffers": 8039019
+          },
+          "beforeImport": {
+            "rss": 35815424,
+            "heapTotal": 7335936,
+            "heapUsed": 4632792,
+            "external": 1914370,
+            "arrayBuffers": 10651
+          },
+          "connected": {
+            "rss": 36220928,
+            "heapTotal": 7335936,
+            "heapUsed": 4741648,
+            "external": 1922035,
+            "arrayBuffers": 10651
+          },
+          "heapReclaimedBytes": 497512,
+          "postRun": {
+            "rss": 47714304,
+            "heapTotal": 7598080,
+            "heapUsed": 5470536,
+            "external": 9950403,
+            "arrayBuffers": 8039019
+          },
+          "peak": {
+            "rss": 47747072,
+            "heapTotal": 7598080,
+            "heapUsed": 5504120,
+            "external": 9950403,
+            "arrayBuffers": 8039019
+          },
+          "ready": {
+            "rss": 38830080,
+            "heapTotal": 7598080,
+            "heapUsed": 4903688,
+            "external": 1922099,
+            "arrayBuffers": 10715
+          }
+        }
+      },
+      "metrics": {
+        "bytesPerSecond": 1482593.1689635566,
+        "cpu": {
+          "user": 13750000,
+          "system": 20843000
+        },
+        "elapsedNs": "43167607500",
+        "eventLoopDelayNs": null,
+        "eventLoopUtilization": {
+          "idle": 10567.677,
+          "active": 32600.571199999915,
+          "utilization": 0.7551979188259017
+        },
+        "framesPerSecond": 23165.518265055573,
+        "millisecondsPerMillion": 43167.6075,
+        "resourceUsage": {
+          "end": {
+            "userCPUTime": 13984000,
+            "systemCPUTime": 20968000,
+            "maxRSS": 46596,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 18800,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          },
+          "start": {
+            "userCPUTime": 234000,
+            "systemCPUTime": 125000,
+            "maxRSS": 39680,
+            "sharedMemorySize": 0,
+            "unsharedDataSize": 0,
+            "unsharedStackSize": 0,
+            "minorPageFault": 0,
+            "majorPageFault": 13430,
+            "swappedOut": 0,
+            "fsRead": 12,
+            "fsWrite": 0,
+            "ipcSent": 0,
+            "ipcReceived": 0,
+            "signalsCount": 0,
+            "voluntaryContextSwitches": 0,
+            "involuntaryContextSwitches": 0
+          }
+        },
+        "oracle": {
+          "cpuToWallRatio": 0.38297266672079633,
+          "saturated": false,
+          "wallNs": "43451208000"
+        },
+        "baselineMillisecondsPerMillion": 43167.6075,
+        "deltaMillisecondsPerMillion": 0
+      },
+      "exact": {
+        "byteCountsVerified": true,
+        "configuredFrames": 1000000,
+        "receivedBytes": 64000000,
+        "receivedFrames": 1000000,
+        "sentBytes": 64000000,
+        "sentFrames": 1000000,
+        "oracleBytes": 70400000,
+        "oracleByteCountVerified": true
+      },
+      "latencyNs": {
+        "maximum": "3333000",
+        "mean": "43059",
+        "minimum": "12900",
+        "p50": "41100",
+        "p95": "61600",
+        "p99": "81000"
+      },
+      "package": {
+        "name": "node:net",
+        "bundled": true,
+        "dependencyCount": 0,
+        "fileCount": 0,
+        "installedBytes": 0
+      },
+      "pass": "latency",
+      "processExit": {
+        "oracle": {
+          "code": 0,
+          "signal": null
+        },
+        "worker": {
+          "code": 0,
+          "signal": null
+        }
+      }
+    }
+  ],
+  "summary": {
+    "metric": "milliseconds-per-million",
+    "platform": "win32",
+    "groups": [
+      {
+        "adapter": "node-net",
+        "pass": "latency",
+        "samples": 7,
+        "millisecondsPerMillion": {
+          "maximum": 43167.6075,
+          "median": 42570.5269,
+          "minimum": 38332.7555,
+          "values": [
+            38332.7555,
+            40926.8597,
+            41521.5215,
+            42570.5269,
+            42709.0723,
+            42807.437,
+            43167.6075
+          ]
+        },
+        "pairedDeltaMillisecondsPerMillion": {
+          "maximum": 0,
+          "median": 0,
+          "minimum": 0,
+          "values": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "adapter": "node-net",
+        "pass": "resource",
+        "samples": 7,
+        "millisecondsPerMillion": {
+          "maximum": 468.8755,
+          "median": 416.7941,
+          "minimum": 370.4303,
+          "values": [
+            370.4303,
+            371.1855,
+            412.2866,
+            416.7941,
+            439.144,
+            451.4911,
+            468.8755
+          ]
+        },
+        "pairedDeltaMillisecondsPerMillion": {
+          "maximum": 0,
+          "median": 0,
+          "minimum": 0,
+          "values": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "adapter": "node-net",
+        "pass": "speed",
+        "samples": 7,
+        "millisecondsPerMillion": {
+          "maximum": 432.1426,
+          "median": 351.1316,
+          "minimum": 343.5734,
+          "values": [
+            343.5734,
+            347.1765,
+            349.3025,
+            351.1316,
+            362.8703,
+            378.5823,
+            432.1426
+          ]
+        },
+        "pairedDeltaMillisecondsPerMillion": {
+          "maximum": 0,
+          "median": 0,
+          "minimum": 0,
+          "values": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    ]
+  },
+  "memory": {
+    "maximumWorkerRssBytes": 48820224,
+    "packageInstalledBytes": {
+      "node-net": 0
+    }
+  },
+  "gc": {
+    "durationMs": 76.41730000032112,
+    "events": 434,
+    "forcedRuns": 315
+  },
+  "cleanup": {
+    "clean": true,
+    "endpointLeaks": 0,
+    "endpointReuseFailures": 0,
+    "leftoverBytes": 0,
+    "leftoverEntries": 0,
+    "openSockets": 0,
+    "samples": 21
+  },
+  "packageFootprint": {
+    "dependencies": {
+      "direct": 4,
+      "instances": 61,
+      "unique": 49
+    },
+    "installed": {
+      "bytes": 3042292,
+      "files": 406
+    },
+    "package": {
+      "bytes": 85561,
+      "files": 21
+    },
+    "tarball": {
+      "bytes": 28860,
+      "files": 21,
+      "integrity": "sha512-zRPDc+N0n8Ny2wCYSM2E2uSixASQW9WPuJWXY8EDWQD3+tFSuRBTrJQ5OPAXoZbS83GwqFp/ThHHM9GvNa+xww==",
+      "unpackedBytes": 85561
+    }
+  }
+}
