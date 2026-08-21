@@ -70,22 +70,20 @@ async function benchmarkPayload(panel) {
   const manifest = await fetchJSON(panel);
   const records = Array.isArray(manifest?.results) ? manifest.results : [];
   if (!records.length) return manifest;
-  const latest = [...records].sort((a, b) => new Date(b.generatedAt ?? 0) - new Date(a.generatedAt ?? 0))[0];
-  if (!latest.file) return manifest;
-  const response = await fetch(new URL(`data/benchmarks/${encodeURIComponent(latest.file)}`, SITE_ROOT), {cache: 'no-store'});
-  if (!response.ok) throw new Error(`Benchmark detail HTTP ${response.status}`);
-  const detail = await response.json();
-  detail.manifest = {
-    classification: latest.classification,
-    cleanupClean: latest.cleanupClean,
-    dirty: latest.dirty,
-    file: latest.file,
-    publishable: latest.publishable,
-    rankingEligible: latest.rankingEligible,
-    resultCount: records.length,
-    updatedAt: manifest.updatedAt
-  };
-  return detail;
+  const runs = await Promise.all(records.map(async record => {
+    if (!record.file) throw new Error('Benchmark manifest entry has no file');
+    const response = await fetch(new URL(`data/benchmarks/${encodeURIComponent(record.file)}`, SITE_ROOT), {cache: 'no-store'});
+    if (!response.ok) throw new Error(`Benchmark detail HTTP ${response.status}`);
+    const bytes = await response.arrayBuffer();
+    const digest = [...new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))]
+      .map(value => value.toString(16).padStart(2, '0'))
+      .join('');
+    if (digest !== record.sha256) throw new Error(`Benchmark detail integrity mismatch: ${record.file}`);
+    const detail = JSON.parse(new TextDecoder().decode(bytes));
+    detail.manifest = {...record, resultCount: records.length, updatedAt: manifest.updatedAt};
+    return detail;
+  }));
+  return {manifest, runs};
 }
 
 function initNavigation() {
@@ -275,6 +273,41 @@ function rawSamplesTable(samples) {
   return wrapper;
 }
 
+function trackedRunsTable(runs) {
+  const wrapper = element('div', {className: 'table-scroll'});
+  const table = element('table');
+  const head = element('thead');
+  const headRow = element('tr');
+  for (const label of ['Environment', 'Node', 'Speed ms / million', 'Peak RSS', 'Installed', 'Cleanup', 'Evidence']) {
+    headRow.append(element('th', {scope: 'col', textContent: label}));
+  }
+  head.append(headRow);
+  const body = element('tbody');
+  for (const run of [...runs].sort((a, b) => `${a.system?.platform}:${a.system?.node}`.localeCompare(`${b.system?.platform}:${b.system?.node}`))) {
+    const row = element('tr');
+    const speed = run.summary?.groups?.find(group => group.adapter === 'node-net' && group.pass === 'speed');
+    const values = [
+      `${text(run.system?.platform)} ${text(run.system?.architecture)} · ${text(run.system?.environment?.imageOS)} ${text(run.system?.environment?.imageVersion)}`,
+      run.system?.node,
+      number(speed?.millisecondsPerMillion?.median)?.toFixed(3) ?? 'Not reported',
+      formatBytes(run.memory?.maximumWorkerRssBytes),
+      formatBytes(run.packageFootprint?.installed?.bytes),
+      run.cleanup?.clean === true ? 'Clean' : 'Not clean'
+    ];
+    values.forEach(value => row.append(element('td', {textContent: text(value)})));
+    const evidence = element('td');
+    evidence.append(element('a', {
+      href: new URL(`data/benchmarks/${encodeURIComponent(run.record.file)}`, SITE_ROOT).href,
+      textContent: 'Raw JSON'
+    }));
+    row.append(evidence);
+    body.append(row);
+  }
+  table.append(head, body);
+  wrapper.append(table);
+  return wrapper;
+}
+
 function renderBenchmark(panel, payload) {
   const output = panel.querySelector('[data-live-output]');
   const runs = benchmarkRuns(payload);
@@ -300,6 +333,11 @@ function renderBenchmark(panel, payload) {
   const adapters = adapterNames(run);
 
   output.replaceChildren();
+  output.append(
+    element('p', {className: 'divider-label', textContent: 'Tracked environments'}),
+    trackedRunsTable(runs),
+    element('p', {className: 'divider-label', textContent: 'Newest run detail'})
+  );
   const pills = element('div', {className: 'pills'});
   labels.forEach(label => pills.append(element('span', {className: `pill ${label === 'CLEAN TREE' || label === 'C ORACLE' ? 'good' : 'warn'}`, textContent: label})));
   output.append(pills);
@@ -313,6 +351,7 @@ function renderBenchmark(panel, payload) {
       ['OS', `${text(run.system?.platform ?? run.os)} ${text(run.system?.release ?? '')}`.trim()],
       ['Architecture', run.system?.architecture ?? run.system?.arch ?? run.architecture],
       ['Node', run.system?.node ?? run.node],
+      ['Runner image', `${text(run.system?.environment?.imageOS)} ${text(run.system?.environment?.imageVersion)}`.trim()],
       ['Commit', shortCommit(run.repository?.commit ?? run.commit)],
       ['Tree', run.repository?.dirty === true ? 'Dirty — development result' : run.repository?.dirty === false ? 'Clean' : 'Unknown'],
       ['Classification', run.evidence?.classification ?? run.manifest?.classification ?? 'Not reported'],
@@ -337,7 +376,7 @@ function renderBenchmark(panel, payload) {
       ['Cleanup', run.cleanup?.clean === true ? `Clean (${formatNumber(run.cleanup.samples)} samples)` : run.cleanup?.clean === false ? 'Not clean — not publishable' : 'Not reported'],
       ['Memory peak', formatBytes(run.memory?.maximumWorkerRssBytes)],
       ['GC', run.gc ? `${formatNumber(run.gc.events)} events · ${formatNumber(run.gc.forcedRuns)} forced · ${text(run.gc.durationMs)} ms` : 'Not reported'],
-      ['Package footprint', run.packageFootprint ? `${formatBytes(run.packageFootprint.totalInstalledBytes ?? run.packageFootprint.installedBytes ?? run.memory?.packageInstalledBytes?.['node-ipc'])}` : 'Not captured in this run']
+      ['Package footprint', run.packageFootprint ? formatBytes(run.packageFootprint.installed?.bytes) : 'Not captured in this run']
     ])
   );
 

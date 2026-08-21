@@ -1,1 +1,2 @@
 coverage/**/* linguist-generated=true
+/benchmark/results/*.json text eol=lf

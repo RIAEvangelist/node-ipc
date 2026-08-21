@@ -6,15 +6,22 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 const directory=path.dirname(fileURLToPath(import.meta.url));
+const canonicalResultsDirectory=path.join(directory,'results');
 const resultsDirectoryArgument=process.argv.find((argument) => argument.startsWith('--results-directory='));
 const resultsDirectory=resultsDirectoryArgument
     ? path.resolve(resultsDirectoryArgument.slice('--results-directory='.length))
-    : path.join(directory,'results');
+    : canonicalResultsDirectory;
 const index=await readJson(path.join(resultsDirectory,'index.json'));
 const schema=await readJson(path.join(directory,'result-schema.json'));
-const canonicalSourceSha256=sha256(await readFile(path.join(directory,'oracle','echo.c')));
-const files=(await readdir(resultsDirectory))
-    .filter((file) => file.endsWith('.json') && file !== 'index.json')
+const sourceHashCache=new Map();
+const directoryEntries=await readdir(resultsDirectory,{withFileTypes:true});
+for(const entry of directoryEntries){
+    assert.ok(entry.isFile(),`${entry.name}: benchmark results must contain regular files only`);
+    assert.match(entry.name,/^(?:index|run-[A-Za-z0-9-]+)\.json$/u,`${entry.name}: unexpected benchmark result file`);
+}
+const files=directoryEntries
+    .map((entry) => entry.name)
+    .filter((file) => file !== 'index.json')
     .sort();
 
 assert.equal(index.schemaVersion,2,'benchmark results index schemaVersion must be 2');
@@ -36,7 +43,9 @@ assert.deepEqual(
     files,
     'benchmark results index must reference every and only tracked result JSON file'
 );
-validateAppendOnlyHistory(index);
+if(path.resolve(resultsDirectory) === path.resolve(canonicalResultsDirectory)){
+    validateAppendOnlyHistory(index);
+}
 
 for(const entry of index.results){
     const serialized=await readFile(path.join(resultsDirectory,entry.file),'utf8');
@@ -71,6 +80,10 @@ function validateResult(result,entry){
     assert.ok(result.system?.release,`${entry.file}: OS release is required`);
     assert.ok(result.system?.architecture,`${entry.file}: architecture is required`);
     assert.match(result.system?.node || '',/^v\d+\./u,`${entry.file}: Node version is required`);
+    assert.ok(['github-actions','local'].includes(result.system?.environment?.provider),`${entry.file}: execution provider is required`);
+    if(result.system.environment.provider === 'github-actions'){
+        validateGitHubEnvironment(result,entry.file);
+    }
     assert.match(result.oracle?.source?.sha256 || '',/^[0-9a-f]{64}$/u,`${entry.file}: oracle source SHA-256 is required`);
     assert.ok(Object.hasOwn(result.oracle,'build'),`${entry.file}: oracle build provenance is required`);
     assert.ok(result.config && typeof result.config === 'object',`${entry.file}: benchmark configuration is required`);
@@ -135,7 +148,11 @@ function validateResult(result,entry){
     assert.equal(result.repository.preExecution.statusSha256,result.repository.postExecution.statusSha256,`${entry.file}: pre/post Git status differs`);
     assert.equal(result.oracle.implementation,'standard-c',`${entry.file}: tracked evidence requires the C oracle`);
     assert.equal(canonicalConfiguration(result.config),true,`${entry.file}: tracked evidence requires canonical configuration`);
-    assert.equal(oracleBuildVerified(result.oracle,result.system),true,`${entry.file}: tracked evidence requires a verified canonical C build`);
+    assert.equal(
+        oracleBuildVerified(result.oracle,result.system,sourceHashesAtCommit(result.repository.commit)),
+        true,
+        `${entry.file}: tracked evidence requires a verified canonical C build`
+    );
     assert.equal(publicationSamplesClean(result.samples,result.cleanup),true,`${entry.file}: tracked evidence failed cleanup/count gates`);
     validateSampleTopology(result,entry.file);
     validateAggregateCleanup(result.samples,result.cleanup,entry.file);
@@ -163,6 +180,35 @@ function validateResult(result,entry){
     assert.deepEqual(entry,manifestFields,`${entry.file}: manifest summary differs from raw result`);
 }
 
+function validateGitHubEnvironment(result,file){
+    const environment=result.system.environment;
+    const platformForLane={
+        'macos-latest':'darwin',
+        'ubuntu-latest':'linux',
+        'windows-latest':'win32'
+    };
+    const architectureForRunner={ARM:'arm',ARM64:'arm64',X64:'x64'};
+    assert.equal(environment.githubRepository,'RIAEvangelist/node-ipc',`${file}: unexpected GitHub repository`);
+    assert.ok(environment.imageOS,`${file}: GitHub runner image OS is required`);
+    assert.ok(environment.imageVersion,`${file}: GitHub runner image version is required`);
+    assert.equal(`v${environment.nodeLane}`,result.system.node,`${file}: requested Node lane differs from the runtime`);
+    assert.match(environment.npm || '',/^npm\/\d/u,`${file}: npm version is required`);
+    assert.equal(platformForLane[environment.osLane],result.system.platform,`${file}: requested OS lane differs from the runtime`);
+    assert.match(environment.runAttempt || '',/^\d+$/u,`${file}: workflow run attempt is required`);
+    assert.match(environment.runId || '',/^\d+$/u,`${file}: workflow run id is required`);
+    assert.equal(architectureForRunner[environment.runnerArchitecture],result.system.architecture,`${file}: runner architecture mismatch`);
+    assert.equal(environment.runnerEnvironment,'github-hosted',`${file}: official snapshots require a GitHub-hosted runner`);
+    assert.equal(environment.sourceRef,'refs/heads/main',`${file}: official snapshots require main`);
+    assert.equal(environment.sourceSha,result.repository.commit,`${file}: workflow source SHA mismatch`);
+    assert.equal(environment.workflow,'Record benchmark snapshots',`${file}: unexpected workflow`);
+    assert.equal(
+        environment.workflowRef,
+        'RIAEvangelist/node-ipc/.github/workflows/benchmark-snapshot.yml@refs/heads/main',
+        `${file}: unexpected workflow reference`
+    );
+    assert.equal(environment.workflowSha,result.repository.commit,`${file}: workflow SHA mismatch`);
+}
+
 function canonicalConfiguration(config){
     return config.oracle === 'c'
         && config.host === '127.0.0.1'
@@ -181,16 +227,34 @@ function canonicalConfiguration(config){
         && config.adapters.includes('node-net');
 }
 
-function oracleBuildVerified(oracle,system){
+function oracleBuildVerified(oracle,system,sourceHashes){
     return oracle.implementation === 'standard-c'
-        && oracle.source?.sha256 === canonicalSourceSha256
-        && oracle.build?.sourceSha256 === canonicalSourceSha256
+        && oracle.source?.sha256 === oracle.build?.sourceSha256
+        && sourceHashes.has(oracle.source?.sha256)
         && /^[0-9a-f]{64}$/u.test(oracle.build?.binarySha256 || '')
         && fixedBuild(oracle.build,system)
         && oracle.build?.target?.platform === system.platform
         && oracle.build?.target?.architecture === system.architecture
         && typeof oracle.build?.target?.name === 'string'
         && oracle.build.target.name.length > 0;
+}
+
+function sourceHashesAtCommit(commit){
+    if(sourceHashCache.has(commit)) return sourceHashCache.get(commit);
+    const repositoryRoot=path.resolve(directory,'..');
+    const source=execFileSync(
+        'git',
+        ['show',`${commit}:benchmark/oracle/echo.c`],
+        {cwd:repositoryRoot,encoding:'buffer',maxBuffer:1024*1024,stdio:['ignore','pipe','ignore']}
+    );
+    const normalized=source.toString('utf8').replace(/\r\n?/gu,'\n');
+    const hashes=new Set([
+        sha256(source),
+        sha256(normalized),
+        sha256(normalized.replace(/\n/gu,'\r\n'))
+    ]);
+    sourceHashCache.set(commit,hashes);
+    return hashes;
 }
 
 function fixedBuild(build,system){
@@ -336,6 +400,7 @@ function validateAppendOnlyHistory(current){
         return;
     }
     assert.equal(previous.schemaVersion,2,'previous benchmark manifest schemaVersion must be 2');
+    assert.ok(Date.parse(current.updatedAt) >= Date.parse(previous.updatedAt),'benchmark results updatedAt cannot move backward');
     assert.ok(previous.results.length <= current.results.length,'benchmark results manifest cannot delete historical entries');
     assert.deepEqual(
         current.results.slice(0,previous.results.length),

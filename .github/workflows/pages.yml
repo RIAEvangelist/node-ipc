@@ -16,6 +16,8 @@ jobs:
     name: Test, validate, and assemble Pages
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    outputs:
+      benchmark_manifest_sha256: ${{ steps.stage.outputs.benchmark_manifest_sha256 }}
     permissions:
       contents: read
       pages: read
@@ -77,6 +79,7 @@ jobs:
           fi
 
       - name: Stage isolated Pages artifact
+        id: stage
         shell: bash
         run: |
           set -euo pipefail
@@ -227,6 +230,8 @@ jobs:
           }
           NODE
 
+          printf 'benchmark_manifest_sha256=%s\n' "$(sha256sum "$artifact_root/data/benchmarks/index.json" | cut -d ' ' -f 1)" >> "$GITHUB_OUTPUT"
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
@@ -261,6 +266,7 @@ jobs:
 
       - name: Verify the complete live site
         env:
+          EXPECTED_BENCHMARK_MANIFEST_SHA256: ${{ needs.build.outputs.benchmark_manifest_sha256 }}
           LIVE_BASE_URL: ${{ steps.deployment.outputs.page_url }}
           LIVE_CACHE_KEY: ${{ github.run_id }}-${{ github.run_attempt }}
         shell: bash
@@ -268,6 +274,7 @@ jobs:
           set -euo pipefail
           node --input-type=module <<'NODE'
           import assert from 'node:assert/strict';
+          import {createHash} from 'node:crypto';
 
           const base = new URL(process.env.LIVE_BASE_URL.endsWith('/')
               ? process.env.LIVE_BASE_URL
@@ -329,7 +336,14 @@ jobs:
           await json('data/test-results.json');
           await json('data/coverage-summary.json');
 
-          const manifest = await json('data/benchmarks/index.json');
+          const manifestResponse = await live('data/benchmarks/index.json', /^application\/json\b/u);
+          const manifestBytes = Buffer.from(await manifestResponse.arrayBuffer());
+          assert.equal(
+              createHash('sha256').update(manifestBytes).digest('hex'),
+              process.env.EXPECTED_BENCHMARK_MANIFEST_SHA256,
+              'live benchmark manifest differs from the deployed artifact'
+          );
+          const manifest = JSON.parse(manifestBytes.toString('utf8'));
           assert.ok(Array.isArray(manifest.results), 'benchmark manifest results must be an array');
 
           const schema = await json('data/benchmarks/result-schema.json');
@@ -340,7 +354,14 @@ jobs:
 
           for (const entry of manifest.results) {
               assert.match(entry.file ?? '', /^[a-zA-Z0-9._-]+\.json$/u, 'unsafe benchmark detail filename');
-              const detail = await json(`data/benchmarks/${encodeURIComponent(entry.file)}`);
+              const response = await live(`data/benchmarks/${encodeURIComponent(entry.file)}`, /^application\/json\b/u);
+              const bytes = Buffer.from(await response.arrayBuffer());
+              assert.equal(
+                  createHash('sha256').update(bytes).digest('hex'),
+                  entry.sha256,
+                  `${entry.file}: manifest SHA-256 mismatch`
+              );
+              const detail = JSON.parse(bytes.toString('utf8'));
               assert.equal(detail.record?.file, entry.file, `${entry.file}: record.file mismatch`);
           }
 

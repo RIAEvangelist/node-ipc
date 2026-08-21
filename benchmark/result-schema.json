@@ -46,10 +46,32 @@
     },
     "system": {
       "type": "object",
-      "required": ["architecture", "cpu", "machine", "node", "platform", "release", "totalMemoryBytes"],
+      "required": ["architecture", "cpu", "environment", "machine", "node", "platform", "release", "totalMemoryBytes"],
       "properties": {
         "architecture": {"type": "string", "minLength": 1},
         "cpu": {"type": "object", "required": ["count", "model"]},
+        "environment": {
+          "type": "object",
+          "required": ["githubRepository", "imageOS", "imageVersion", "nodeLane", "npm", "osLane", "provider", "runAttempt", "runId", "runnerArchitecture", "runnerEnvironment", "sourceRef", "sourceSha", "workflow", "workflowRef", "workflowSha"],
+          "properties": {
+            "githubRepository": {"type": ["string", "null"]},
+            "imageOS": {"type": ["string", "null"]},
+            "imageVersion": {"type": ["string", "null"]},
+            "nodeLane": {"type": ["string", "null"]},
+            "npm": {"type": ["string", "null"]},
+            "osLane": {"type": ["string", "null"]},
+            "provider": {"enum": ["github-actions", "local"]},
+            "runAttempt": {"type": ["string", "null"]},
+            "runId": {"type": ["string", "null"]},
+            "runnerArchitecture": {"type": ["string", "null"]},
+            "runnerEnvironment": {"type": ["string", "null"]},
+            "sourceRef": {"type": ["string", "null"]},
+            "sourceSha": {"type": ["string", "null"]},
+            "workflow": {"type": ["string", "null"]},
+            "workflowRef": {"type": ["string", "null"]},
+            "workflowSha": {"type": ["string", "null"]}
+          }
+        },
         "machine": {"type": "object", "required": ["id"]},
         "node": {"type": "string", "pattern": "^v[0-9]+[.]"},
         "platform": {"type": "string", "minLength": 1},

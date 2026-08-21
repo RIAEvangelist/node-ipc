@@ -1,0 +1,54 @@
+name: Record benchmark snapshots
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: benchmark-snapshot
+  cancel-in-progress: false
+
+jobs:
+  snapshot:
+    name: ${{ matrix.os }} · Node ${{ matrix.node }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: ['22.12.0', '24.18.1']
+
+    steps:
+      - name: Require main as the measured source
+        env:
+          SOURCE_REF: ${{ github.ref }}
+        run: node -e "if(process.env.SOURCE_REF !== 'refs/heads/main') process.exit(1)"
+
+      - name: Check out the measured commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Use Node.js ${{ matrix.node }}
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Record canonical C-oracle baseline
+        env:
+          NODE_IPC_BENCHMARK_NODE_LANE: ${{ matrix.node }}
+          NODE_IPC_BENCHMARK_OS_LANE: ${{ matrix.os }}
+          NODE_IPC_BENCHMARK_OUTPUT_DIRECTORY: ${{ runner.temp }}/node-ipc-benchmark-snapshot
+        run: npm run benchmark:record
+
+      - name: Upload sanitized result
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: benchmark-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.os }}-node-${{ matrix.node }}
+          path: ${{ runner.temp }}/node-ipc-benchmark-snapshot/run-*.json
+          if-no-files-found: error
+          retention-days: 90

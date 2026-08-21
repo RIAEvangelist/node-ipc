@@ -114,6 +114,12 @@ await validateProspectiveResult(index,file,serialized);
 await writeAtomic(path.join(resultsDirectory,file),serialized);
 await writeAtomic(indexPath,`${JSON.stringify(index,null,2)}\n`);
 
+const outputDirectory=process.env.NODE_IPC_BENCHMARK_OUTPUT_DIRECTORY;
+if(outputDirectory){
+    await mkdir(outputDirectory,{recursive:true});
+    await writeFile(path.join(outputDirectory,file),serialized,{flag:'wx'});
+}
+
 process.stdout.write(`${path.relative(projectRoot,path.join(resultsDirectory,file))}\n`);
 
 function sanitize(

@@ -61,13 +61,27 @@ npm run benchmark:record
 npm run benchmark:validate
 ```
 
-The recorder uses exactly three passes with seven samples per pass, a 64-byte payload, 100,000 warm-up messages, and 1,000,000 measured messages per pass. The validator applies the public schema, recomputes sample and cleanup counts, verifies current and historical manifest hashes, and enforces append-only history. Hosted figures are explicitly `snapshot-noisy`, not authoritative rankings. Rankings remain disabled until comparable clean C-oracle node-ipc adapters exist; the honest initial state is zero verified runs.
+The recorder uses exactly three passes with seven samples per pass, a 64-byte payload, 100,000 warm-up messages, and 1,000,000 measured messages per pass. The validator applies the public schema, recomputes sample and cleanup counts, verifies current and historical manifest hashes, and enforces append-only history. Hosted figures are explicitly `snapshot-noisy`, not authoritative rankings. An empty manifest is valid before the first verified baseline; rankings remain disabled until comparable clean C-oracle node-ipc adapters exist.
+
+### Official snapshots
+
+Run the manual **Record benchmark snapshots** workflow from a clean `main` commit. It records the same C-oracle baseline on Ubuntu, macOS, and Windows with Node 22.12.0 and 24.18.1. The workflow has read-only repository permissions and uploads sanitized JSON for review; it never commits results.
+
+After every matrix job passes, download the six artifacts outside the repository, merge them, validate the append-only manifest, and commit only the accepted JSON:
+
+```sh
+gh run download <run-id> --dir <temporary-directory>
+node benchmark/merge-results.js <temporary-directory>
+npm run benchmark:validate
+```
+
+The merger rejects partial matrices, conflicting duplicates, nonpublishable evidence, rankings, non-baseline adapters, and results measured from a commit other than the current `HEAD`.
 
 ## Clean baseline
 
 Workers run with `--expose-gc`. Memory is captured before adapter import, after import, connected, post-warm-up, post-run, and after close plus GC. A clean sample requires exact byte and message counts, natural process exits, no open sockets, no new active resources, an immediately reusable endpoint, and no leftover files in the private temporary root.
 
-The report also records RSS, heap, external and ArrayBuffer memory, maximum RSS, CPU, event-loop utilization, GC work, endpoint state, process IDs, OS/CPU/Node details, Git commit and dirty state, and oracle source/build identity.
+The development report also records RSS, heap, external and ArrayBuffer memory, maximum RSS, CPU, event-loop utilization, GC work, endpoint state, process IDs, OS/CPU/Node details, Git commit and dirty state, and oracle source/build identity. Tracked records remove process IDs, endpoints, ports, and absolute paths.
 
 Full npm runs add a package-footprint report created from a fresh packed install: compressed and unpacked tarball bytes, package files, complete production install bytes/files, and direct, installed, and unique dependency counts. Comparator packages are isolated benchmark subjects; they are not node-ipc dependencies.
 
