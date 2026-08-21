@@ -13,12 +13,12 @@
   },
   "dependencies": {
     "event-pubsub": "5.0.3",
-    "js-message": "1.0.7",
+    "js-message": "3.0.0",
     "js-queue": "2.0.2",
     "strong-type": "2.0.0"
   },
   "devDependencies": {
-    "node-http-server": "^8.1.4",
+    "node-http-server": "9.0.2",
     "vanilla-test": "2.1.1"
   },
   "scripts": {
@@ -28,7 +28,7 @@
     "benchmark:record": "node ./benchmark/record-result.js --full --oracle=c --footprint",
     "benchmark:test": "node ./benchmark/test.js",
     "benchmark:validate": "node ./benchmark/validate-results.js",
-    "coverage": "echo 'See your coverage report at http://localhost:8080' && node-http-server port=8080 root=./coverage/node/",
+    "coverage": "echo 'See your coverage report at http://127.0.0.1:8080' && node-http-server host=127.0.0.1 domain=127.0.0.1 port=8080 root=./coverage/node/",
     "test": "npm run test:correctness && npm run test:smoke && npm run benchmark:test && npm run benchmark:validate",
     "test:correctness": "npm run test:inventory && vanilla-test coverage node",
     "test:inventory": "node ./test/inventory.js",
