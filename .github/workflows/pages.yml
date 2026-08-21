@@ -47,6 +47,9 @@ jobs:
       - name: Run tests and generate coverage
         run: npm test
 
+      - name: Verify generated test inventory pages
+        run: node docs/scripts/generate-test-pages.mjs --check
+
       - name: Validate documentation routes, links, metadata, and test inventory
         run: node docs/scripts/validate-site.mjs
 
@@ -98,6 +101,8 @@ jobs:
           test -s "$coverage_root/index.html"
           test -s "$coverage_root/coverage-summary.json"
           test -s "$coverage_root/test-results.json"
+          test -s docs/data/test-inventory.json
+          test -s docs/data/routes.json
           test -s "$benchmark_root/index.json"
           test -s "$benchmark_schema"
           test -s "$header_asset"
@@ -107,6 +112,8 @@ jobs:
           git ls-files --error-unmatch "$benchmark_schema" >/dev/null
           git ls-files --error-unmatch "$header_asset" >/dev/null
           git ls-files --error-unmatch "$performance_asset" >/dev/null
+          git ls-files --error-unmatch docs/data/test-inventory.json >/dev/null
+          git ls-files --error-unmatch docs/data/routes.json >/dev/null
 
           mapfile -t benchmark_files < <(git ls-files -- "$benchmark_root")
           ((${#benchmark_files[@]} > 0))
@@ -116,26 +123,8 @@ jobs:
             test -s "$source"
           done
 
-          page_entries=(
-            index.html
-            quick-start/index.html
-            config/index.html
-            api/index.html
-            unix-windows/index.html
-            tcp/index.html
-            tls/index.html
-            udp/index.html
-            examples/index.html
-            testing/index.html
-            testing/unit/index.html
-            testing/functional/index.html
-            testing/integration/index.html
-            testing/regression/index.html
-            coverage/index.html
-            benchmarks/index.html
-            security/index.html
-          )
-          ((${#page_entries[@]} == 17))
+          mapfile -t page_entries < <(node --input-type=module -e "import {readFileSync} from 'node:fs'; const {routes}=JSON.parse(readFileSync('docs/data/routes.json','utf8')); for (const route of routes) console.log(route === '/' ? 'index.html' : route.slice(1) + 'index.html');")
+          ((${#page_entries[@]} >= 45))
 
           mkdir -p "$artifact_root"
           cp -a docs/. "$artifact_root/"
@@ -216,6 +205,8 @@ jobs:
           const files = [
               'data/coverage-summary.json',
               'data/test-results.json',
+              'data/test-inventory.json',
+              'data/routes.json',
               'data/benchmarks/index.json',
               'data/benchmarks/result-schema.json'
           ];
@@ -227,6 +218,26 @@ jobs:
           const schema = JSON.parse(await readFile(`${root}/data/benchmarks/result-schema.json`, 'utf8'));
           if (schema.$id !== 'https://riaevangelist.github.io/node-ipc/data/benchmarks/result-schema.json') {
               throw new Error(`Unexpected benchmark schema $id: ${schema.$id}`);
+          }
+
+          const inventory = JSON.parse(await readFile(`${root}/data/test-inventory.json`, 'utf8'));
+          const routeManifest = JSON.parse(await readFile(`${root}/data/routes.json`, 'utf8'));
+          const results = JSON.parse(await readFile(`${root}/data/test-results.json`, 'utf8'));
+          if (inventory.total < 140 || inventory.groups.length * 5 !== inventory.total) {
+              throw new Error('Test inventory must retain at least 140 cases in exact five-case groups.');
+          }
+          if (routeManifest.schemaVersion !== 1 || routeManifest.routes.length < 45) {
+              throw new Error('Pages route manifest is incomplete or unsupported.');
+          }
+          if (results.ok !== true || results.failureCount !== 0 || results.total !== inventory.total) {
+              throw new Error('Generated test results do not match the passing tracked inventory.');
+          }
+          const expectedNames = inventory.groups.flatMap(group => group.cases.map(
+              name => `[${group.category}] ${group.name} — ${name}`
+          ));
+          const passedNames = results.passed.map(name => name.replace(/^\d+\) \.expects /u, ''));
+          if (JSON.stringify(passedNames) !== JSON.stringify(expectedNames)) {
+              throw new Error('Generated test result names differ from the tracked inventory.');
           }
           NODE
 
@@ -281,27 +292,6 @@ jobs:
               : `${process.env.LIVE_BASE_URL}/`);
           assert.equal(base.href, 'https://riaevangelist.github.io/node-ipc/');
 
-          const routes = [
-              '',
-              'quick-start/',
-              'config/',
-              'api/',
-              'unix-windows/',
-              'tcp/',
-              'tls/',
-              'udp/',
-              'examples/',
-              'testing/',
-              'testing/unit/',
-              'testing/functional/',
-              'testing/integration/',
-              'testing/regression/',
-              'coverage/',
-              'benchmarks/',
-              'security/'
-          ];
-          assert.equal(routes.length, 17);
-
           const wait = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
           const live = async (path, expectedType) => {
               const url = new URL(path, base);
@@ -331,9 +321,29 @@ jobs:
           };
           const json = async path => (await live(path, /^application\/json\b/u)).json();
 
+          const routeManifest = await json('data/routes.json');
+          assert.equal(routeManifest.schemaVersion, 1);
+          assert.ok(Array.isArray(routeManifest.routes));
+          assert.ok(routeManifest.routes.length >= 45);
+          assert.equal(new Set(routeManifest.routes).size, routeManifest.routes.length);
+          const routes = routeManifest.routes.map(route => route === '/' ? '' : route.replace(/^\//u, ''));
+
           await Promise.all(routes.map(route => live(route, /^text\/html\b/u)));
           await live('coverage/report/', /^text\/html\b/u);
-          await json('data/test-results.json');
+          const inventory = await json('data/test-inventory.json');
+          const testResults = await json('data/test-results.json');
+          assert.ok(inventory.total >= 140);
+          assert.equal(inventory.groups.length * 5, inventory.total);
+          assert.equal(testResults.total, inventory.total);
+          assert.equal(testResults.failureCount, 0);
+          assert.equal(testResults.ok, true);
+          const expectedTestNames = inventory.groups.flatMap(group => group.cases.map(
+              name => `[${group.category}] ${group.name} — ${name}`
+          ));
+          assert.deepEqual(
+              testResults.passed.map(name => name.replace(/^\d+\) \.expects /u, '')),
+              expectedTestNames
+          );
           await json('data/coverage-summary.json');
 
           const manifestResponse = await live('data/benchmarks/index.json', /^application\/json\b/u);

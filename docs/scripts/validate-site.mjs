@@ -1,29 +1,15 @@
 import assert from 'node:assert/strict';
 import {existsSync, readFileSync, readdirSync} from 'node:fs';
 import path from 'node:path';
-import {fileURLToPath, pathToFileURL} from 'node:url';
+import {fileURLToPath} from 'node:url';
+
+import {createInventory} from '../../test/inventory.js';
+import {buildOutputs,routesForInventory} from './generate-test-pages.mjs';
 
 const docs=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
-const repository=path.resolve(docs,'..');
-const expectedRoutes=[
-    '/',
-    '/quick-start/',
-    '/config/',
-    '/api/',
-    '/unix-windows/',
-    '/tcp/',
-    '/tls/',
-    '/udp/',
-    '/examples/',
-    '/testing/',
-    '/testing/unit/',
-    '/testing/functional/',
-    '/testing/integration/',
-    '/testing/regression/',
-    '/coverage/',
-    '/benchmarks/',
-    '/security/'
-];
+const inventory=createInventory();
+const expectedRoutes=routesForInventory(inventory);
+const generatedOutputs=buildOutputs(inventory);
 const stagedPaths=new Set([
     'assets/node-ipc-header.png',
     'assets/node-ipc-performance-tiers.png',
@@ -69,6 +55,12 @@ const actualRoutes=routeFiles.map(routeFor).sort();
 check(actualRoutes.length === expectedRoutes.length,`expected ${expectedRoutes.length} routes, found ${actualRoutes.length}`);
 check(JSON.stringify(actualRoutes) === JSON.stringify([...expectedRoutes].sort()),`route mismatch:\n${actualRoutes.join('\n')}`);
 
+for(const [relative,expected] of generatedOutputs){
+    const file=path.join(docs,...relative.split('/'));
+    check(existsSync(file),`${relative}: missing generated file`);
+    if(existsSync(file)) check(readFileSync(file,'utf8') === expected,`${relative}: generated content is stale`);
+}
+
 for(const file of htmlFiles){
     const relative=path.relative(docs,file).replaceAll(path.sep,'/');
     const source=readFileSync(file,'utf8');
@@ -110,18 +102,22 @@ for(const file of htmlFiles){
     }
 }
 
-const suiteDirectory=path.join(repository,'test','suites');
-if(existsSync(suiteDirectory)){
-    for(const category of ['unit','functional','integration','regression']){
-        const {default:groups}=await import(pathToFileURL(path.join(suiteDirectory,`${category}.js`)));
-        const page=readFileSync(path.join(docs,'testing',category,'index.html'),'utf8');
-        for(const group of groups){
-            check(page.includes(group.name),`testing/${category}: missing group ${group.name}`);
-            for(const entry of group.cases){
-                check(page.includes(entry.name),`testing/${category}: missing case ${group.name} — ${entry.name}`);
-            }
-        }
-    }
+const trackedInventoryFile=path.join(docs,'data','test-inventory.json');
+const routeManifestFile=path.join(docs,'data','routes.json');
+if(existsSync(trackedInventoryFile)){
+    const trackedInventory=JSON.parse(readFileSync(trackedInventoryFile,'utf8'));
+    check(JSON.stringify(trackedInventory) === JSON.stringify(inventory),'data/test-inventory.json does not match test/inventory.js');
+}
+if(existsSync(routeManifestFile)){
+    const routeManifest=JSON.parse(readFileSync(routeManifestFile,'utf8'));
+    check(routeManifest.schemaVersion === 1,'data/routes.json: unsupported schema version');
+    check(JSON.stringify(routeManifest.routes) === JSON.stringify(expectedRoutes),'data/routes.json does not match generated routes');
+}
+
+for(const group of inventory.groups){
+    const category=group.category.toLowerCase();
+    const categoryPage=readFileSync(path.join(docs,'testing',category,'index.html'),'utf8');
+    check(categoryPage.includes(`./${group.slug}/`),`testing/${category}: missing link to ${group.name}`);
 }
 
 const sitemap=readFileSync(path.join(docs,'sitemap.xml'),'utf8');
@@ -130,4 +126,4 @@ for(const route of expectedRoutes){
 }
 
 assert.equal(errors.length,0,`Site validation failed:\n- ${errors.join('\n- ')}`);
-console.log(`Validated ${actualRoutes.length} routes, ${htmlFiles.length} HTML files, local links, metadata, and exact test inventory.`);
+console.log(`Validated ${actualRoutes.length} routes, ${htmlFiles.length} HTML files, local links, metadata, and ${inventory.total} exact test cases across ${inventory.groups.length} group pages.`);

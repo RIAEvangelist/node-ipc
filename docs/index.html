@@ -59,7 +59,9 @@
       <p class="mini-note">This site follows <code>main</code> and the upcoming major: one native ES module for Unix sockets, Windows named pipes, TCP, TLS, and UDP—with each concern on its own page.</p>
       <div class="hero-actions">
         <a class="button primary" href="./quick-start/">Start in five minutes</a>
-        <a class="button" href="./testing/">Inspect the 90-case test target</a>
+        <!-- generated:test-hero-link:start -->
+<a class="button" href="./testing/">Inspect the 140-case inventory</a>
+<!-- generated:test-hero-link:end -->
       </div>
       <div class="pills">
         <span class="pill good">Published 12.0.0 · Node 14+</span><span class="pill info">Main / upcoming · Node 22.12+</span>
@@ -68,7 +70,9 @@
     </section>
 
     <section class="metric-grid" aria-label="Project quality summary">
-      <article class="metric"><span class="metric-label">Correctness target</span><strong class="metric-value">90</strong><span class="metric-note">Small, visible test cases</span></article>
+      <!-- generated:test-metric:start -->
+<article class="metric"><span class="metric-label">Correctness inventory</span><strong class="metric-value">140</strong><span class="metric-note">28 focused five-case groups</span></article>
+<!-- generated:test-metric:end -->
       <article class="metric"><span class="metric-label">Test sets</span><strong class="metric-value">4</strong><span class="metric-note">Unit · functional · integration · regression</span></article>
       <article class="metric"><span class="metric-label">Transports</span><strong class="metric-value">5</strong><span class="metric-note">Local · TCP · TLS · UDP4 · UDP6</span></article>
       <article class="metric"><span class="metric-label">Build step</span><strong class="metric-value">0</strong><span class="metric-note">Native Node.js, no transpiler</span></article>
@@ -87,19 +91,19 @@
       </div>
     </section>
 
-    <section class="section" aria-labelledby="quality-visible">
+    <!-- generated:test-summary:start -->
+<section class="section" aria-labelledby="quality-visible">
       <p class="eyebrow">Evidence, not a footnote</p>
       <h2 id="quality-visible">Testing stays visible</h2>
-      <p class="muted">The 90-case correctness target is intentionally split into small five-case groups. Generated workflow data is authoritative about what is currently implemented and passing.</p>
-      <div class="route-grid">
-        <article class="test-card"><span class="test-count">30</span><h3>Unit inventory</h3><p>Defaults, parser formatting and splitting, public module surface, and transport object construction.</p><a href="./testing/unit/">See six exact groups →</a></article>
-        <article class="test-card"><span class="test-count">20</span><h3>Functional inventory</h3><p>Configured logging, local and network service construction, and client outbound messaging.</p><a href="./testing/functional/">See four exact groups →</a></article>
-        <article class="test-card"><span class="test-count">20</span><h3>Integration inventory</h3><p>Live TCP, local socket or Windows pipe, UDP4, and TLS round-trip behavior.</p><a href="./testing/integration/">See four exact groups →</a></article>
-        <article class="test-card"><span class="test-count">20</span><h3>Regression inventory</h3><p>Payload edges, public overloads, event-pubsub compatibility, and connection lifecycle guards.</p><a href="./testing/regression/">See four exact groups →</a></article>
-      </div>
-      <div class="callout success"><strong>Correctness stays honest.</strong><p>The 8-assertion cross-process transport smoke, runtime loader smoke, installed-package smoke, 11 benchmark harness checks, and tracked-record validator are reported separately. They do not inflate the 90-case correctness count.</p></div>
+      <p class="muted">The 140-case correctness inventory is split into 28 focused five-case groups. Generated workflow data is authoritative about what is currently implemented and passing.</p>
+      <div class="route-grid"><article class="test-card"><span class="test-count">40</span><h3>Unit inventory</h3><p>Small, isolated contracts for defaults, parsing, public surface, and transport state.</p><a href="./testing/unit/">See 8 group pages →</a></article>
+<article class="test-card"><span class="test-count">30</span><h3>Functional inventory</h3><p>Consumer-visible behavior across public objects, configuration, serialization, and routing.</p><a href="./testing/functional/">See 6 group pages →</a></article>
+<article class="test-card"><span class="test-count">40</span><h3>Integration inventory</h3><p>Live transport collaboration with explicit deadlines and deterministic teardown.</p><a href="./testing/integration/">See 8 group pages →</a></article>
+<article class="test-card"><span class="test-count">30</span><h3>Regression inventory</h3><p>Named compatibility contracts that prevent previously supported behavior from drifting.</p><a href="./testing/regression/">See 6 group pages →</a></article></div>
+      <div class="callout success"><strong>Correctness stays honest.</strong><p>The 8-assertion cross-process transport smoke, runtime loader smoke, installed-package smoke, 11 benchmark harness checks, and tracked-record validator are reported separately. They do not inflate the 140-case correctness count.</p></div>
       <div class="button-row"><a class="button primary" href="./testing/">Testing overview</a><a class="button" href="./coverage/">Coverage evidence</a><a class="button" href="./benchmarks/">Benchmark provenance</a></div>
     </section>
+<!-- generated:test-summary:end -->
 
     <section class="section" aria-labelledby="install-now">
       <p class="eyebrow">Published lane</p><h2 id="install-now">Install the exact 12.0.0 release</h2>

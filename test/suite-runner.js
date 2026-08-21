@@ -1,25 +1,25 @@
 import assert from 'node:assert/strict';
 import VanillaTest from 'vanilla-test';
 
-const expectedCategoryCounts=Object.freeze({
-    Unit:30,
-    Functional:20,
-    Integration:20,
-    Regression:20
+const minimumCategoryCounts=Object.freeze({
+    Unit:40,
+    Functional:30,
+    Integration:40,
+    Regression:30
 });
 
 function validateInventory(groups){
     const descriptions=new Set();
     const categoryCounts=Object.fromEntries(
-        Object.keys(expectedCategoryCounts).map((category) => [category,0])
+        Object.keys(minimumCategoryCounts).map((category) => [category,0])
     );
 
     for(const group of groups){
-        assert.ok(Object.hasOwn(expectedCategoryCounts,group.category),`Unknown category: ${group.category}`);
+        assert.ok(Object.hasOwn(minimumCategoryCounts,group.category),`Unknown category: ${group.category}`);
         assert.equal(typeof group.name,'string');
         assert.ok(group.name.length > 0);
         assert.ok(Array.isArray(group.cases));
-        assert.ok(group.cases.length >= 5 && group.cases.length <= 10,`${group.category}/${group.name} must contain 5-10 cases.`);
+        assert.equal(group.cases.length,5,`${group.category}/${group.name} must contain exactly five cases.`);
 
         for(const entry of group.cases){
             assert.equal(typeof entry.name,'string');
@@ -31,8 +31,13 @@ function validateInventory(groups){
         }
     }
 
-    assert.deepEqual(categoryCounts,expectedCategoryCounts);
-    assert.equal(descriptions.size,90);
+    for(const [category,minimum] of Object.entries(minimumCategoryCounts)){
+        assert.ok(
+            categoryCounts[category] >= minimum,
+            `${category} must contain at least ${minimum} cases; found ${categoryCounts[category]}.`
+        );
+    }
+    assert.ok(descriptions.size >= 140,`Correctness inventory must contain at least 140 cases; found ${descriptions.size}.`);
     return Object.freeze({categoryCounts,total:descriptions.size});
 }
 
@@ -88,7 +93,7 @@ async function run(groups){
 }
 
 export {
-    expectedCategoryCounts,
+    minimumCategoryCounts,
     run as default,
     run,
     validateInventory

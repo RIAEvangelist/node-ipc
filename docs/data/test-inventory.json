@@ -1,0 +1,386 @@
+{
+  "schemaVersion": 2,
+  "runner": {
+    "name": "vanilla-test",
+    "version": "2.1.1"
+  },
+  "total": 140,
+  "categories": {
+    "Unit": 40,
+    "Functional": 30,
+    "Integration": 40,
+    "Regression": 30
+  },
+  "minimumCategories": {
+    "Unit": 40,
+    "Functional": 30,
+    "Integration": 40,
+    "Regression": 30
+  },
+  "groups": [
+    {
+      "category": "Unit",
+      "name": "Defaults core configuration",
+      "slug": "defaults-core-configuration",
+      "count": 5,
+      "cases": [
+        "constructs isolated configuration objects",
+        "uses a non-empty host identity",
+        "defines the local protocol namespace and delimiter",
+        "defaults to framed asynchronous UTF-8 messages",
+        "enables stale local-socket unlinking by default"
+      ]
+    },
+    {
+      "category": "Unit",
+      "name": "Defaults network and logging configuration",
+      "slug": "defaults-network-and-logging-configuration",
+      "count": 5,
+      "cases": [
+        "derives a loopback host from the detected IP family",
+        "sets stable network port and connection limits",
+        "starts every optional client interface field disabled",
+        "keeps broad local-socket permissions disabled",
+        "provides an enabled console logger with bounded inspection"
+      ]
+    },
+    {
+      "category": "Unit",
+      "name": "EventParser formatting",
+      "slug": "eventparser-formatting",
+      "count": 5,
+      "cases": [
+        "serializes an object payload and appends one delimiter",
+        "preserves a boolean false payload",
+        "preserves a numeric zero payload",
+        "normalizes omitted payload data to an object",
+        "does not serialize event-emitter internals"
+      ]
+    },
+    {
+      "category": "Unit",
+      "name": "EventParser frame splitting",
+      "slug": "eventparser-frame-splitting",
+      "count": 5,
+      "cases": [
+        "extracts one complete frame",
+        "extracts multiple frames in wire order",
+        "ignores an incomplete trailing frame",
+        "supports a configured multi-character delimiter",
+        "returns an empty list when no frame is complete"
+      ]
+    },
+    {
+      "category": "Unit",
+      "name": "Public module surface",
+      "slug": "public-module-surface",
+      "count": 5,
+      "cases": [
+        "exports one singleton IPC module",
+        "exposes the IPC class through module instances",
+        "isolates config and connection registries per instance",
+        "publishes all five connection and service methods",
+        "starts without a server or peer connections"
+      ]
+    },
+    {
+      "category": "Unit",
+      "name": "Transport object construction",
+      "slug": "transport-object-construction",
+      "count": 5,
+      "cases": [
+        "client retains its configuration and logger",
+        "client initializes its retry allowance from configuration",
+        "client exposes its constructor and transport operations",
+        "server retains path, port, and configuration",
+        "server starts with neutral transport state"
+      ]
+    },
+    {
+      "category": "Unit",
+      "name": "Defaults retry and transport policy",
+      "slug": "defaults-retry-and-transport-policy",
+      "count": 5,
+      "cases": [
+        "uses a 500 millisecond retry delay",
+        "allows unlimited retries by default",
+        "keeps automatic retrying enabled by default",
+        "leaves TLS transport disabled by default",
+        "isolates interface mutations between instances"
+      ]
+    },
+    {
+      "category": "Unit",
+      "name": "EventParser payload shapes",
+      "slug": "eventparser-payload-shapes",
+      "count": 5,
+      "cases": [
+        "preserves a boolean true payload",
+        "preserves a negative numeric payload",
+        "preserves a non-empty string payload",
+        "preserves an array payload",
+        "appends the configured delimiter without changing the payload"
+      ]
+    },
+    {
+      "category": "Functional",
+      "name": "Configured logging",
+      "slug": "configured-logging",
+      "count": 5,
+      "cases": [
+        "silent mode suppresses logger calls",
+        "joins primitive arguments into one record",
+        "inspects object arguments for readable output",
+        "honors the configured object inspection depth",
+        "emits exactly one logger call per log operation"
+      ]
+    },
+    {
+      "category": "Functional",
+      "name": "Local service construction",
+      "slug": "local-service-construction",
+      "count": 5,
+      "cases": [
+        "uses an explicit local endpoint",
+        "derives its endpoint from socket root, appspace, and id",
+        "shares the live public configuration with its server",
+        "registers the supplied start callback",
+        "replaces an earlier unstarted service definition cleanly"
+      ]
+    },
+    {
+      "category": "Functional",
+      "name": "Network service construction",
+      "slug": "network-service-construction",
+      "count": 5,
+      "cases": [
+        "preserves an explicit TCP host and port",
+        "registers the supplied network start callback",
+        "marks a UDP4 service without marking UDP6",
+        "marks a UDP6 service without marking UDP4",
+        "normalizes a UDP4 service away from IPv6 loopback"
+      ]
+    },
+    {
+      "category": "Functional",
+      "name": "Client outbound messaging",
+      "slug": "client-outbound-messaging",
+      "count": 5,
+      "cases": [
+        "writes one framed custom event to its socket",
+        "preserves Unicode through outbound serialization",
+        "writes raw-buffer event bytes without a protocol frame",
+        "volatile mode writes immediately without retaining queue work",
+        "synchronous mode holds later writes until queue advancement"
+      ]
+    },
+    {
+      "category": "Functional",
+      "name": "Server outbound routing",
+      "slug": "server-outbound-routing",
+      "count": 5,
+      "cases": [
+        "writes one framed event to a stream socket",
+        "broadcasts one framed event to each stream socket exactly once",
+        "writes raw-buffer bytes to one stream socket",
+        "broadcasts raw-buffer bytes to every stream socket",
+        "preserves the address and port of a targeted UDP write"
+      ]
+    },
+    {
+      "category": "Functional",
+      "name": "Service overload resolution",
+      "slug": "service-overload-resolution",
+      "count": 5,
+      "cases": [
+        "serve without arguments derives a local endpoint and default callback",
+        "numeric-only serveNet uses the default host and explicit TCP port",
+        "host-plus-callback serveNet uses the configured TCP port",
+        "port-plus-UDP4 serveNet uses the default host and registers its callback",
+        "fully specified UDP6 serveNet preserves endpoint protocol and callback"
+      ]
+    },
+    {
+      "category": "Integration",
+      "name": "TCP lifecycle and round trip",
+      "slug": "tcp-lifecycle-and-round-trip",
+      "count": 5,
+      "cases": [
+        "binds and reports the requested endpoint",
+        "establishes both public peer and server socket state",
+        "delivers a structured client event to the server",
+        "delivers a server unicast event to the client",
+        "delivers a server broadcast event to connected clients"
+      ]
+    },
+    {
+      "category": "Integration",
+      "name": "Local socket or Windows pipe round trip",
+      "slug": "local-socket-or-windows-pipe-round-trip",
+      "count": 5,
+      "cases": [
+        "binds and reports the requested endpoint",
+        "establishes both public peer and server socket state",
+        "delivers a structured client event to the server",
+        "delivers a server unicast event to the client",
+        "delivers a server broadcast event to connected clients"
+      ]
+    },
+    {
+      "category": "Integration",
+      "name": "UDP4 datagram exchange",
+      "slug": "udp4-datagram-exchange",
+      "count": 5,
+      "cases": [
+        "binds a public UDP4 service to the requested port",
+        "decodes a custom event and preserves sender metadata",
+        "associates a declared peer id with its datagram sender",
+        "sends a framed response to one UDP peer",
+        "decodes two complete frames from one datagram in order"
+      ]
+    },
+    {
+      "category": "Integration",
+      "name": "TLS encrypted transport",
+      "slug": "tls-encrypted-transport",
+      "count": 5,
+      "cases": [
+        "creates an encrypted server-side socket",
+        "creates an encrypted client-side socket",
+        "negotiates a concrete TLS cipher",
+        "delivers a framed event through the encrypted channel",
+        "returns a framed event through the encrypted channel"
+      ]
+    },
+    {
+      "category": "Integration",
+      "name": "Protocol-compatible TCP client",
+      "slug": "protocol-compatible-tcp-client",
+      "count": 5,
+      "cases": [
+        "connects without loading node-ipc in the peer",
+        "delivers a neutral object frame to the node-ipc server",
+        "delivers a neutral false payload to the node-ipc server",
+        "delivers a neutral zero payload to the node-ipc server",
+        "decodes a node-ipc reply with only the wire contract"
+      ]
+    },
+    {
+      "category": "Integration",
+      "name": "Protocol-compatible TCP server",
+      "slug": "protocol-compatible-tcp-server",
+      "count": 5,
+      "cases": [
+        "accepts a node-ipc client without loading node-ipc in the server",
+        "receives a node-ipc object as a neutral JSON frame",
+        "receives a node-ipc false payload without coercion",
+        "receives Unicode through the neutral wire frame",
+        "turns a neutral reply frame into a node-ipc client event"
+      ]
+    },
+    {
+      "category": "Integration",
+      "name": "Multiple TCP client routing",
+      "slug": "multiple-tcp-client-routing",
+      "count": 5,
+      "cases": [
+        "tracks two simultaneous client sockets",
+        "associates each declared peer id with the correct socket",
+        "isolates a unicast addressed to the first client",
+        "isolates a unicast addressed to the second client",
+        "broadcasts one event to both clients"
+      ]
+    },
+    {
+      "category": "Integration",
+      "name": "UDP6 datagram exchange",
+      "slug": "udp6-datagram-exchange",
+      "count": 5,
+      "cases": [
+        "binds a public UDP6 service to the requested port",
+        "decodes a UDP6 event and preserves sender metadata",
+        "associates a declared peer id with its UDP6 sender",
+        "sends a framed response to one UDP6 peer",
+        "decodes two complete UDP6 frames in wire order"
+      ]
+    },
+    {
+      "category": "Regression",
+      "name": "Protocol payload edge cases",
+      "slug": "protocol-payload-edge-cases",
+      "count": 5,
+      "cases": [
+        "keeps delimiter characters inside JSON strings escaped",
+        "round-trips multibyte payload text without corruption",
+        "normalizes an empty-string payload to the legacy empty object",
+        "normalizes a null payload to the legacy empty object",
+        "preserves payloads whose emitter marker is explicitly zero"
+      ]
+    },
+    {
+      "category": "Regression",
+      "name": "Public argument overloads",
+      "slug": "public-argument-overloads",
+      "count": 5,
+      "cases": [
+        "serve callback overload selects the configured local endpoint",
+        "numeric serveNet overload selects default host and explicit port",
+        "UDP4 serveNet overload selects configured host and port",
+        "host-plus-UDP6 overload selects the configured port",
+        "callback-only serveNet overload selects both network defaults"
+      ]
+    },
+    {
+      "category": "Regression",
+      "name": "event-pubsub transport compatibility",
+      "slug": "event-pubsub-transport-compatibility",
+      "count": 5,
+      "cases": [
+        "keeps default and named class exports identical",
+        "keeps the public prototype and constructor name stable",
+        "accepts every node-ipc reserved lifecycle event locally",
+        "preserves wildcard, once, and explicit removal semantics",
+        "delivers every event on the emit hot path without loss"
+      ]
+    },
+    {
+      "category": "Regression",
+      "name": "Connection lifecycle guards",
+      "slug": "connection-lifecycle-guards",
+      "count": 5,
+      "cases": [
+        "rejects a local connection request without a service id",
+        "rejects a network connection request without a service id",
+        "treats disconnect of an unknown peer as a no-op",
+        "reuses a live connection and invokes the new callback",
+        "marks, clears, destroys, and removes a disconnected peer"
+      ]
+    },
+    {
+      "category": "Regression",
+      "name": "Public method accessor stability",
+      "slug": "public-method-accessor-stability",
+      "count": 5,
+      "cases": [
+        "keeps connectTo callable after an assignment attempt",
+        "keeps connectToNet callable after an assignment attempt",
+        "keeps disconnect callable after an assignment attempt",
+        "keeps serve callable after an assignment attempt",
+        "keeps serveNet callable after an assignment attempt"
+      ]
+    },
+    {
+      "category": "Regression",
+      "name": "Server socket cleanup invariants",
+      "slug": "server-socket-cleanup-invariants",
+      "count": 5,
+      "cases": [
+        "removes an unreadable closed socket from the registry",
+        "destroys an unreadable closed socket exactly once",
+        "publishes the disconnected socket and its peer id",
+        "retains a socket that remains readable",
+        "delegates server stop to the active listener"
+      ]
+    }
+  ]
+}

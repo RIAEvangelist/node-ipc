@@ -21,7 +21,7 @@
 ipc.config.id = 'orders';
 ipc.config.silent = true;
 ipc.config.retry = 500;
-ipc.config.maxConnections = 100;</code></pre><div class="callout warning"><strong>Main is still being validated.</strong><p>This page documents only the configuration surface exercised by the current 90-case inventory. Proposed message, queue, timeout, wire-event, socket-root security, and log-redaction work is intentionally omitted until implemented and tested.</p></div></section>
+ipc.config.maxConnections = 100;</code></pre><div class="callout warning"><strong>Main is still being validated.</strong><p>This page documents only the configuration surface exercised by the generated correctness inventory. Proposed message, queue, timeout, wire-event, socket-root security, and log-redaction work is intentionally omitted until implemented and tested.</p></div></section>
     <section class="section" id="identity"><h2>Identity and local sockets</h2><table><thead><tr><th>Key</th><th>Default</th><th>Purpose</th></tr></thead><tbody>
       <tr><td><code>id</code></td><td>OS hostname</td><td>Service or process identifier.</td></tr><tr><td><code>appspace</code></td><td><code>app.</code></td><td>Namespace prefix combined with the socket root and service id.</td></tr>
       <tr><td><code>socketRoot</code></td><td>Derived runtime path</td><td>Selects the logical root used to form local endpoint names. Verify directory ownership and permissions in the deployed runtime.</td></tr>
