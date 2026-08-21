@@ -42,6 +42,27 @@ npm run benchmark:quick
 npm run benchmark:test
 ```
 
+## Tracked evidence
+
+Every accepted run is written as versioned, sanitized raw JSON under `benchmark/results/` and indexed by `benchmark/results/index.json`. Git state is captured before and after execution. Each append-only run ID has a manifest SHA-256. The record retains a privacy-preserving machine fingerprint and specifications, OS, architecture, Node version, Git commit and clean-state proof, oracle source and binary hashes, fixed compiler flags and target, the canonical configuration, every performance sample, cleanup proof, memory checkpoints, GC observations, and package footprint. It excludes usernames, absolute temporary paths, ephemeral ports, and process IDs.
+
+Run a fast development check without recording it:
+
+```sh
+npm run benchmark:quick
+```
+
+Quick and custom runs write ephemeral JSON to standard output only. The recorder rejects dirty trees, changed trees, non-C oracles, custom/tiny configurations, failed cleanup or count gates, saturated oracles, unverifiable builds, and missing package-footprint evidence before it writes anything under `benchmark/results/`.
+
+For publishable evidence, start from a clean commit on an identified idle machine, build the C oracle, and run the complete configuration:
+
+```sh
+npm run benchmark:record
+npm run benchmark:validate
+```
+
+The recorder uses exactly three passes with seven samples per pass, a 64-byte payload, 100,000 warm-up messages, and 1,000,000 measured messages per pass. The validator applies the public schema, recomputes sample and cleanup counts, verifies current and historical manifest hashes, and enforces append-only history. Hosted figures are explicitly `snapshot-noisy`, not authoritative rankings. Rankings remain disabled until comparable clean C-oracle node-ipc adapters exist; the honest initial state is zero verified runs.
+
 ## Clean baseline
 
 Workers run with `--expose-gc`. Memory is captured before adapter import, after import, connected, post-warm-up, post-run, and after close plus GC. A clean sample requires exact byte and message counts, natural process exits, no open sockets, no new active resources, an immediately reusable endpoint, and no leftover files in the private temporary root.

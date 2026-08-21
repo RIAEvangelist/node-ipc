@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Configuration | node-ipc</title>
+  <meta name="description" content="node-ipc configuration defaults for identity, transport, framing, limits, retries, logging, local socket permissions, and interfaces.">
+  <meta name="theme-color" content="#050812"><link rel="canonical" href="https://riaevangelist.github.io/node-ipc/config/">
+  <meta property="og:type" content="article"><meta property="og:site_name" content="node-ipc documentation"><meta property="og:title" content="node-ipc Configuration"><meta property="og:description" content="Review the currently tested transport, retry, and logging configuration surface."><meta property="og:url" content="https://riaevangelist.github.io/node-ipc/config/"><meta property="og:image" content="https://riaevangelist.github.io/node-ipc/assets/node-ipc-header.png"><meta property="og:image:alt" content="node-ipc local and remote process communication"><meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="../assets/site.css"><script src="../assets/site.js" defer></script>
+</head><body>
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="site-header"><div class="shell header-inner"><a class="brand" href="../" aria-label="node-ipc documentation home"><span class="brand-mark" aria-hidden="true">IPC</span><span>node-ipc<small>main documentation</small></span></a><button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="site-nav">Menu</button><nav class="site-nav" id="site-nav" data-site-nav aria-label="Primary navigation">
+  <a href="../">Home</a><a href="../quick-start/">Quick start</a><a href="./" aria-current="page">Config</a><a href="../api/">API</a>
+  <details class="nav-cluster"><summary>Transports</summary><div class="nav-menu"><a href="../unix-windows/">Unix / Windows</a><a href="../tcp/">TCP</a><a href="../tls/">TLS</a><a href="../udp/">UDP</a></div></details><a href="../examples/">Examples</a>
+  <details class="nav-cluster"><summary>Testing</summary><div class="nav-menu"><a href="../testing/">Overview</a><a href="../testing/unit/">Unit</a><a href="../testing/functional/">Functional</a><a href="../testing/integration/">Integration</a><a href="../testing/regression/">Regression</a><a href="../coverage/">Coverage</a><a href="../benchmarks/">Benchmarks</a></div></details><a href="../security/">Security</a>
+</nav></div></header>
+<main id="content" class="shell page-shell">
+  <nav aria-label="Breadcrumb"><ol class="crumbs"><li><a href="../">Home</a></li><li aria-current="page">Configuration</li></ol></nav>
+  <header class="page-hero compact"><p class="eyebrow">Main / upcoming reference</p><h1>Configuration</h1><p class="lead">This page follows the in-progress main branch, not published 12.0.0. Verify generated tests before relying on a new option or default.</p></header>
+  <div class="content-grid"><div>
+    <section class="section" id="starter"><h2>Main-branch starter</h2><pre><code>import ipc from 'node-ipc';
+
+ipc.config.id = 'orders';
+ipc.config.silent = true;
+ipc.config.retry = 500;
+ipc.config.maxConnections = 100;</code></pre><div class="callout warning"><strong>Main is still being validated.</strong><p>This page documents only the configuration surface exercised by the current 90-case inventory. Proposed message, queue, timeout, wire-event, socket-root security, and log-redaction work is intentionally omitted until implemented and tested.</p></div></section>
+    <section class="section" id="identity"><h2>Identity and local sockets</h2><table><thead><tr><th>Key</th><th>Default</th><th>Purpose</th></tr></thead><tbody>
+      <tr><td><code>id</code></td><td>OS hostname</td><td>Service or process identifier.</td></tr><tr><td><code>appspace</code></td><td><code>app.</code></td><td>Namespace prefix combined with the socket root and service id.</td></tr>
+      <tr><td><code>socketRoot</code></td><td>Derived runtime path</td><td>Selects the logical root used to form local endpoint names. Verify directory ownership and permissions in the deployed runtime.</td></tr>
+      <tr><td><code>readableAll</code></td><td><code>false</code></td><td>Requests a local pipe readable by all users or Windows services.</td></tr><tr><td><code>writableAll</code></td><td><code>false</code></td><td>Requests a local pipe writable by all users or Windows services.</td></tr><tr><td><code>unlink</code></td><td><code>true</code></td><td>Removes an existing socket path before binding. Clustered ownership may require <code>false</code>.</td></tr>
+    </tbody></table></section>
+    <section class="section" id="network"><h2>Network</h2><table><thead><tr><th>Key</th><th>Default</th><th>Purpose</th></tr></thead><tbody>
+      <tr><td><code>networkHost</code></td><td><code>127.0.0.1</code> or <code>::1</code></td><td>Default TCP, TLS, or UDP host; stays on loopback.</td></tr><tr><td><code>networkPort</code></td><td><code>8000</code></td><td>Default network port.</td></tr><tr><td><code>IPType</code></td><td>Detected</td><td>Chooses the initial IPv4 or IPv6 loopback default.</td></tr><tr><td><code>maxConnections</code></td><td><code>100</code></td><td>Maximum concurrent stream connections.</td></tr><tr><td><code>interface</code></td><td>All fields <code>false</code></td><td>Optional <code>localAddress</code>, <code>localPort</code>, <code>family</code>, <code>hints</code>, and <code>lookup</code> socket-connect settings.</td></tr><tr><td><code>tls</code></td><td><code>false</code></td><td>TLS options object. Servers require an explicit key and certificate.</td></tr>
+    </tbody></table></section>
+    <section class="section" id="messages"><h2>Messages and limits</h2><table><thead><tr><th>Key</th><th>Default</th><th>Purpose</th></tr></thead><tbody>
+      <tr><td><code>encoding</code></td><td><code>utf8</code></td><td>Encoding used for stream data and raw buffers.</td></tr><tr><td><code>rawBuffer</code></td><td><code>false</code></td><td>Sends and receives <code>Buffer</code> data instead of framed event objects.</td></tr><tr><td><code>delimiter</code></td><td><code>\f</code></td><td>Terminates each framed event packet.</td></tr><tr><td><code>sync</code></td><td><code>false</code></td><td>Queues client sends until the server replies.</td></tr>
+    </tbody></table></section>
+    <section class="section" id="retry"><h2>Reconnect policy</h2><table><thead><tr><th>Key</th><th>Default</th><th>Purpose</th></tr></thead><tbody>
+      <tr><td><code>retry</code></td><td><code>500</code> ms</td><td>Delay between stream reconnection attempts.</td></tr><tr><td><code>maxRetries</code></td><td><code>Infinity</code></td><td>Maximum reconnect attempts after a disconnect.</td></tr><tr><td><code>stopRetrying</code></td><td><code>false</code></td><td><code>true</code> stops immediately; <code>0</code> disables retry; a number stops after that limit.</td></tr>
+    </tbody></table></section>
+    <section class="section" id="logging"><h2>Logging</h2><table><thead><tr><th>Key</th><th>Default</th><th>Purpose</th></tr></thead><tbody>
+      <tr><td><code>silent</code></td><td><code>false</code></td><td>Disables library logging when true.</td></tr><tr><td><code>logger</code></td><td><code>console.log</code></td><td>Receives one formatted string.</td></tr><tr><td><code>logInColor</code></td><td><code>true</code></td><td>Enables inspected-object colors.</td></tr><tr><td><code>logDepth</code></td><td><code>5</code></td><td>Object inspection depth.</td></tr>
+    </tbody></table><div class="callout warning"><strong>Logs cross trust boundaries.</strong><p>Leave payload logging off in production unless the data classification and retention policy explicitly allow it.</p></div></section>
+    <div class="next-links"><a href="../quick-start/">← Quick start</a><a href="../api/">API reference →</a></div>
+  </div><aside class="page-nav" aria-label="On this page"><strong>On this page</strong><a href="#starter">Safe starter</a><a href="#identity">Identity + local</a><a href="#network">Network</a><a href="#messages">Messages + limits</a><a href="#retry">Reconnect</a><a href="#logging">Logging</a></aside></div>
+</main>
+<footer class="site-footer"><div class="shell footer-inner"><div><h2>node-ipc</h2><p class="footer-note">Main-branch options remain subject to validation before the upcoming major is published.</p></div><div><h2>Reference</h2><div class="footer-links"><a href="../api/">API</a><a href="../security/">Security</a><a href="../examples/">Examples</a></div></div><div><h2>Project</h2><div class="footer-links"><a href="https://github.com/RIAEvangelist/node-ipc">GitHub</a><a href="https://www.npmjs.com/package/node-ipc">npm</a><a href="../testing/">Testing</a></div></div></div></footer>
+</body></html>

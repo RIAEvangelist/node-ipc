@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://riaevangelist.github.io/node-ipc/sitemap.xml

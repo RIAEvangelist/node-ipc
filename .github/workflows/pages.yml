@@ -1,0 +1,351 @@
+name: Test and deploy documentation
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Test, validate, and assemble Pages
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pages: read
+
+    steps:
+      - name: Require main as the deployment source
+        env:
+          SOURCE_REF: ${{ github.ref }}
+        run: test "$SOURCE_REF" = refs/heads/main
+
+      - name: Check out main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install exact dependencies
+        run: npm ci
+
+      - name: Run tests and generate coverage
+        run: npm test
+
+      - name: Validate documentation routes, links, metadata, and test inventory
+        run: node docs/scripts/validate-site.mjs
+
+      - name: Validate tracked benchmark results
+        run: node benchmark/validate-results.js
+
+      - name: Build the standard C oracle
+        run: node benchmark/oracle/build.js
+
+      - name: Accept the standard C oracle
+        run: node benchmark/c-oracle-smoke.js
+
+      - name: Configure canonical Pages target
+        id: pages
+        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+        with:
+          enablement: false
+
+      - name: Verify canonical Pages target
+        env:
+          ACTUAL_BASE_URL: ${{ steps.pages.outputs.base_url }}
+          EXPECTED_BASE_URL: https://riaevangelist.github.io/node-ipc/
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="${ACTUAL_BASE_URL%/}/"
+          if [[ "$actual" != "$EXPECTED_BASE_URL" ]]; then
+            echo "Expected Pages base URL '$EXPECTED_BASE_URL', received '$actual'." >&2
+            exit 1
+          fi
+
+      - name: Stage isolated Pages artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          site_entry="docs/index.html"
+          coverage_root="coverage/node"
+          benchmark_root="benchmark/results"
+          benchmark_schema="benchmark/result-schema.json"
+          header_asset="assets/node-ipc-header.png"
+          performance_asset="assets/node-ipc-performance-tiers.png"
+          artifact_root="_site"
+          expected_inventory="$RUNNER_TEMP/pages-expected-inventory.txt"
+          actual_inventory="$RUNNER_TEMP/pages-actual-inventory.txt"
+
+          test -s "$site_entry"
+          test -s "$coverage_root/index.html"
+          test -s "$coverage_root/coverage-summary.json"
+          test -s "$coverage_root/test-results.json"
+          test -s "$benchmark_root/index.json"
+          test -s "$benchmark_schema"
+          test -s "$header_asset"
+          test -s "$performance_asset"
+          test ! -e "$artifact_root"
+          git ls-files --error-unmatch "$benchmark_root/index.json" >/dev/null
+          git ls-files --error-unmatch "$benchmark_schema" >/dev/null
+          git ls-files --error-unmatch "$header_asset" >/dev/null
+          git ls-files --error-unmatch "$performance_asset" >/dev/null
+
+          mapfile -t benchmark_files < <(git ls-files -- "$benchmark_root")
+          ((${#benchmark_files[@]} > 0))
+          for source in "${benchmark_files[@]}"; do
+            relative="${source#benchmark/results/}"
+            [[ "$relative" != */* && "$relative" == *.json ]]
+            test -s "$source"
+          done
+
+          page_entries=(
+            index.html
+            quick-start/index.html
+            config/index.html
+            api/index.html
+            unix-windows/index.html
+            tcp/index.html
+            tls/index.html
+            udp/index.html
+            examples/index.html
+            testing/index.html
+            testing/unit/index.html
+            testing/functional/index.html
+            testing/integration/index.html
+            testing/regression/index.html
+            coverage/index.html
+            benchmarks/index.html
+            security/index.html
+          )
+          ((${#page_entries[@]} == 17))
+
+          mkdir -p "$artifact_root"
+          cp -a docs/. "$artifact_root/"
+          rm -f \
+            "$artifact_root/assets/node-ipc-header.png" \
+            "$artifact_root/assets/node-ipc-performance-tiers.png"
+          test ! -e "$artifact_root/assets/node-ipc-header.png"
+          test ! -e "$artifact_root/assets/node-ipc-performance-tiers.png"
+
+          mkdir -p "$artifact_root/assets"
+          cp "$header_asset" "$artifact_root/assets/node-ipc-header.png"
+          cp "$performance_asset" "$artifact_root/assets/node-ipc-performance-tiers.png"
+
+          mkdir -p "$artifact_root/coverage/report"
+          cp -a "$coverage_root"/. "$artifact_root/coverage/report/"
+
+          mkdir -p "$artifact_root/data"
+          cp "$coverage_root/coverage-summary.json" "$artifact_root/data/coverage-summary.json"
+          cp "$coverage_root/test-results.json" "$artifact_root/data/test-results.json"
+
+          mkdir -p "$artifact_root/data/benchmarks"
+          for source in "${benchmark_files[@]}"; do
+            cp "$source" "$artifact_root/data/benchmarks/"
+          done
+          cp "$benchmark_schema" "$artifact_root/data/benchmarks/result-schema.json"
+
+          for entry in "${page_entries[@]}"; do
+            test -s "$artifact_root/$entry"
+          done
+          test -s "$artifact_root/assets/node-ipc-header.png"
+          test -s "$artifact_root/assets/node-ipc-performance-tiers.png"
+          cmp -s "$header_asset" "$artifact_root/assets/node-ipc-header.png"
+          cmp -s "$performance_asset" "$artifact_root/assets/node-ipc-performance-tiers.png"
+          test -s "$artifact_root/coverage/report/index.html"
+          test -s "$artifact_root/data/coverage-summary.json"
+          test -s "$artifact_root/data/test-results.json"
+          test -s "$artifact_root/data/benchmarks/index.json"
+          test -s "$artifact_root/data/benchmarks/result-schema.json"
+          cmp -s "$benchmark_schema" "$artifact_root/data/benchmarks/result-schema.json"
+
+          forbidden_entry="$({
+            find "$artifact_root" \
+              \( -name .git -o -name .github -o -name local-node-ipc-certs -o -name node_modules -o -name '.codex-*' \) \
+              -print -quit
+          } || true)"
+          if [[ -n "$forbidden_entry" ]]; then
+            echo "Forbidden Pages artifact entry: $forbidden_entry" >&2
+            exit 1
+          fi
+
+          linked_entry="$(find "$artifact_root" -type l -print -quit)"
+          if [[ -n "$linked_entry" ]]; then
+            echo "Pages artifact must not contain symbolic links: $linked_entry" >&2
+            exit 1
+          fi
+
+          {
+            find docs -type f \
+              ! -path 'docs/assets/node-ipc-header.png' \
+              ! -path 'docs/assets/node-ipc-performance-tiers.png' \
+              -printf '%P\n'
+            printf '%s\n' assets/node-ipc-header.png assets/node-ipc-performance-tiers.png
+            find "$coverage_root" -type f -printf 'coverage/report/%P\n'
+            printf '%s\n' data/coverage-summary.json data/test-results.json
+            for source in "${benchmark_files[@]}"; do
+              printf 'data/benchmarks/%s\n' "${source#benchmark/results/}"
+            done
+            printf '%s\n' data/benchmarks/result-schema.json
+          } | LC_ALL=C sort -u > "$expected_inventory"
+          find "$artifact_root" -type f -printf '%P\n' | LC_ALL=C sort -u > "$actual_inventory"
+          diff -u "$expected_inventory" "$actual_inventory"
+          printf 'Verified %s files in the isolated Pages artifact.\n' "$(wc -l < "$actual_inventory")"
+
+          node --input-type=module <<'NODE'
+          import {readFile} from 'node:fs/promises';
+
+          const root = '_site';
+          const files = [
+              'data/coverage-summary.json',
+              'data/test-results.json',
+              'data/benchmarks/index.json',
+              'data/benchmarks/result-schema.json'
+          ];
+
+          for (const file of files) {
+              JSON.parse(await readFile(`${root}/${file}`, 'utf8'));
+          }
+
+          const schema = JSON.parse(await readFile(`${root}/data/benchmarks/result-schema.json`, 'utf8'));
+          if (schema.$id !== 'https://riaevangelist.github.io/node-ipc/data/benchmarks/result-schema.json') {
+              throw new Error(`Unexpected benchmark schema $id: ${schema.$id}`);
+          }
+          NODE
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          name: github-pages
+          path: _site
+          retention-days: 1
+          include-hidden-files: true
+
+  deploy:
+    name: Deploy canonical GitHub Pages site
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy Pages artifact
+        id: deployment
+        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
+        with:
+          artifact_name: github-pages
+
+      - name: Use Node.js 24 for live acceptance
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+
+      - name: Verify the complete live site
+        env:
+          LIVE_BASE_URL: ${{ steps.deployment.outputs.page_url }}
+          LIVE_CACHE_KEY: ${{ github.run_id }}-${{ github.run_attempt }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+
+          const base = new URL(process.env.LIVE_BASE_URL.endsWith('/')
+              ? process.env.LIVE_BASE_URL
+              : `${process.env.LIVE_BASE_URL}/`);
+          assert.equal(base.href, 'https://riaevangelist.github.io/node-ipc/');
+
+          const routes = [
+              '',
+              'quick-start/',
+              'config/',
+              'api/',
+              'unix-windows/',
+              'tcp/',
+              'tls/',
+              'udp/',
+              'examples/',
+              'testing/',
+              'testing/unit/',
+              'testing/functional/',
+              'testing/integration/',
+              'testing/regression/',
+              'coverage/',
+              'benchmarks/',
+              'security/'
+          ];
+          assert.equal(routes.length, 17);
+
+          const wait = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
+          const live = async (path, expectedType) => {
+              const url = new URL(path, base);
+              url.searchParams.set('pages-run', process.env.LIVE_CACHE_KEY);
+              let response;
+              let failure;
+
+              for (let attempt = 1; attempt <= 6; attempt += 1) {
+                  try {
+                      response = await fetch(url, {
+                          redirect: 'follow',
+                          signal: AbortSignal.timeout(10000)
+                      });
+                      if (response.status === 200) break;
+                      failure = `HTTP ${response.status}`;
+                      await response.body?.cancel();
+                  } catch (error) {
+                      failure = error.message;
+                  }
+                  if (attempt < 6) await wait(attempt * 1000);
+              }
+
+              assert.equal(response?.status, 200, `${url.href}: ${failure ?? 'no response'}`);
+              const contentType = response.headers.get('content-type')?.toLowerCase() ?? '';
+              assert.match(contentType, expectedType, `${url.href}: unexpected content-type ${contentType}`);
+              return response;
+          };
+          const json = async path => (await live(path, /^application\/json\b/u)).json();
+
+          await Promise.all(routes.map(route => live(route, /^text\/html\b/u)));
+          await live('coverage/report/', /^text\/html\b/u);
+          await json('data/test-results.json');
+          await json('data/coverage-summary.json');
+
+          const manifest = await json('data/benchmarks/index.json');
+          assert.ok(Array.isArray(manifest.results), 'benchmark manifest results must be an array');
+
+          const schema = await json('data/benchmarks/result-schema.json');
+          assert.equal(
+              schema.$id,
+              'https://riaevangelist.github.io/node-ipc/data/benchmarks/result-schema.json'
+          );
+
+          for (const entry of manifest.results) {
+              assert.match(entry.file ?? '', /^[a-zA-Z0-9._-]+\.json$/u, 'unsafe benchmark detail filename');
+              const detail = await json(`data/benchmarks/${encodeURIComponent(entry.file)}`);
+              assert.equal(detail.record?.file, entry.file, `${entry.file}: record.file mismatch`);
+          }
+
+          await Promise.all([
+              live('assets/node-ipc-header.png', /^image\/png\b/u),
+              live('assets/node-ipc-performance-tiers.png', /^image\/png\b/u)
+          ]);
+          NODE

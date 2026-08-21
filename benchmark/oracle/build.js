@@ -19,12 +19,22 @@ for (const compiler of candidates) {
     const compileArguments = cl
         ? ['/nologo', '/O2', `/Fe:${output}`, source, 'ws2_32.lib']
         : ['-O3', '-std=c11', source, '-o', output, ...(process.platform === 'win32' ? ['-lws2_32'] : [])];
+    const recordedFlags = cl
+        ? ['/nologo', '/O2', 'ws2_32.lib']
+        : ['-O3', '-std=c11', ...(process.platform === 'win32' ? ['-lws2_32'] : [])];
     const result = spawnSync(compiler, compileArguments, {encoding: 'utf8'});
     if (!result.error && result.status === 0) {
         const version = spawnSync(compiler, cl ? [] : ['--version'], {encoding: 'utf8'});
         fs.writeFileSync(path.join(outputDirectory, 'build.json'), `${JSON.stringify({
+            binarySha256: createHash('sha256').update(fs.readFileSync(output)).digest('hex'),
             compiler,
+            flags: recordedFlags,
             sourceSha256: createHash('sha256').update(fs.readFileSync(source)).digest('hex'),
+            target: {
+                architecture: process.arch,
+                name: path.basename(output),
+                platform: process.platform
+            },
             version: `${version.stdout ?? ''}${version.stderr ?? ''}`.trim().split(/\r?\n/, 1)[0]
         }, null, 2)}\n`);
         process.stdout.write(`${output}\n`);

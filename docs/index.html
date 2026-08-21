@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>node-ipc — Local and remote process communication</title>
+  <meta name="description" content="Focused documentation for node-ipc: local sockets, TCP, TLS, UDP, API reference, security, and a visible 90-case test topology.">
+  <meta name="theme-color" content="#050812">
+  <link rel="canonical" href="https://riaevangelist.github.io/node-ipc/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="node-ipc documentation">
+  <meta property="og:title" content="node-ipc — Process communication without the maze">
+  <meta property="og:description" content="Choose a transport, ship a message, and inspect the complete quality evidence.">
+  <meta property="og:url" content="https://riaevangelist.github.io/node-ipc/">
+  <meta property="og:image" content="https://riaevangelist.github.io/node-ipc/assets/node-ipc-header.png">
+  <meta property="og:image:alt" content="node-ipc local and remote process communication">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="node-ipc documentation">
+  <meta name="twitter:description" content="Compact guides for every transport, plus explicit tests, coverage, and benchmarks.">
+  <meta name="twitter:image" content="https://riaevangelist.github.io/node-ipc/assets/node-ipc-header.png">
+  <link rel="stylesheet" href="./assets/site.css">
+  <script src="./assets/site.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#content">Skip to content</a>
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="brand" href="./" aria-label="node-ipc documentation home">
+        <span class="brand-mark" aria-hidden="true">IPC</span><span>node-ipc<small>main documentation</small></span>
+      </a>
+      <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="site-nav">Menu</button>
+      <nav class="site-nav" id="site-nav" data-site-nav aria-label="Primary navigation">
+        <a href="./" aria-current="page">Home</a>
+        <a href="./quick-start/">Quick start</a>
+        <a href="./config/">Config</a>
+        <a href="./api/">API</a>
+        <details class="nav-cluster"><summary>Transports</summary><div class="nav-menu">
+          <a href="./unix-windows/">Unix / Windows</a><a href="./tcp/">TCP</a>
+          <a href="./tls/">TLS</a><a href="./udp/">UDP</a>
+        </div></details>
+        <a href="./examples/">Examples</a>
+        <details class="nav-cluster"><summary>Testing</summary><div class="nav-menu">
+          <a href="./testing/">Overview</a><a href="./testing/unit/">Unit</a>
+          <a href="./testing/functional/">Functional</a><a href="./testing/integration/">Integration</a>
+          <a href="./testing/regression/">Regression</a><a href="./coverage/">Coverage</a>
+          <a href="./benchmarks/">Benchmarks</a>
+        </div></details>
+        <a href="./security/">Security</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="content" class="shell page-shell">
+    <nav aria-label="Breadcrumb"><ol class="crumbs"><li aria-current="page">Home</li></ol></nav>
+    <section class="page-hero">
+      <p class="eyebrow">Local + remote inter-process communication</p>
+      <h1>Move messages between Node.js processes.</h1>
+      <p class="lead">The site follows <code>main</code> and the upcoming major: one native ES module for Unix sockets, Windows named pipes, TCP, TLS, and UDP—with each concern on its own page.</p>
+      <div class="hero-actions">
+        <a class="button primary" href="./quick-start/">Start in five minutes</a>
+        <a class="button" href="./testing/">Inspect the 90-case test target</a>
+      </div>
+      <div class="pills">
+        <span class="pill good">Published 12.0.0 · Node 14+</span><span class="pill info">Main / upcoming · Node 22.12+</span>
+        <span class="pill info">Main uses native ESM</span><span class="pill good">MIT licensed</span>
+      </div>
+    </section>
+
+    <section class="metric-grid" aria-label="Project quality summary">
+      <article class="metric"><span class="metric-label">Correctness target</span><strong class="metric-value">90</strong><span class="metric-note">Small, visible test cases</span></article>
+      <article class="metric"><span class="metric-label">Test sets</span><strong class="metric-value">4</strong><span class="metric-note">Unit · functional · integration · regression</span></article>
+      <article class="metric"><span class="metric-label">Transports</span><strong class="metric-value">5</strong><span class="metric-note">Local · TCP · TLS · UDP4 · UDP6</span></article>
+      <article class="metric"><span class="metric-label">Build step</span><strong class="metric-value">0</strong><span class="metric-note">Native Node.js, no transpiler</span></article>
+    </section>
+
+    <section class="section" aria-labelledby="choose-transport">
+      <p class="eyebrow">Choose one lane</p>
+      <h2 id="choose-transport">Match the transport to the boundary</h2>
+      <div class="card-grid">
+        <article class="card"><h3>Same machine</h3><p>Use Unix domain sockets or Windows named pipes for fast local process communication without the network stack.</p><a class="card-link" href="./unix-windows/">Open local sockets →</a></article>
+        <article class="card"><h3>Reliable network</h3><p>Use TCP for ordered, reliable remote messages. Keep loopback as the default until the application is ready for exposure.</p><a class="card-link" href="./tcp/">Open TCP →</a></article>
+        <article class="card"><h3>Encrypted network</h3><p>Use TLS with explicit certificates. Add mutual TLS or application authentication when the server must identify clients.</p><a class="card-link" href="./tls/">Open TLS →</a></article>
+        <article class="card"><h3>Latency over delivery</h3><p>Use UDP4 or UDP6 for independent datagrams where occasional loss is acceptable and the application handles ordering.</p><a class="card-link" href="./udp/">Open UDP →</a></article>
+        <article class="card"><h3>Configure the runtime</h3><p>Review main-branch message, retry, log, and socket-root options before the first connection is created.</p><a class="card-link" href="./config/">Open configuration →</a></article>
+        <article class="card"><h3>Know the contract</h3><p>See the small public surface: connect, serve, disconnect, emit, broadcast, stop, events, and stores.</p><a class="card-link" href="./api/">Open API reference →</a></article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="quality-visible">
+      <p class="eyebrow">Evidence, not a footnote</p>
+      <h2 id="quality-visible">Testing stays visible</h2>
+      <p class="muted">The 90-case correctness target is intentionally split into small five-case groups. Generated workflow data is authoritative about what is currently implemented and passing.</p>
+      <div class="route-grid">
+        <article class="test-card"><span class="test-count">30</span><h3>Unit inventory</h3><p>Defaults, parser formatting and splitting, public module surface, and transport object construction.</p><a href="./testing/unit/">See six exact groups →</a></article>
+        <article class="test-card"><span class="test-count">20</span><h3>Functional inventory</h3><p>Configured logging, local and network service construction, and client outbound messaging.</p><a href="./testing/functional/">See four exact groups →</a></article>
+        <article class="test-card"><span class="test-count">20</span><h3>Integration inventory</h3><p>Live TCP, local socket or Windows pipe, UDP4, and TLS round-trip behavior.</p><a href="./testing/integration/">See four exact groups →</a></article>
+        <article class="test-card"><span class="test-count">20</span><h3>Regression inventory</h3><p>Payload edges, public overloads, event-pubsub compatibility, and connection lifecycle guards.</p><a href="./testing/regression/">See four exact groups →</a></article>
+      </div>
+      <div class="callout success"><strong>Correctness stays honest.</strong><p>The 8-assertion cross-process transport smoke, runtime loader smoke, installed-package smoke, 11 benchmark harness checks, and tracked-record validator are reported separately. They do not inflate the 90-case correctness count.</p></div>
+      <div class="button-row"><a class="button primary" href="./testing/">Testing overview</a><a class="button" href="./coverage/">Coverage evidence</a><a class="button" href="./benchmarks/">Benchmark provenance</a></div>
+    </section>
+
+    <section class="section" aria-labelledby="install-now">
+      <p class="eyebrow">Published lane</p><h2 id="install-now">Install the exact 12.0.0 release</h2>
+      <pre><code>npm install --save-exact node-ipc@12.0.0</code></pre>
+      <p class="mini-note">Published 12.0.0 supports Node.js 14+. This documentation follows <code>main</code> and the upcoming major, which requires Node.js 22.12+ and uses native ESM; verify the lane before copying main-only options.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="shell footer-inner">
+      <div><h2>node-ipc</h2><p class="footer-note">Focused process communication for modern Node.js. Documentation is split by task so the answer stays close.</p></div>
+      <div><h2>Project</h2><div class="footer-links"><a href="https://github.com/RIAEvangelist/node-ipc">GitHub repository</a><a href="https://www.npmjs.com/package/node-ipc">npm package</a><a href="https://github.com/RIAEvangelist/node-ipc/issues">Issue tracker</a></div></div>
+      <div><h2>Quality</h2><div class="footer-links"><a href="./testing/">Testing</a><a href="./coverage/">Coverage</a><a href="./security/">Security</a><span class="mini-note">MIT · © <span data-current-year></span></span></div></div>
+    </div>
+  </footer>
+</body>
+</html>

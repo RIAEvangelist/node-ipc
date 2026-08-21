@@ -1,0 +1,41 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>UDP | node-ipc</title><meta name="description" content="Focused node-ipc UDP4 and UDP6 guide for datagram endpoints, addressing, packet loss, message size, and request/reply flows."><meta name="theme-color" content="#050812"><link rel="canonical" href="https://riaevangelist.github.io/node-ipc/udp/">
+<meta property="og:type" content="article"><meta property="og:site_name" content="node-ipc documentation"><meta property="og:title" content="UDP transport | node-ipc"><meta property="og:description" content="Independent datagrams when latency matters more than guaranteed delivery."><meta property="og:url" content="https://riaevangelist.github.io/node-ipc/udp/"><meta property="og:image" content="https://riaevangelist.github.io/node-ipc/assets/node-ipc-header.png"><meta property="og:image:alt" content="node-ipc local and remote process communication"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="../assets/site.css"><script src="../assets/site.js" defer></script>
+</head><body><a class="skip-link" href="#content">Skip to content</a><header class="site-header"><div class="shell header-inner"><a class="brand" href="../" aria-label="node-ipc documentation home"><span class="brand-mark" aria-hidden="true">IPC</span><span>node-ipc<small>main documentation</small></span></a><button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="site-nav">Menu</button><nav class="site-nav" id="site-nav" data-site-nav aria-label="Primary navigation">
+<a href="../">Home</a><a href="../quick-start/">Quick start</a><a href="../config/">Config</a><a href="../api/">API</a><details class="nav-cluster" open><summary>Transports</summary><div class="nav-menu"><a href="../unix-windows/">Unix / Windows</a><a href="../tcp/">TCP</a><a href="../tls/">TLS</a><a href="./" aria-current="page">UDP</a></div></details><a href="../examples/">Examples</a><details class="nav-cluster"><summary>Testing</summary><div class="nav-menu"><a href="../testing/">Overview</a><a href="../testing/unit/">Unit</a><a href="../testing/functional/">Functional</a><a href="../testing/integration/">Integration</a><a href="../testing/regression/">Regression</a><a href="../coverage/">Coverage</a><a href="../benchmarks/">Benchmarks</a></div></details><a href="../security/">Security</a>
+</nav></div></header>
+<main id="content" class="shell page-shell"><nav aria-label="Breadcrumb"><ol class="crumbs"><li><a href="../">Home</a></li><li>Transports</li><li aria-current="page">UDP</li></ol></nav><header class="page-hero compact"><p class="eyebrow">Datagram transport</p><h1>UDP4 + UDP6</h1><p class="lead">Use UDP for independent messages that can tolerate loss, duplication, and reordering. Every local endpoint binds its own port.</p></header>
+<div class="content-grid"><div>
+<section class="section" id="model"><h2>Different from a stream</h2><div class="card-grid"><article class="card"><h3>No connection</h3><p>Each UDP endpoint behaves like a small server. There is no persistent client/server connection.</p></article><article class="card"><h3>No delivery promise</h3><p>Packets may be lost, duplicated, or reordered. Add sequence and recovery logic when the application needs it.</p></article><article class="card"><h3>One port per endpoint</h3><p>Two UDP sockets on the same host cannot both own the same address and port in this basic model.</p></article></div></section>
+<section class="section" id="receiver"><h2>Receiver on port 8000</h2><pre><code>import ipc from 'node-ipc';
+
+ipc.config.id = 'telemetry';
+ipc.config.networkPort = 8000;
+
+ipc.serveNet('udp4', () =&gt; {
+  ipc.server.on('reading', (data, peer) =&gt; {
+    console.log(peer.address, peer.port, data);
+    ipc.server.emit(peer, 'ack', {sequence: data.sequence});
+  });
+});
+
+ipc.server.start();</code></pre><p>Use <code>'udp6'</code> for IPv6. The handler receives the decoded message data and the peer address/port needed for a reply.</p></section>
+<section class="section" id="sender"><h2>Sender on port 8001</h2><pre><code>ipc.config.id = 'sensor';
+
+ipc.serveNet(8001, 'udp4', () =&gt; {
+  ipc.server.on('ack', data =&gt; console.log(data));
+
+  ipc.server.emit(
+    {address: '127.0.0.1', port: 8000},
+    'reading',
+    {sequence: 1, temperature: 21.4}
+  );
+});
+
+ipc.server.start();</code></pre><p>The destination object is required for a targeted datagram. Starting the receiver first avoids dropping the first packet.</p></section>
+<section class="section" id="fit"><h2>When UDP fits</h2><table><thead><tr><th>Good fit</th><th>Poor fit</th></tr></thead><tbody><tr><td>Telemetry samples where a newer value replaces an older one</td><td>Financial commands that must run exactly once</td></tr><tr><td>Audio, video, or real-time game state with application recovery</td><td>Large payloads that invite fragmentation</td></tr><tr><td>Discovery on a controlled network</td><td>Unauthenticated control traffic on an untrusted network</td></tr></tbody></table></section>
+<section class="section" id="safety"><h2>Datagram checklist</h2><ul class="check-list"><li>Keep messages small enough to avoid IP fragmentation.</li><li>Add a sequence number when order or staleness matters.</li><li>Make handlers idempotent if duplicate delivery would hurt.</li><li>Authenticate application messages; UDP is neither confidential nor authenticated.</li><li>Rate-limit untrusted senders and do not reflect amplified responses.</li><li>Confirm current main behavior with generated tests; migration limits are not certified here.</li></ul></section>
+<div class="next-links"><a href="../tls/">← TLS</a><a href="../examples/">Examples →</a></div>
+</div><aside class="page-nav" aria-label="On this page"><strong>On this page</strong><a href="#model">Datagram model</a><a href="#receiver">Receiver</a><a href="#sender">Sender</a><a href="#fit">When it fits</a><a href="#safety">Checklist</a></aside></div></main>
+<footer class="site-footer"><div class="shell footer-inner"><div><h2>UDP</h2><p class="footer-note">Low-overhead datagrams with application-owned reliability and trust.</p></div><div><h2>Related</h2><div class="footer-links"><a href="../examples/">Examples</a><a href="../security/">Security</a><a href="../testing/functional/">Functional tests</a></div></div><div><h2>Other transports</h2><div class="footer-links"><a href="../unix-windows/">Local sockets</a><a href="../tcp/">TCP</a><a href="../tls/">TLS</a></div></div></div></footer>
+</body></html>

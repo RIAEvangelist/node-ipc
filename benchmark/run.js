@@ -54,6 +54,20 @@ if (!['c', 'node'].includes(config.oracle)) {
     throw new Error('available oracles: node, c');
 }
 
+const repositoryAtStart = (() => {
+    try {
+        const commit = execFileSync('git', ['rev-parse', 'HEAD'], {cwd: directory, encoding: 'utf8'}).trim();
+        const dirty = execFileSync(
+            'git',
+            ['status', '--porcelain', '--untracked-files=all'],
+            {cwd: directory, encoding: 'utf8'}
+        ).trim().length > 0;
+        return {capturedAt: new Date().toISOString(), commit, dirty};
+    } catch {
+        return {capturedAt: new Date().toISOString(), commit: null, dirty: null};
+    }
+})();
+
 const deadline = (promise, timeoutMs, label) => {
     let timer;
     return Promise.race([
@@ -360,15 +374,7 @@ for (const sample of samples) {
     sample.metrics.deltaMillisecondsPerMillion = sample.metrics.millisecondsPerMillion - baseline;
 }
 
-const repository = (() => {
-    try {
-        const commit = execFileSync('git', ['rev-parse', 'HEAD'], {cwd: directory, encoding: 'utf8'}).trim();
-        const dirty = execFileSync('git', ['status', '--porcelain'], {cwd: directory, encoding: 'utf8'}).trim().length > 0;
-        return {commit, dirty};
-    } catch {
-        return {commit: null, dirty: null};
-    }
-})();
+const repository = repositoryAtStart;
 const total = (select) => samples.reduce((sum, sample) => sum + select(sample), 0);
 const oracle = config.oracle === 'c'
     ? {
@@ -381,12 +387,49 @@ const oracle = config.oracle === 'c'
         implementation: 'node-net',
         sourceSha256: await sha256(path.join(directory, 'service.js'))
     };
+const cleanup = {
+    clean: samples.every(sample => sample.cleanup.clean),
+    endpointLeaks: samples.filter(sample => !sample.cleanup.endpointClosed).length,
+    endpointReuseFailures: samples.filter(sample => !sample.cleanup.endpointReusable).length,
+    leftoverBytes: total(sample => sample.cleanup.leftovers.bytes),
+    leftoverEntries: total(sample => sample.cleanup.leftovers.entries),
+    openSockets: total(sample => sample.cleanup.worker.openSockets + (sample.cleanup.oracle.activeSocketsAfterClose ?? 0)),
+    samples: samples.length
+};
+const packageFootprintResult = footprint
+    ? await packageFootprint(path.resolve(directory, '..'))
+    : null;
+const machineIdentity = createHash('sha256')
+    .update(`${os.hostname()}\0${os.cpus()[0]?.model ?? 'unknown'}\0${os.totalmem()}`)
+    .digest('hex')
+    .slice(0,16);
+const publishable = repository.dirty === false
+    && oracle.implementation === 'standard-c'
+    && !config.quick
+    && cleanup.clean
+    && packageFootprintResult !== null;
+const hasComparableNodeIpcAdapter = config.adapters.some(adapter => adapter !== 'node-net');
+const evidence = {
+    classification: publishable ? 'clean-c-oracle' : 'development-smoke',
+    packageFootprintStatus: packageFootprintResult ? 'measured' : 'omitted-smoke',
+    publishable,
+    rankingEligible: publishable && hasComparableNodeIpcAdapter && config.adapters.length > 1,
+    reasons: [
+        ...(repository.dirty ? ['dirty-tree'] : []),
+        ...(oracle.implementation !== 'standard-c' ? ['non-c-oracle'] : []),
+        ...(config.quick ? ['quick-configuration'] : []),
+        ...(!cleanup.clean ? ['cleanup-failed'] : []),
+        ...(packageFootprintResult === null ? ['package-footprint-not-measured'] : []),
+        ...(!hasComparableNodeIpcAdapter ? ['no-comparable-node-ipc-adapter'] : [])
+    ]
+};
 const output = {
     schemaVersion: 1,
     generatedAt: new Date().toISOString(),
     system: {
         architecture: process.arch,
         cpu: {count: os.availableParallelism(), model: os.cpus()[0]?.model ?? null},
+        machine: {id: machineIdentity},
         node: process.version,
         platform: process.platform,
         release: os.release(),
@@ -394,6 +437,7 @@ const output = {
     },
     repository,
     oracle,
+    evidence,
     config,
     pids: {runner: process.pid, samples: samples.map(sample => sample.pids)},
     endpoints: samples.map(sample => sample.endpoint),
@@ -407,18 +451,8 @@ const output = {
         events: total(sample => sample.gc.events),
         forcedRuns: total(sample => sample.gc.forcedRuns)
     },
-    cleanup: {
-        clean: samples.every(sample => sample.cleanup.clean),
-        endpointLeaks: samples.filter(sample => !sample.cleanup.endpointClosed).length,
-        endpointReuseFailures: samples.filter(sample => !sample.cleanup.endpointReusable).length,
-        leftoverBytes: total(sample => sample.cleanup.leftovers.bytes),
-        leftoverEntries: total(sample => sample.cleanup.leftovers.entries),
-        openSockets: total(sample => sample.cleanup.worker.openSockets + (sample.cleanup.oracle.activeSocketsAfterClose ?? 0)),
-        samples: samples.length
-    },
-    packageFootprint: footprint
-        ? await packageFootprint(path.resolve(directory, '..'))
-        : null
+    cleanup,
+    packageFootprint: packageFootprintResult
 };
 
 process.stdout.write(`${JSON.stringify(output, null, 2)}\n`);

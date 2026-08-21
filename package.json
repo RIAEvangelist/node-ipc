@@ -23,10 +23,19 @@
   },
   "scripts": {
     "benchmark": "node ./benchmark/run.js",
+    "benchmark:c-smoke": "node ./benchmark/c-oracle-smoke.js",
     "benchmark:quick": "node ./benchmark/run.js --quick",
+    "benchmark:record": "node ./benchmark/record-result.js --full --oracle=c --footprint",
     "benchmark:test": "node ./benchmark/test.js",
+    "benchmark:validate": "node ./benchmark/validate-results.js",
     "coverage": "echo 'See your coverage report at http://localhost:8080' && node-http-server port=8080 root=./coverage/node/",
-    "test": "vanilla-test coverage node && node ./test/runtime-smoke.js && node ./test/package-smoke.js"
+    "test": "npm run test:correctness && npm run test:smoke && npm run benchmark:test && npm run benchmark:validate",
+    "test:correctness": "npm run test:inventory && vanilla-test coverage node",
+    "test:inventory": "node ./test/inventory.js",
+    "test:smoke": "npm run test:smoke:runtime && npm run test:smoke:transport && npm run test:smoke:package",
+    "test:smoke:package": "node ./test/package-smoke.js",
+    "test:smoke:runtime": "node ./test/runtime-smoke.js",
+    "test:smoke:transport": "node ./test/transport-smoke.js"
   },
   "keywords": [
     "IPC",

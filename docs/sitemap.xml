@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://riaevangelist.github.io/node-ipc/</loc></url>
+  <url><loc>https://riaevangelist.github.io/node-ipc/quick-start/</loc></url>
+  <url><loc>https://riaevangelist.github.io/node-ipc/config/</loc></url>
+  <url><loc>https://riaevangelist.github.io/node-ipc/api/</loc></url>
+  <url><loc>https://riaevangelist.github.io/node-ipc/unix-windows/</loc></url>
+  <url><loc>https://riaevangelist.github.io/node-ipc/tcp/</loc></url>
+  <url><loc>https://riaevangelist.github.io/node-ipc/tls/</loc></url>
+  <url><loc>https://riaevangelist.github.io/node-ipc/udp/</loc></url>
+  <url><loc>https://riaevangelist.github.io/node-ipc/examples/</loc></url>
+  <url><loc>https://riaevangelist.github.io/node-ipc/testing/</loc></url>
+  <url><loc>https://riaevangelist.github.io/node-ipc/testing/unit/</loc></url>
+  <url><loc>https://riaevangelist.github.io/node-ipc/testing/functional/</loc></url>
+  <url><loc>https://riaevangelist.github.io/node-ipc/testing/integration/</loc></url>
+  <url><loc>https://riaevangelist.github.io/node-ipc/testing/regression/</loc></url>
+  <url><loc>https://riaevangelist.github.io/node-ipc/coverage/</loc></url>
+  <url><loc>https://riaevangelist.github.io/node-ipc/benchmarks/</loc></url>
+  <url><loc>https://riaevangelist.github.io/node-ipc/security/</loc></url>
+</urlset>

@@ -34,6 +34,9 @@ try{
 
     assert.ok(files.has('node-ipc.js'));
     assert.ok(!files.has('node-ipc.cjs'));
+    assert.ok(![...files].some((file) => file.startsWith('assets/')));
+    assert.ok(![...files].some((file) => file.startsWith('docs/')));
+    assert.ok(![...files].some((file) => file.startsWith('benchmark/results/')));
 
     const consumer=path.join(tempRoot,'consumer');
     const tarball=path.join(tempRoot,packed.filename);

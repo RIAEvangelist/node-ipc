@@ -1,0 +1,39 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Unix Sockets and Windows Pipes | node-ipc</title>
+<meta name="description" content="Focused node-ipc guide for Unix domain sockets and Windows named pipes: paths, permissions, clients, servers, and cleanup."><meta name="theme-color" content="#050812"><link rel="canonical" href="https://riaevangelist.github.io/node-ipc/unix-windows/">
+<meta property="og:type" content="article"><meta property="og:site_name" content="node-ipc documentation"><meta property="og:title" content="Unix sockets and Windows named pipes | node-ipc"><meta property="og:description" content="The fastest node-ipc path for processes on one machine."><meta property="og:url" content="https://riaevangelist.github.io/node-ipc/unix-windows/"><meta property="og:image" content="https://riaevangelist.github.io/node-ipc/assets/node-ipc-header.png"><meta property="og:image:alt" content="node-ipc local and remote process communication"><meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../assets/site.css"><script src="../assets/site.js" defer></script></head><body>
+<a class="skip-link" href="#content">Skip to content</a><header class="site-header"><div class="shell header-inner"><a class="brand" href="../" aria-label="node-ipc documentation home"><span class="brand-mark" aria-hidden="true">IPC</span><span>node-ipc<small>main documentation</small></span></a><button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="site-nav">Menu</button><nav class="site-nav" id="site-nav" data-site-nav aria-label="Primary navigation">
+<a href="../">Home</a><a href="../quick-start/">Quick start</a><a href="../config/">Config</a><a href="../api/">API</a><details class="nav-cluster" open><summary>Transports</summary><div class="nav-menu"><a href="./" aria-current="page">Unix / Windows</a><a href="../tcp/">TCP</a><a href="../tls/">TLS</a><a href="../udp/">UDP</a></div></details><a href="../examples/">Examples</a><details class="nav-cluster"><summary>Testing</summary><div class="nav-menu"><a href="../testing/">Overview</a><a href="../testing/unit/">Unit</a><a href="../testing/functional/">Functional</a><a href="../testing/integration/">Integration</a><a href="../testing/regression/">Regression</a><a href="../coverage/">Coverage</a><a href="../benchmarks/">Benchmarks</a></div></details><a href="../security/">Security</a>
+</nav></div></header>
+<main id="content" class="shell page-shell"><nav aria-label="Breadcrumb"><ol class="crumbs"><li><a href="../">Home</a></li><li>Transports</li><li aria-current="page">Unix / Windows</li></ol></nav>
+<header class="page-hero compact"><p class="eyebrow">Same-machine transport</p><h1>Unix sockets + Windows named pipes</h1><p class="lead">Use <code>serve</code> and <code>connectTo</code> when both processes share a machine. node-ipc maps the logical path to the native local transport.</p></header>
+<div class="content-grid"><div>
+<section class="section" id="why"><h2>Why local sockets</h2><div class="card-grid"><article class="card"><h3>No network hop</h3><p>Traffic stays on the machine and avoids TCP or UDP routing.</p></article><article class="card"><h3>One logical name</h3><p>The default path combines <code>socketRoot</code>, <code>appspace</code>, and service <code>id</code>.</p></article><article class="card"><h3>Native mapping</h3><p>Unix uses a filesystem socket path; Windows converts that logical path to <code>\\.\pipe\…</code>.</p></article></div></section>
+<section class="section" id="server"><h2>Server</h2><pre><code>import ipc from 'node-ipc';
+
+ipc.config.id = 'inventory';
+
+ipc.serve(() =&gt; {
+  ipc.server.on('lookup', (sku, socket) =&gt; {
+    ipc.server.emit(socket, 'lookup.result', {sku, available: true});
+  });
+});
+
+ipc.server.start();</code></pre><p>Omit the path to use <code>socketRoot + appspace + id</code>, or pass an explicit logical path as the first argument.</p></section>
+<section class="section" id="client"><h2>Client</h2><pre><code>ipc.connectTo('inventory', () =&gt; {
+  ipc.of.inventory.on('connect', () =&gt; {
+    ipc.of.inventory.emit('lookup', 'SKU-42');
+  });
+
+  ipc.of.inventory.on('lookup.result', result =&gt; {
+    console.log(result);
+    ipc.disconnect('inventory');
+  });
+});</code></pre><p>The client is immediately available at <code>ipc.of.inventory</code>; wait for <code>connect</code> before emitting.</p></section>
+<section class="section" id="paths"><h2>Paths and ownership</h2><table><thead><tr><th>Platform</th><th>Default shape</th><th>Operational concern</th></tr></thead><tbody><tr><td>Linux / macOS</td><td>Derived runtime directory + <code>app.inventory</code></td><td>Verify the actual directory owner and mode; they define who can reach the socket.</td></tr><tr><td>Windows</td><td><code>\\.\pipe\node-ipc-user-app.inventory</code></td><td><code>readableAll</code> and <code>writableAll</code> request broader access; leave them false unless required.</td></tr></tbody></table><div class="callout warning"><strong>Main-branch security work is still under validation.</strong><p>Local socket permissions are not message authentication, and the current inventory does not prove owner-only root creation. Review the actual runtime, test evidence, and host-user boundary before granting trust.</p></div></section>
+<section class="section" id="cleanup"><h2>Cleanup and clustering</h2><ul class="check-list"><li>Keep <code>unlink: true</code> for one owner of one socket path.</li><li>Set <code>unlink: false</code> only when a clustered design owns deletion explicitly.</li><li>Call <code>ipc.disconnect(id)</code> for clients and <code>ipc.server.stop()</code> for servers during orderly shutdown.</li><li>Treat a stale socket path as an operational failure to investigate, not a reason to broaden permissions.</li></ul></section>
+<div class="next-links"><a href="../api/">← API reference</a><a href="../tcp/">TCP transport →</a></div>
+</div><aside class="page-nav" aria-label="On this page"><strong>On this page</strong><a href="#why">Why local</a><a href="#server">Server</a><a href="#client">Client</a><a href="#paths">Paths</a><a href="#cleanup">Cleanup</a></aside></div></main>
+<footer class="site-footer"><div class="shell footer-inner"><div><h2>Local IPC</h2><p class="footer-note">Fast same-machine communication using the operating system's local socket primitive.</p></div><div><h2>Related</h2><div class="footer-links"><a href="../config/">Configuration</a><a href="../examples/">Examples</a><a href="../testing/functional/">Functional tests</a></div></div><div><h2>Other transports</h2><div class="footer-links"><a href="../tcp/">TCP</a><a href="../tls/">TLS</a><a href="../udp/">UDP</a></div></div></div></footer>
+</body></html>

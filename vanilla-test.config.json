@@ -2,18 +2,20 @@
     "entry": "./test/CI.js",
     "reportsDirectory": "./coverage",
     "thresholds": {
-        "statements": 0,
-        "branches": 0,
-        "functions": 0,
-        "lines": 0
+        "statements": 45,
+        "branches": 30,
+        "functions": 70,
+        "lines": 60
     },
     "node": {
         "include": [
             "node-ipc.js",
-            "dao/**/*.js",
-            "entities/**/*.js",
+            "dao/client.js",
+            "dao/socketServer.js",
+            "entities/Defaults.js",
+            "entities/EventParser.js",
             "helpers/**/*.js",
-            "services/**/*.js"
+            "services/IPC.js"
         ]
     }
 }
