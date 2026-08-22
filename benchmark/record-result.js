@@ -12,6 +12,7 @@ const projectRoot=path.resolve(directory,'..');
 const resultsDirectory=path.join(directory,'results');
 const indexPath=path.join(resultsDirectory,'index.json');
 const provided=process.argv.slice(2);
+const canonicalAdapters=['node-net','node-ipc-raw','node-ipc-fast','node-ipc-guarded'];
 const full=provided.includes('--full');
 const runArguments=provided.filter((argument) => argument !== '--full');
 const repositoryBefore=await repositoryState();
@@ -108,7 +109,7 @@ const entry={
 };
 index.schemaVersion=2;
 index.updatedAt=new Date().toISOString();
-index.comparisonState='baseline-only';
+index.comparisonState=tracked.evidence.comparison.state;
 index.results=[...index.results,entry];
 await validateProspectiveResult(index,file,serialized);
 await writeAtomic(path.join(resultsDirectory,file),serialized);
@@ -146,7 +147,8 @@ function sanitize(
         }
         : null;
     const cleanup={...runtimeResult.cleanup};
-    const hasNodeIpcAdapter=runtimeResult.config.adapters.some((adapter) => adapter !== 'node-net');
+    const hasNodeIpcAdapter=runtimeResult.config.adapters.some((adapter) => adapter.startsWith('node-ipc-'));
+    const comparisonState=hasNodeIpcAdapter ? 'profile-comparison' : 'baseline-only';
     const repositoryChanged=repositoryBeforeRun.commit !== repositoryAfterRun.commit
         || repositoryBeforeRun.statusSha256 !== repositoryAfterRun.statusSha256;
     const repository={
@@ -204,14 +206,19 @@ function sanitize(
         evidence:{
             authority:'snapshot-noisy',
             classification:publishable ? 'clean-c-oracle-snapshot' : 'development-smoke',
-            comparison:{adapters:[...runtimeResult.config.adapters],state:'baseline-only'},
+            comparison:{
+                adapters:[...runtimeResult.config.adapters],
+                baseline:'node-net',
+                certification:false,
+                state:comparisonState
+            },
             packageFootprintStatus:runtimeResult.packageFootprint ? 'measured' : 'omitted-smoke',
             privacy:{
                 excluded:['absolute-paths','ephemeral-ports','process-ids'],
                 sanitized:true
             },
             publishable,
-            rankingEligible:publishable && hasNodeIpcAdapter && runtimeResult.config.adapters.length > 1,
+            rankingEligible:false,
             reasons
         },
         config:runtimeResult.config,
@@ -275,8 +282,7 @@ function canonicalConfiguration(config){
         && config.timeoutMs === 600000
         && [...config.passes].sort().join(',') === 'latency,resource,speed'
         && new Set(config.passes).size === 3
-        && new Set(config.adapters).size === config.adapters.length
-        && config.adapters.includes('node-net');
+        && JSON.stringify(config.adapters) === JSON.stringify(canonicalAdapters);
 }
 
 function cleanSamples(samples,cleanup){
@@ -296,7 +302,10 @@ function cleanSamples(samples,cleanup){
             && sample.processExit?.worker?.code === 0
             && sample.exact?.sentFrames === sample.exact?.configuredFrames
             && sample.exact?.receivedFrames === sample.exact?.configuredFrames
+            && sample.exact?.applicationByteCountsVerified
             && sample.exact?.byteCountsVerified
+            && sample.exact?.contentVerified
+            && sample.exact?.sequenceVerified
             && sample.exact?.oracleByteCountVerified);
 }
 

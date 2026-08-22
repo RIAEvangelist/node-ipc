@@ -5,13 +5,9 @@ import Server from '../dao/socketServer.js';
 import util from 'util';
 
 class IPC{
-    constructor(){
-
-    }
-    
     //public members
     config=new Defaults;
-    of={};
+    of=Object.create(null);
     server=false;
 
     //protected methods
@@ -87,7 +83,7 @@ function disconnect(id){
 
     this.of[id].explicitlyDisconnected=true;
 
-    this.of[id].off('*','*');
+    this.of[id].reset();
     if(this.of[id].socket){
         if(this.of[id].socket.destroy){
             this.of[id].socket.destroy();
@@ -230,7 +226,7 @@ function connect(id,path,callback){
         this.log(
             'Service path not specified, so defaulting to',
             'ipc.config.socketRoot + ipc.config.appspace + id',
-            (this.config.socketRoot+this.config.appspace+id).data
+            this.config.socketRoot+this.config.appspace+id
         );
         path=this.config.socketRoot+this.config.appspace+id;
     }
@@ -245,6 +241,9 @@ function connect(id,path,callback){
             callback();
             return;
         }
+        this.of[id].explicitlyDisconnected=true;
+        clearTimeout(this.of[id].retryTimer);
+        this.of[id].retryTimer=false;
         this.of[id].socket.destroy();
     }
 
@@ -298,10 +297,6 @@ function connectNet(id,host,port,callback){
         port=this.config.networkPort;
     }
 
-    if(typeof callback == 'string'){
-        UDPType=callback;
-        callback=false;
-    }
     if(!callback){
         callback=emptyCallback;
     }
@@ -317,6 +312,9 @@ function connectNet(id,host,port,callback){
             callback();
             return;
         }
+        this.of[id].explicitlyDisconnected=true;
+        clearTimeout(this.of[id].retryTimer);
+        this.of[id].retryTimer=false;
         this.of[id].socket.destroy();
     }
 

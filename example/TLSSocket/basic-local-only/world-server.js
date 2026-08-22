@@ -1,4 +1,5 @@
 import ipc from '../../../node-ipc.js';
+import {serverCertificate,serverKey} from '../certificates.js';
 
 /***************************************\
  *
@@ -9,9 +10,11 @@ import ipc from '../../../node-ipc.js';
 
 ipc.config.id = 'world';
 ipc.config.retry= 1500;
-//node-ipc will default to its local certs
+// LOCAL DEVELOPMENT ONLY: these repository fixtures are public and expired.
+// TLS servers must always supply an explicit key and certificate.
 ipc.config.tls={
-    rejectUnauthorized:false
+    public: serverCertificate,
+    private: serverKey
 };
 
 ipc.serveNet(

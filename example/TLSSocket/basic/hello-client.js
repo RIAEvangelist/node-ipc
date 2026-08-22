@@ -10,6 +10,7 @@ import ipc from '../../../node-ipc.js';
 ipc.config.id = 'hello';
 ipc.config.retry= 1500;
 ipc.config.tls={
+    // DEVELOPMENT ONLY: disabling verification permits man-in-the-middle attacks.
     rejectUnauthorized:false
 };
 

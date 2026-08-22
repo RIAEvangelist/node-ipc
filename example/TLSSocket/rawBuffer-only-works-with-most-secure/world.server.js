@@ -1,4 +1,10 @@
 import ipc from '../../../node-ipc.js';
+import {
+    clientCertificate,
+    dhParameters,
+    serverCertificate,
+    serverKey
+} from '../certificates.js';
 
 /***************************************\
  *
@@ -13,14 +19,15 @@ ipc.config.rawBuffer=true;
 ipc.config.encoding='ascii';
 ipc.config.networkHost='localhost';
 
+// Replace these public, expired fixtures with a valid server identity and trusted client CA.
 ipc.config.tls={
-    public: __dirname+'/../../../local-node-ipc-certs/server.pub',
-    private: __dirname+'/../../../local-node-ipc-certs/private/server.key',
-    dhparam: __dirname+'/../../../local-node-ipc-certs/private/dhparam.pem',
+    public: serverCertificate,
+    private: serverKey,
+    dhparam: dhParameters,
     requestCert: true,
     rejectUnauthorized:true,
     trustedConnections: [
-        __dirname+'/../../../local-node-ipc-certs/client.pub'
+        clientCertificate
     ]
 };
 

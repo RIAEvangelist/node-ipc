@@ -6,6 +6,7 @@ import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {names as availableAdapters} from './adapters/index.js';
 import {packageFootprint} from './footprint.js';
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
@@ -24,10 +25,10 @@ const integer = (name, fallback) => {
 const quick = process.argv.includes('--quick');
 const footprint = process.argv.includes('--footprint')
     || (!quick && !process.argv.includes('--no-footprint'));
-const adapters = value('adapters', 'node-net').split(',');
+const adapters=value('adapters',availableAdapters.join(',')).split(',').filter(Boolean);
 const commonFrames = value('messages', null) === null ? null : integer('messages', 1);
 const config = {
-    adapters: [...new Set(['node-net', ...adapters])],
+    adapters:[...new Set(['node-net',...adapters])],
     host: value('host', '127.0.0.1'),
     oracle: value('oracle', quick ? 'node' : 'c'),
     passes: value('passes', 'speed,resource,latency').split(','),
@@ -44,8 +45,11 @@ const config = {
     footprint
 };
 
-if (config.adapters.some(adapter => adapter !== 'node-net')) {
-    throw new Error('available adapters: node-net');
+if(config.payloadBytes < 8){
+    throw new Error('--size must be at least 8 bytes for sequence verification');
+}
+if(config.adapters.some(adapter => !availableAdapters.includes(adapter))){
+    throw new Error(`available adapters: ${availableAdapters.join(', ')}`);
 }
 if (config.passes.some(pass => !['latency', 'resource', 'speed'].includes(pass))) {
     throw new Error('available passes: speed, resource, latency');
@@ -345,11 +349,17 @@ for (const pass of config.passes) {
                         wallNs: oracleEnd.wallNs
                     }
                 },
-                exact: {
+                exact:{
                     ...worker.result.exact,
-                    oracleBytes: oracleEnd.cleanup.bytesIn,
-                    oracleByteCountVerified: oracleEnd.cleanup.bytesIn
-                        === (config.frames[pass] + config.warmupFrames) * config.payloadBytes
+                    oracleBytes:oracleEnd.cleanup.bytesIn,
+                    oracleByteCountVerified:oracleEnd.cleanup.bytesIn
+                        === worker.result.exact.probeWireSentBytes
+                            +worker.result.exact.warmupWireSentBytes
+                            +worker.result.exact.wireSentBytes
+                        && oracleEnd.cleanup.bytesOut
+                            === worker.result.exact.probeWireReceivedBytes
+                                +worker.result.exact.warmupWireReceivedBytes
+                                +worker.result.exact.wireReceivedBytes
                 },
                 latencyNs: worker.result.latencyNs,
                 package: worker.result.adapter.package,
@@ -408,19 +418,26 @@ const publishable = repository.dirty === false
     && !config.quick
     && cleanup.clean
     && packageFootprintResult !== null;
-const hasComparableNodeIpcAdapter = config.adapters.some(adapter => adapter !== 'node-net');
+const hasNodeIpcProfile=config.adapters.some(adapter => adapter.startsWith('node-ipc-'));
 const evidence = {
     classification: publishable ? 'clean-c-oracle' : 'development-smoke',
+    comparison:{
+        baseline:'node-net',
+        certification:false,
+        profiles:config.adapters.filter(adapter => adapter.startsWith('node-ipc-')),
+        state:hasNodeIpcProfile ? 'profile-comparison' : 'baseline-only'
+    },
     packageFootprintStatus: packageFootprintResult ? 'measured' : 'omitted-smoke',
     publishable,
-    rankingEligible: publishable && hasComparableNodeIpcAdapter && config.adapters.length > 1,
+    comparisonState:hasNodeIpcProfile ? 'profile-comparison' : 'baseline-only',
+    rankingEligible:false,
     reasons: [
         ...(repository.dirty ? ['dirty-tree'] : []),
         ...(oracle.implementation !== 'standard-c' ? ['non-c-oracle'] : []),
         ...(config.quick ? ['quick-configuration'] : []),
         ...(!cleanup.clean ? ['cleanup-failed'] : []),
         ...(packageFootprintResult === null ? ['package-footprint-not-measured'] : []),
-        ...(!hasComparableNodeIpcAdapter ? ['no-comparable-node-ipc-adapter'] : [])
+        ...(!hasNodeIpcProfile ? ['no-node-ipc-profile-adapter'] : [])
     ]
 };
 const output = {
@@ -462,7 +479,12 @@ const output = {
     samples,
     memory: {
         maximumWorkerRssBytes: Math.max(...samples.map(sample => sample.memory.worker.peak.rss)),
-        packageInstalledBytes: Object.fromEntries(samples.map(sample => [sample.adapter, sample.package.installedBytes]))
+        packageInstalledBytes:Object.fromEntries(samples.map(sample => [
+            sample.adapter,
+            sample.package.name === 'node-ipc'
+                ? packageFootprintResult?.installed.bytes ?? null
+                : sample.package.installedBytes
+        ]))
     },
     gc: {
         durationMs: total(sample => sample.gc.durationMs),

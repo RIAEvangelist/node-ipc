@@ -4,12 +4,12 @@
     "name": "vanilla-test",
     "version": "2.1.1"
   },
-  "total": 140,
+  "total": 195,
   "categories": {
-    "Unit": 40,
-    "Functional": 30,
-    "Integration": 40,
-    "Regression": 30
+    "Unit": 55,
+    "Functional": 55,
+    "Integration": 45,
+    "Regression": 40
   },
   "minimumCategories": {
     "Unit": 40,
@@ -54,7 +54,7 @@
         "preserves a boolean false payload",
         "preserves a numeric zero payload",
         "normalizes omitted payload data to an object",
-        "does not serialize event-emitter internals"
+        "preserves object payloads without inspecting their fields"
       ]
     },
     {
@@ -312,8 +312,8 @@
       "cases": [
         "keeps delimiter characters inside JSON strings escaped",
         "round-trips multibyte payload text without corruption",
-        "normalizes an empty-string payload to the legacy empty object",
-        "normalizes a null payload to the legacy empty object",
+        "preserves an empty-string payload",
+        "preserves a null payload",
         "preserves payloads whose emitter marker is explicitly zero"
       ]
     },
@@ -336,11 +336,11 @@
       "slug": "event-pubsub-transport-compatibility",
       "count": 5,
       "cases": [
-        "keeps default and named class exports identical",
-        "keeps the public prototype and constructor name stable",
-        "accepts every node-ipc reserved lifecycle event locally",
-        "preserves wildcard, once, and explicit removal semantics",
-        "delivers every event on the emit hot path without loss"
+        "keeps root and index ESM and CommonJS class identities stable",
+        "accepts prototype-like and reserved lifecycle event names locally",
+        "distinguishes wildcard registration from the Symbol description during live synchronous dispatch",
+        "removes frozen once handlers before invocation and preserves explicit removals",
+        "keeps list snapshots isolated while delivering every hot-path emit without loss"
       ]
     },
     {
@@ -380,6 +380,149 @@
         "publishes the disconnected socket and its peer id",
         "retains a socket that remains readable",
         "delegates server stop to the active listener"
+      ]
+    },
+    {
+      "category": "Unit",
+      "name": "Runtime parser selection",
+      "slug": "runtime-parser-selection",
+      "count": 5,
+      "cases": [
+        "selects the direct Fast parser by default",
+        "selects the Guarded parser explicitly",
+        "maps the Assured profile to its guarded implementation",
+        "uses a supplied parser object without wrapping it",
+        "constructs a supplied parser class with the live config"
+      ]
+    },
+    {
+      "category": "Unit",
+      "name": "MessageParser compatibility and Fast payloads",
+      "slug": "messageparser-compatibility-and-fast-payloads",
+      "count": 5,
+      "cases": [
+        "decodes official js-message envelopes",
+        "returns the official js-message error envelope for invalid input",
+        "preserves null payloads on the direct Fast path",
+        "preserves empty-string payloads on the direct Fast path",
+        "preserves emitter-shaped objects on the direct Fast path"
+      ]
+    },
+    {
+      "category": "Functional",
+      "name": "Guarded protocol boundaries",
+      "slug": "guarded-protocol-boundaries",
+      "count": 5,
+      "cases": [
+        "rejects malformed JSON with a stable protocol code",
+        "rejects messages without an event type",
+        "rejects complete frames over the byte limit",
+        "rejects an oversized incomplete frame",
+        "contains dispatcher-prototype names and reserved wire events"
+      ]
+    },
+    {
+      "category": "Functional",
+      "name": "Assured allowlist and network TLS gate",
+      "slug": "assured-allowlist-and-network-tls-gate",
+      "count": 5,
+      "cases": [
+        "requires a non-empty event allowlist",
+        "accepts allowlisted messages in both directions",
+        "rejects unlisted outbound and inbound messages",
+        "requires verified mutual TLS before an Assured client opens a socket",
+        "requires a trusted client CA before an Assured server starts"
+      ]
+    },
+    {
+      "category": "Functional",
+      "name": "Direct transport hot path",
+      "slug": "direct-transport-hot-path",
+      "count": 5,
+      "cases": [
+        "keeps delimiters isolated per client instance",
+        "bypasses parser construction in raw mode",
+        "returns client socket backpressure directly",
+        "returns server socket backpressure directly",
+        "reports broadcast backpressure when any peer is full"
+      ]
+    },
+    {
+      "category": "Functional",
+      "name": "Guarded client failure and logging paths",
+      "slug": "guarded-client-failure-and-logging-paths",
+      "count": 5,
+      "cases": [
+        "rejects writes beyond the pending-byte limit",
+        "times out and clears an incomplete guarded frame",
+        "turns malformed input into a guarded protocol failure",
+        "logs outbound and inbound payload handlers when enabled",
+        "advances the synchronous queue after raw input"
+      ]
+    },
+    {
+      "category": "Functional",
+      "name": "Guarded server, logging, and datagram paths",
+      "slug": "guarded-server-logging-and-datagram-paths",
+      "count": 5,
+      "cases": [
+        "rejects stream writes beyond the pending-byte limit",
+        "times out and clears an incomplete guarded frame",
+        "turns malformed input into a guarded protocol failure",
+        "logs unicast, broadcast, and inbound payload handlers",
+        "broadcasts datagrams and publishes transport errors"
+      ]
+    },
+    {
+      "category": "Unit",
+      "name": "TLS option loading and verification defaults",
+      "slug": "tls-option-loading-and-verification-defaults",
+      "count": 5,
+      "cases": [
+        "loads client key and certificate paths with verification enabled",
+        "lets connection options override client TLS values",
+        "merges one trusted connection with an existing CA",
+        "enables mutual TLS defaults for trusted server connections",
+        "loads DH parameters by path and preserves inline values"
+      ]
+    },
+    {
+      "category": "Integration",
+      "name": "Raw bytes and TLS connection timing",
+      "slug": "raw-bytes-and-tls-connection-timing",
+      "count": 5,
+      "cases": [
+        "preserves invalid UTF-8 from client to server",
+        "preserves invalid UTF-8 from server to client",
+        "treats delimiter and NUL bytes as raw payload data",
+        "requires explicit TLS server credentials",
+        "publishes connect only after the TLS handshake"
+      ]
+    },
+    {
+      "category": "Regression",
+      "name": "Local socket root and cleanup safety",
+      "slug": "local-socket-root-and-cleanup-safety",
+      "count": 5,
+      "cases": [
+        "creates a private Unix root and rejects Windows Assured local service",
+        "tightens an existing socket root on Unix",
+        "rejects a symlinked socket root on Unix",
+        "refuses to unlink a regular file on Unix",
+        "destroys tracked peers and closes the native server"
+      ]
+    },
+    {
+      "category": "Regression",
+      "name": "Client reconnect and stale socket lifecycle",
+      "slug": "client-reconnect-and-stale-socket-lifecycle",
+      "count": 5,
+      "cases": [
+        "ignores connect from a replaced socket",
+        "ignores data and errors from a replaced socket",
+        "clears a stale socket timer without lifecycle events or retry",
+        "clears a pending retry before a manual connection attempt",
+        "retires destroyed local and network clients before replacement"
       ]
     }
   ]

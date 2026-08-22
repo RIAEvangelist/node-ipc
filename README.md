@@ -20,6 +20,25 @@ The next major requires Node.js 22.12.0 or newer. Version 12 remains the legacy 
 
 `node-ipc` ships native ES modules only. Node.js loads the same entry point through `import` or synchronous `require()`; no transpiled CommonJS bundle is generated.
 
+#### Runtime profiles
+
+The upcoming major selects its parser and hot-path handlers once, when each client or server is created. It does not poll a security flag for every message. Set the profile before calling `connect*()` or `serve*()`.
+
+| Profile | Work on every message | Intended boundary |
+|---------|-----------------------|-------------------|
+| `raw` | No node-ipc framing, JSON parsing, or message checks. Buffers pass through the `data` event. | Trusted peers using a caller-owned binary or text protocol. |
+| `fast` | JSON event-envelope encoding/decoding and delimiter framing. Malformed JSON closes the connection. | Default for trusted local peers where the application owns payload validity. |
+| `guarded` | Fast framing plus frame-size, pending-write, event-name, reserved/prototype-name, envelope, and incomplete-message-time controls. | Mixed-trust local services and authenticated network applications. |
+| `assured` | Guarded controls plus a required event allow-list. Network use requires mutually authenticated TLS; local servers require the secure socket root. | Hostile-network building block with verified peer certificates and application authorization; not a certification. |
+
+```javascript
+ipc.config.parser = 'guarded';
+ipc.config.maxMessageSize = 1024 * 1024;
+ipc.config.maxPendingBytes = 8 * 1024 * 1024;
+```
+
+See [Profiles](https://riaevangelist.github.io/node-ipc/profiles/), [Parsers](https://riaevangelist.github.io/node-ipc/parsers/), and [Security](https://riaevangelist.github.io/node-ipc/security/) before choosing a network-facing configuration.
+
 #### Use
 
 ```js
@@ -56,6 +75,12 @@ This work is licenced via the MIT Licence.
 #### Testing
 
 `npm test` runs the Vanilla Test suite, native V8 coverage, both module loaders, and an installed-package smoke test. Reports are written to `coverage/node/`.
+
+#### Performance evidence
+
+![Tracked node-ipc profile benchmark chart](./docs/assets/node-ipc-benchmark.svg)
+
+The chart is generated from tracked benchmark records. Until comparable clean profile runs exist, it says that evidence is pending instead of inventing a result. See the [benchmark overview](https://riaevangelist.github.io/node-ipc/benchmarks/), [profile results](https://riaevangelist.github.io/node-ipc/benchmarks/profiles/), [resource results](https://riaevangelist.github.io/node-ipc/benchmarks/resources/), [methodology](https://riaevangelist.github.io/node-ipc/benchmarks/methodology/), and [run records](https://riaevangelist.github.io/node-ipc/benchmarks/runs/).
 
 ----
 #### Contents
@@ -109,26 +134,38 @@ Set these variables in the `ipc.config` scope to overwrite or set default values
 
     {
         appspace        : 'app.',
-        socketRoot      : '/tmp/',
+        socketRoot      : '<secure per-user runtime directory>/',
         id              : os.hostname(),
-        networkHost     : 'localhost', //should resolve to 127.0.0.1 or ::1 see the table below related to this
+        networkHost     : '127.0.0.1', //or ::1 when IPv6 is selected
         networkPort     : 8000,
+        IPType          : '<detected IPv4 or IPv6>',
+        tls             : false,
         readableAll     : false,
         writableAll     : false,
+        secureSocketRoot: true,
         encoding        : 'utf8',
         rawBuffer       : false,
+        parser          : 'fast',
+        identifyPeer    : false,
         delimiter       : '\f',
         sync            : false,
         silent          : false,
         logInColor      : true,
         logDepth        : 5,
         logger          : console.log,
+        logPayloads     : false,
         maxConnections  : 100,
+        maxMessageSize  : 1024 * 1024,
+        maxPendingBytes : 8 * 1024 * 1024,
+        maxEventNameLength: 256,
+        messageTimeout  : 30000,
+        allowReservedEvents: false,
+        allowedEvents   : false,
         retry           : 500,
-        maxRetries      : false,
+        maxRetries      : Infinity,
         stopRetrying    : false,
         unlink          : true,
-        interfaces      : {
+        interface       : {
             localAddress: false,
             localPort   : false,
             family      : false,
@@ -142,26 +179,51 @@ Set these variables in the `ipc.config` scope to overwrite or set default values
 | variable | documentation |
 |----------|---------------|
 | appspace | used for Unix Socket (Unix Domain Socket) namespacing. If not set specifically, the Unix Domain Socket will combine the socketRoot, appspace, and id to form the Unix Socket Path for creation or binding. This is available in case you have many apps running on your system, you may have several sockets with the same id, but if you change the appspace, you will still have app specic unique sockets.|
-| socketRoot| the directory in which to create or bind to a Unix Socket |
+| socketRoot| owner-only directory in which to create or bind a Unix Socket. On Unix the default is `$XDG_RUNTIME_DIR/node-ipc` when available, otherwise an owner-only `node-ipc-<uid>` directory below the OS temporary directory. Windows uses a per-user logical pipe prefix. The configured root is created and verified as owner-only by default. |
 | id       | the id of this socket or service |
 | networkHost| the local or remote host on which TCP, TLS or UDP Sockets should connect |
 | networkPort| the default port on which TCP, TLS, or UDP sockets should connect |
 | readableAll| makes the pipe readable for all users including windows services |
 | writableAll| makes the pipe writable for all users including windows services |
-| encoding | the default encoding for data sent on sockets. Mostly used if rawBuffer is set to true. Valid values are : ` ascii` ` utf8 ` ` utf16le` ` ucs2` ` base64` ` hex ` . |
-| rawBuffer| if true, data will be sent and received as a raw node ` Buffer ` __NOT__ an ` Object ` as JSON. This is great for Binary or hex IPC, and communicating with other processes in languages like C and C++  |
-| delimiter| the delimiter at the end of each data packet. |
+| secureSocketRoot | create and verify an owner-only Unix socket root. Defaults to `true`; disabling it transfers directory ownership and permission checks to the application. Assured local service is Unix-only; on Windows use Assured mutual TLS or an application-owned named-pipe ACL outside the built-in profile. |
+| encoding | encoding for non-Buffer Raw writes. Built-in framed profiles use UTF-8 so both wire directions remain symmetric. Custom parsers should return a `Buffer` when they own another wire encoding. |
+| rawBuffer| compatibility switch for the `raw` profile. When `true`, node-ipc performs no framing, JSON parsing, or message validation; incoming `Buffer` values are delivered through `data`. The caller owns the complete wire protocol and its security. |
+| parser | parser profile or custom parser. Defaults to `fast`; accepts `raw`, `fast`, `guarded`, `assured`, a parser class, or a parser object. Selection happens once for each new client or server. |
+| identifyPeer | legacy server behavior that copies a received payload's `data.id` onto the socket. Defaults to `false` so Fast does not inspect every payload. Selected once when the server is created; never treat this caller-supplied value as authenticated identity. |
+| delimiter| frame terminator used by the `fast`, `guarded`, and `assured` profiles. |
 | sync     | synchronous requests. Clients will not send new requests until the server answers. |
 | silent   | turn on/off logging default is false which means logging is on |
 | logInColor   | turn on/off util.inspect colors for ipc.log |
 | logDepth   | set the depth for util.inspect during ipc.log |
 | logger   | the function which receives the output from ipc.log; should take a single string argument |
-| maxConnections| this is the max number of connections allowed to a socket. It is currently only being set on Unix Sockets. Other Socket types are using the system defaults. |
+| logPayloads | include application payloads in automatic transport logs. Defaults to `false`. Do not pass keys, passphrases, tokens, or other secrets to `ipc.log`; application-supplied log values are not redacted. |
+| maxConnections| maximum number of concurrent connections accepted by a stream socket. Defaults to 100. |
+| maxMessageSize | `guarded` and `assured` maximum framed-message size in bytes. Defaults to 1 MiB. Fast and Raw do not read this option. |
+| maxPendingBytes | `guarded` and `assured` maximum bytes queued for a stream socket write. Defaults to 8 MiB; exceeding it closes that connection. Fast and Raw write directly. |
+| maxEventNameLength | `guarded` and `assured` maximum accepted wire event-name length. Defaults to 256 characters. |
+| messageTimeout | `guarded` and `assured` time allowed for an incomplete stream frame. Defaults to 30000 ms; set to `0` to disable the timer. |
+| allowReservedEvents | `guarded` compatibility escape hatch for lifecycle names. Defaults to `false`. Assured always rejects reserved names. |
+| allowedEvents | required non-empty `Array` or `Set` of event names for `assured`. The allow-list applies to sent and received events. Defaults to `false` for the other profiles. |
 | retry    | this is the time in milliseconds a client will wait before trying to reconnect to a server if the connection is lost. This does not effect UDP sockets since they do not have a client server relationship like Unix Sockets and TCP Sockets. |
 | maxRetries    | if set, it represents the maximum number of retries after each disconnect before giving up and completely killing a specific connection |
 | stopRetrying| Defaults to false meaning clients will continue to retry to connect to servers indefinitely at the retry interval. If set to any number the client will stop retrying when that number is exceeded after each disconnect. If set to true in real time it will immediately stop trying to connect regardless of maxRetries. If set to 0, the client will ***NOT*** try to reconnect. |
 | unlink| Defaults to true meaning that the module will take care of deleting the IPC socket prior to startup.  If you use `node-ipc` in a clustered environment where there will be multiple listeners on the same socket, you must set this to `false` and then take care of deleting the socket in your own code. |
-| interfaces| primarily used when specifying which interface a client should connect through. see the [socket.connect documentation in the node.js api](https://nodejs.org/api/net.html#net_socket_connect_options_connectlistener) |
+| interface| primarily used when specifying which interface a client should connect through. see the [socket.connect documentation in the node.js api](https://nodejs.org/api/net.html#net_socket_connect_options_connectlistener) |
+| IPType | detected IP family used to choose the initial loopback host. |
+| tls | TLS options object or `false`. Assured network clients require a key, certificate, trusted CA, and `rejectUnauthorized:true`; servers also require a trusted client CA, `requestCert:true`, and `rejectUnauthorized:true`. |
+
+Security boundaries:
+
+- `fast` is the default because the trusted hot path stays direct. It contains malformed JSON, but it does not enforce message size, event-name, reserved-name, timeout, allow-list, or pending-write limits. Use `guarded` or `assured` when peers are not fully trusted.
+- Parser controls validate the event envelope, not the application payload. Validate payload type, shape, identity, authorization, and replay rules in the application.
+- TCP and UDP provide neither authentication nor confidentiality. Any service bound beyond loopback must authenticate and authorize messages at the application layer, or use mutually authenticated TLS. Server-authenticated TLS alone does not identify clients.
+- TLS servers must supply an explicit `key` and `cert`, or the existing `private` and `public` file-path aliases. There is no bundled certificate fallback. Keep private keys outside the package and source tree.
+- `rejectUnauthorized: false` disables certificate identity verification and is vulnerable to man-in-the-middle attacks. Use it only for isolated local development, never on an external or untrusted network.
+- Unix socket permissions are a boundary, not message authentication. Keep the default owner-only socket root or provide an equally restricted directory; do not place privileged sockets directly in a shared temporary directory.
+
+The official `node-ipc/parsers/message` export keeps `js-message` ecosystem compatibility as an explicit opt-in parser. It maps malformed envelopes to an `error` message and is not a hardened decoder. Use Guarded or Assured for node-ipc protocol controls, or provide a custom parser that implements your required policy.
+
+For the complete upgrade contract, see [MIGRATION.md](./MIGRATION.md).
 
 ----
 
@@ -367,7 +429,7 @@ or specify path
 ```javascript
 
     ipc.serve(
-        '/tmp/myapp.myservice'
+        ipc.config.socketRoot+'myapp.myservice'
     );
 
 ```
@@ -377,7 +439,7 @@ or specifying everything
 ```javascript
 
     ipc.serve(
-        '/tmp/myapp.myservice',
+        ipc.config.socketRoot+'myapp.myservice',
         function(){...}
     );
 
@@ -390,10 +452,12 @@ or specifying everything
 
 Used to create TCP, TLS or UDP Socket Server to which Clients can bind or other servers can send data to. The server can `emit` events to specific Client Sockets, or `broadcast` events to all known Client Sockets.
 
+Binding to a non-loopback interface exposes the service to the network. Use application authentication and authorization for TCP/UDP, or mutually authenticated TLS when both peers must have cryptographic identities.
+
 
 | variable | required | definition |
 |----------|----------|------------|
-| host     | optional | If not specified this defaults to the first address in os.networkInterfaces(). For TCP, TLS & UDP servers this is most likely going to be 127.0.0.1 or ::1 |
+| host     | optional | If not specified this defaults to `ipc.config.networkHost`, which is loopback (`127.0.0.1` or `::1`). An explicit non-loopback host creates an external network boundary. |
 | port     | optional | The port on which the TCP, UDP, or TLS Socket server will be bound, this defaults to 8000 if not specified |
 | UDPType  | optional | If set this will create the server as a UDP socket. 'udp4' or 'udp6' are valid values. This defaults to not being set. When using udp6 make sure to specify a valid IPv6 host, like ` ::1 ` |
 | callback | optional | Function to be called when the server is created |
@@ -502,6 +566,8 @@ or specifying everything UDP
 |data|buffer|triggered when ipc.config.rawBuffer is true and a message is received.|
 |***your event type***|***your event data***|triggered when a JSON message is received. The event name will be the type string from your message and the param will be the data object from your message eg : ` { type:'myEvent',data:{a:1}} ` |
 
+The Guarded and Assured profiles reject the lifecycle names `start`, `connect`, `disconnect`, `destroy`, `close`, `socket.disconnected`, `error`, and `data`, plus names inherited from `Object.prototype`. Guarded can restore lifecycle-name compatibility with `ipc.config.allowReservedEvents=true`; Assured cannot. The default Fast profile does not perform either name check, so use it only with trusted peers.
+
 ### Multiple IPC Instances
 
 Sometimes you might need explicit and independent instances of node-ipc. Just for such scenarios we have exposed the core IPC class on the IPC singleton.
@@ -510,14 +576,8 @@ Sometimes you might need explicit and independent instances of node-ipc. Just fo
 
     import {IPCModule} from 'node-ipc';
 
-    const ipc=new RawIPC;
-    const someOtherExplicitIPC=new RawIPC;
-
-
-    //OR
-
-    const ipc=from 'node-ipc');
-    const someOtherExplicitIPC=new ipc.IPC;
+    const ipc=new IPCModule;
+    const someOtherExplicitIPC=new IPCModule;
 
 
     //setting explicit configs
@@ -829,7 +889,7 @@ Writing explicit buffers, int types, doubles, floats etc. as well as big endian 
     
     const cpuCount=cpus().length;
 
-    const socketPath='/tmp/ipc.sock';
+    const socketPath=ipc.config.socketRoot+'ipc.sock';
 
     ipc.config.unlink = false;
 
@@ -867,7 +927,7 @@ Writing explicit buffers, int types, doubles, floats etc. as well as big endian 
     import fs  from 'fs';
     import ipc  from 'node-ipc';
 
-    const socketPath = '/tmp/ipc.sock';
+    const socketPath = ipc.config.socketRoot+'ipc.sock';
 
     //loop forever so you can see the pid of the cluster sever change in the logs
     setInterval(

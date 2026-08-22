@@ -87,12 +87,15 @@ const groups=[
                     const server=new Server('127.0.0.1',new Defaults,() => {},4321);
                     const target={address:'127.0.0.1',port:5432};
                     server.udp4=true;
-                    server.server={write:(value,socket) => writes.push({socket,value})};
+                    server.server={send:(value,port,address,callback) => {
+                        writes.push({address,port,value});
+                        callback?.();
+                    }};
                     server.emit(target,'functional.udp',{value:3});
                     assert.equal(writes.length,1);
-                    assert.strictEqual(writes[0].socket,target);
-                    assert.deepEqual(writes[0].socket,{address:'127.0.0.1',port:5432});
-                    assert.deepEqual(parseFrame(writes[0].value),{
+                    assert.equal(writes[0].address,target.address);
+                    assert.equal(writes[0].port,target.port);
+                    assert.deepEqual(parseFrame(writes[0].value.toString()),{
                         type:'functional.udp',
                         data:{value:3}
                     });

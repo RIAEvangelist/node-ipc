@@ -16,7 +16,9 @@ const stagedPaths=new Set([
     'coverage/report/index.html',
     'data/test-results.json',
     'data/coverage-summary.json',
-    'data/benchmarks/index.json'
+    'data/benchmarks/dashboard.json',
+    'data/benchmarks/index.json',
+    'data/benchmarks/result-schema.json'
 ]);
 const errors=[];
 const titles=new Set();
@@ -100,6 +102,16 @@ for(const file of htmlFiles){
         if(stagedPaths.has(resolved.relative)) continue;
         errors.push(`${relative}: missing local target ${link} -> ${resolved.relative}`);
     }
+}
+
+const siteScript=readFileSync(path.join(docs,'assets','site.js'),'utf8');
+check((siteScript.match(/\bfetch\s*\(/gu) ?? []).length === 2,'assets/site.js must fetch only the selected data source and linked benchmark manifest');
+for(const file of htmlFiles){
+    const relative=path.relative(docs,file).replaceAll(path.sep,'/');
+    const source=readFileSync(file,'utf8');
+    if(!/data-kind="benchmarks"/u.test(source)) continue;
+    check(/data-source="data\/benchmarks\/dashboard[.]json"/u.test(source),`${relative}: benchmark panel must load the compact dashboard`);
+    check(/data-view="(?:profiles|resources|runs)"/u.test(source),`${relative}: benchmark panel has no supported view`);
 }
 
 const trackedInventoryFile=path.join(docs,'data','test-inventory.json');

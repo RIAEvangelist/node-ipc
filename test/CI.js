@@ -6,6 +6,7 @@ import functionalGroups from './suites/functional.js';
 import functionalAdditionalGroups from './suites/functional-additional.js';
 import integrationGroups from './suites/integration.js';
 import integrationAdditionalGroups from './suites/integration-additional.js';
+import modernizationGroups from './suites/modernization.js';
 import regressionGroups from './suites/regression.js';
 import regressionAdditionalGroups from './suites/regression-additional.js';
 import unitGroups from './suites/unit.js';
@@ -20,7 +21,8 @@ const groups=[
     ...integrationGroups,
     ...integrationAdditionalGroups,
     ...regressionGroups,
-    ...regressionAdditionalGroups
+    ...regressionAdditionalGroups,
+    ...modernizationGroups
 ];
 
 async function run(){

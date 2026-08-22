@@ -1,10 +1,17 @@
 import assert from 'node:assert/strict';
+import {createRequire} from 'node:module';
 import EventPubSub,{EventPubSub as NamedEventPubSub} from 'event-pubsub';
+import IndexEventPubSub,{EventPubSub as NamedIndexEventPubSub} from 'event-pubsub/index.js';
 import Message from 'js-message';
 
 import {Parser} from '../../entities/EventParser.js';
 import {IPCModule} from '../../node-ipc.js';
 import {parseFrame} from '../support.js';
+
+const require=createRequire(import.meta.url);
+const RequiredEventPubSub=require('event-pubsub');
+const RequiredIndexEventPubSub=require('event-pubsub/index.js');
+const wildcard=Symbol.for('event-pubsub-all');
 
 function frame(type,data){
     const value=new Message;
@@ -44,15 +51,15 @@ const groups=[
                 }
             },
             {
-                name:'normalizes an empty-string payload to the legacy empty object',
+                name:'preserves an empty-string payload',
                 run(){
-                    assert.deepEqual(parseFrame(frame('regression.empty-string','')).data,{});
+                    assert.equal(parseFrame(frame('regression.empty-string','')).data,'');
                 }
             },
             {
-                name:'normalizes a null payload to the legacy empty object',
+                name:'preserves a null payload',
                 run(){
-                    assert.deepEqual(parseFrame(frame('regression.null',null)).data,{});
+                    assert.equal(parseFrame(frame('regression.null',null)).data,null);
                 }
             },
             {
@@ -138,60 +145,153 @@ const groups=[
         name:'event-pubsub transport compatibility',
         cases:[
             {
-                name:'keeps default and named class exports identical',
+                name:'keeps root and index ESM and CommonJS class identities stable',
                 run(){
                     assert.strictEqual(EventPubSub,NamedEventPubSub);
-                }
-            },
-            {
-                name:'keeps the public prototype and constructor name stable',
-                run(){
+                    assert.strictEqual(EventPubSub,IndexEventPubSub);
+                    assert.strictEqual(EventPubSub,NamedIndexEventPubSub);
+                    assert.strictEqual(EventPubSub,RequiredEventPubSub);
+                    assert.strictEqual(EventPubSub,RequiredIndexEventPubSub);
+                    assert.strictEqual(RequiredEventPubSub.default,EventPubSub);
+                    assert.strictEqual(RequiredEventPubSub.EventPubSub,EventPubSub);
                     const events=new EventPubSub;
                     assert.strictEqual(Object.getPrototypeOf(events),EventPubSub.prototype);
                     assert.equal(events.constructor.name,'EventPubSub');
+                    assert.throws(() => events.on(1,() => {}),TypeError);
+                    assert.throws(() => events.emit(1),TypeError);
+                    events.on('invalid-handler',() => {});
+                    assert.throws(() => events.off('invalid-handler',1),TypeError);
                 }
             },
             {
-                name:'accepts every node-ipc reserved lifecycle event locally',
+                name:'accepts prototype-like and reserved lifecycle event names locally',
                 run(){
                     const events=new EventPubSub;
                     const seen=[];
-                    const types=['start','connect','disconnect','destroy','close','socket.disconnected','error','data'];
+                    const types=[...new Set([
+                        ...Object.getOwnPropertyNames(Object.prototype),
+                        'start','connect','disconnect','destroy','close',
+                        'socket.disconnected','error','data'
+                    ])];
                     for(const type of types){
-                        events.on(type,() => seen.push(type));
+                        const handler=() => seen.push(type);
+                        events.on(type,handler);
                         events.emit(type);
+                        assert.equal(Object.hasOwn(events.list,type),true);
+                        events.off(type,handler).emit(type);
                     }
                     assert.deepEqual(seen,types);
+                    for(const type of types) events.on(type,() => {});
+                    events.reset();
+                    assert.deepEqual(Reflect.ownKeys(events.list),[]);
                 }
             },
             {
-                name:'preserves wildcard, once, and explicit removal semantics',
+                name:'distinguishes wildcard registration from the Symbol description during live synchronous dispatch',
                 run(){
                     const events=new EventPubSub;
                     const seen=[];
-                    const removed=() => seen.push('removed');
-                    events.on('*',(type,value) => seen.push(`all:${type}:${value}`));
-                    events.once('work',(value) => seen.push(`once:${value}`));
-                    events.on('work',removed).off('work',removed);
-                    events.emit('work',1).emit('work',2);
-                    assert.deepEqual(seen,['all:work:1','once:1','all:work:2']);
+                    const exactType=wildcard.toString();
+                    let emitReturned=false;
+                    const late=(type) => {
+                        assert.equal(emitReturned,false);
+                        seen.push(`late:${type}`);
+                    };
+                    const all=(type) => {
+                        assert.equal(emitReturned,false);
+                        seen.push(`wildcard:${type}`);
+                        if(type === 'work'){
+                            events.on('*',late);
+                            events.on('work',() => seen.push('typed:late'));
+                        }
+                    };
+                    const exact=() => seen.push('typed:symbol-description');
+                    events.on('*',all).on(exactType,exact).emit(exactType);
+                    assert.deepEqual(seen,[`wildcard:${exactType}`,'typed:symbol-description']);
+                    assert.deepEqual(events.list[wildcard],[all]);
+                    assert.deepEqual(events.list[exactType],[exact]);
+
+                    events.off(exactType,exact).off(exactType,all);
+                    assert.deepEqual(events.list[wildcard],[all]);
+                    assert.equal(events.list[exactType],undefined);
+
+                    seen.length=0;
+                    events.on('work',() => seen.push('typed:work')).emit('work');
+                    emitReturned=true;
+                    assert.deepEqual(seen,['wildcard:work','late:work','typed:work','typed:late']);
+
+                    seen.length=0;
+                    emitReturned=false;
+                    events.emit('*');
+                    emitReturned=true;
+                    assert.deepEqual(seen,['wildcard:*','late:*']);
                 }
             },
             {
-                name:'delivers every event on the emit hot path without loss',
+                name:'removes frozen once handlers before invocation and preserves explicit removals',
+                run(){
+                    const events=new EventPubSub;
+                    const seen=[];
+                    const persistent=(value) => seen.push(`persistent:${value}`);
+                    const removed=Object.freeze(() => seen.push('removed'));
+                    const once=Object.freeze((value) => {
+                        assert.deepEqual(events.list.work,[persistent]);
+                        seen.push(`once:${value}`);
+                        events.emit('work','nested');
+                    });
+                    events.once('work',once);
+                    events.on('work',persistent);
+                    events.on('work',removed).off('work',removed);
+                    events.emit('work','outer').emit('work','again');
+                    assert.deepEqual(seen,[
+                        'once:outer',
+                        'persistent:nested',
+                        'persistent:outer',
+                        'persistent:again'
+                    ]);
+                    assert.deepEqual(events.list.work,[persistent]);
+                }
+            },
+            {
+                name:'keeps list snapshots isolated while delivering every hot-path emit without loss',
                 run(){
                     const events=new EventPubSub;
                     let count=0;
                     let sum=0;
-                    events.on('hot',(value) => {
+                    let expected=1;
+                    const shared={marker:true};
+                    const handler=(value,payload) => {
+                        assert.equal(value,expected++);
+                        assert.strictEqual(payload,shared);
                         count++;
                         sum+=value;
-                    });
+                    };
+                    events.on('hot',handler);
+                    const arities=[];
+                    events.on('arity',(...args) => arities.push(args));
+                    events.emit('arity');
+                    events.emit('arity',shared);
+                    events.emit('arity',1,shared);
+                    events.emit('arity',1,2,shared);
+                    assert.deepEqual(arities,[[],[shared],[1,shared],[1,2,shared]]);
+                    assert.strictEqual(arities[1][0],shared);
+                    assert.strictEqual(arities[2][1],shared);
+                    assert.strictEqual(arities[3][2],shared);
+                    const snapshot=events.list;
+                    assert.strictEqual(Object.getPrototypeOf(snapshot),null);
+                    snapshot.hot.length=0;
+                    snapshot.injected=[handler];
                     for(let value=1; value<=5000; value++){
-                        events.emit('hot',value);
+                        events.emit('hot',value,shared);
                     }
                     assert.equal(count,5000);
                     assert.equal(sum,12_502_500);
+                    assert.equal(expected,5001);
+                    assert.deepEqual(events.list.hot,[handler]);
+                    assert.equal(events.list.injected,undefined);
+                    const secondSnapshot=events.list;
+                    assert.notStrictEqual(secondSnapshot,snapshot);
+                    assert.notStrictEqual(secondSnapshot.hot,snapshot.hot);
                 }
             }
         ]
@@ -205,7 +305,7 @@ const groups=[
                 run(){
                     const instance=quietIPC();
                     assert.equal(instance.connectTo(),undefined);
-                    assert.deepEqual(instance.of,{});
+                    assert.deepEqual(Object.keys(instance.of),[]);
                 }
             },
             {
@@ -213,7 +313,7 @@ const groups=[
                 run(){
                     const instance=quietIPC();
                     assert.equal(instance.connectToNet(),undefined);
-                    assert.deepEqual(instance.of,{});
+                    assert.deepEqual(Object.keys(instance.of),[]);
                 }
             },
             {
@@ -222,7 +322,7 @@ const groups=[
                     const instance=quietIPC();
                     instance.of.known={marker:true};
                     assert.equal(instance.disconnect('missing'),undefined);
-                    assert.deepEqual(instance.of,{known:{marker:true}});
+                    assert.deepEqual({...instance.of},{known:{marker:true}});
                 }
             },
             {
@@ -251,7 +351,7 @@ const groups=[
                     instance.of.peer=peer;
                     instance.disconnect('peer');
                     assert.equal(peer.explicitlyDisconnected,true);
-                    assert.deepEqual(peer.list,{});
+                    assert.deepEqual(Reflect.ownKeys(peer.list),[]);
                     assert.equal(destroyed,true);
                     assert.equal(Object.hasOwn(instance.of,'peer'),false);
                 }

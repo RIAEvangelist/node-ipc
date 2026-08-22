@@ -2,9 +2,9 @@
 
 ![Four node-ipc performance profiles: raw race motorcycle, fast race car, guarded soccer-parent minivan, and assured olive-drab military vehicle](../assets/node-ipc-performance-tiers.png)
 
-The vehicles define planned configuration profiles: **Raw**, **Fast**, **Guarded**, and **Assured**. Legacy remains a compatibility lane, not a performance tier. The profiles will describe measured overhead and intended risk posture after their adapters land; they are not government or military certifications.
+The vehicles define **Raw**, **Fast**, **Guarded**, and **Assured** profiles. Legacy remains a compatibility lane, not a performance tier. The raw-client harness measures Raw, Fast, and Guarded. Assured includes TLS and belongs in a separate end-to-end lane; mixing it with a plaintext byte reflector would be misleading. Profiles describe overhead and intended risk posture. They are not government or military certifications.
 
-The benchmark contract has three lanes. Results never cross lanes. The current harness establishes the raw-client lane with a `node:net` baseline; parser and end-to-end adapters land with their implementations.
+The benchmark contract has three lanes. Results never cross lanes. The current harness implements the raw-client lane with one `node:net` baseline and one node-ipc adapter selected once as Raw, Fast, or Guarded.
 
 1. **Parser** measures encode, chunk, and decode work in one process.
 2. **Raw client** connects each compatible client to the same byte reflector.
@@ -12,7 +12,7 @@ The benchmark contract has three lanes. Results never cross lanes. The current h
 
 The raw service reflects bytes without parsing them. "Shared" means the same source and protocol, not one long-lived process: every sample gets a new oracle, worker, connection, port, and temporary directory.
 
-The raw lane accounts for exact byte totals. Framed parser and end-to-end adapters must additionally verify message sequence and payload content.
+The raw lane reports application bytes and actual socket bytes separately. A 64-frame content and sequence probe runs before warm-up and outside timing. Every measured run still requires exact application, wire, reflected-byte, and frame totals.
 
 ## Published run
 
@@ -21,7 +21,7 @@ The raw lane accounts for exact byte totals. Framed parser and end-to-end adapte
 - three forced GCs after warm-up, outside timing;
 - 1,000,000 completed messages per pass;
 - seven fresh samples per adapter and pass;
-- a paired `node:net` baseline in every round, with adapter order reversed between rounds;
+- Raw, Fast, and Guarded against a paired `node:net` baseline in every round, with adapter order reversed between rounds;
 - milliseconds per million messages and the delta from that paired baseline;
 - speed, resource, and latency passes run separately;
 - every raw sample is retained; no outlier is deleted.
@@ -52,7 +52,7 @@ Run a fast development check without recording it:
 npm run benchmark:quick
 ```
 
-Quick and custom runs write ephemeral JSON to standard output only. The recorder rejects dirty trees, changed trees, non-C oracles, custom/tiny configurations, failed cleanup or count gates, saturated oracles, unverifiable builds, and missing package-footprint evidence before it writes anything under `benchmark/results/`.
+Quick and custom runs write ephemeral JSON to standard output only. The recorder rejects dirty trees, changed trees, non-C oracles, custom/tiny configurations, missing canonical profile adapters, failed cleanup or count gates, saturated oracles, unverifiable builds, and missing package-footprint evidence before it writes anything under `benchmark/results/`.
 
 For publishable evidence, start from a clean commit on an identified idle machine, build the C oracle, and run the complete configuration:
 
@@ -75,7 +75,7 @@ node benchmark/merge-results.js <temporary-directory>
 npm run benchmark:validate
 ```
 
-The merger rejects partial matrices, conflicting duplicates, nonpublishable evidence, rankings, non-baseline adapters, and results measured from a commit other than the current `HEAD`.
+The merger rejects partial matrices, conflicting duplicates, nonpublishable evidence, rankings, incomplete profile sets, and results measured from a commit other than the current `HEAD`.
 
 ## Clean baseline
 

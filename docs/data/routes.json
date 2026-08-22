@@ -4,6 +4,8 @@
     "/",
     "/quick-start/",
     "/config/",
+    "/profiles/",
+    "/parsers/",
     "/api/",
     "/unix-windows/",
     "/tcp/",
@@ -17,6 +19,10 @@
     "/testing/regression/",
     "/coverage/",
     "/benchmarks/",
+    "/benchmarks/profiles/",
+    "/benchmarks/resources/",
+    "/benchmarks/methodology/",
+    "/benchmarks/runs/",
     "/security/",
     "/testing/unit/defaults-core-configuration/",
     "/testing/unit/defaults-network-and-logging-configuration/",
@@ -45,6 +51,17 @@
     "/testing/regression/event-pubsub-transport-compatibility/",
     "/testing/regression/connection-lifecycle-guards/",
     "/testing/regression/public-method-accessor-stability/",
-    "/testing/regression/server-socket-cleanup-invariants/"
+    "/testing/regression/server-socket-cleanup-invariants/",
+    "/testing/unit/runtime-parser-selection/",
+    "/testing/unit/messageparser-compatibility-and-fast-payloads/",
+    "/testing/functional/guarded-protocol-boundaries/",
+    "/testing/functional/assured-allowlist-and-network-tls-gate/",
+    "/testing/functional/direct-transport-hot-path/",
+    "/testing/functional/guarded-client-failure-and-logging-paths/",
+    "/testing/functional/guarded-server-logging-and-datagram-paths/",
+    "/testing/unit/tls-option-loading-and-verification-defaults/",
+    "/testing/integration/raw-bytes-and-tls-connection-timing/",
+    "/testing/regression/local-socket-root-and-cleanup-safety/",
+    "/testing/regression/client-reconnect-and-stale-socket-lifecycle/"
   ]
 }

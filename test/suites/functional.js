@@ -234,7 +234,7 @@ const groups=[
                     client.socket={write:(value) => writes.push(value)};
                     client.emit('functional.immediate',1);
                     assert.equal(writes.length,1);
-                    assert.equal(client.queue.contents.length,0);
+                    assert.equal(client.queue,null);
                 }
             },
             {

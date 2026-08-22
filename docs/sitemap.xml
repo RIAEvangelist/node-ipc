@@ -3,6 +3,8 @@
   <url><loc>https://riaevangelist.github.io/node-ipc/</loc></url>
   <url><loc>https://riaevangelist.github.io/node-ipc/quick-start/</loc></url>
   <url><loc>https://riaevangelist.github.io/node-ipc/config/</loc></url>
+  <url><loc>https://riaevangelist.github.io/node-ipc/profiles/</loc></url>
+  <url><loc>https://riaevangelist.github.io/node-ipc/parsers/</loc></url>
   <url><loc>https://riaevangelist.github.io/node-ipc/api/</loc></url>
   <url><loc>https://riaevangelist.github.io/node-ipc/unix-windows/</loc></url>
   <url><loc>https://riaevangelist.github.io/node-ipc/tcp/</loc></url>
@@ -16,6 +18,10 @@
   <url><loc>https://riaevangelist.github.io/node-ipc/testing/regression/</loc></url>
   <url><loc>https://riaevangelist.github.io/node-ipc/coverage/</loc></url>
   <url><loc>https://riaevangelist.github.io/node-ipc/benchmarks/</loc></url>
+  <url><loc>https://riaevangelist.github.io/node-ipc/benchmarks/profiles/</loc></url>
+  <url><loc>https://riaevangelist.github.io/node-ipc/benchmarks/resources/</loc></url>
+  <url><loc>https://riaevangelist.github.io/node-ipc/benchmarks/methodology/</loc></url>
+  <url><loc>https://riaevangelist.github.io/node-ipc/benchmarks/runs/</loc></url>
   <url><loc>https://riaevangelist.github.io/node-ipc/security/</loc></url>
   <url><loc>https://riaevangelist.github.io/node-ipc/testing/unit/defaults-core-configuration/</loc></url>
   <url><loc>https://riaevangelist.github.io/node-ipc/testing/unit/defaults-network-and-logging-configuration/</loc></url>
@@ -45,4 +51,15 @@
   <url><loc>https://riaevangelist.github.io/node-ipc/testing/regression/connection-lifecycle-guards/</loc></url>
   <url><loc>https://riaevangelist.github.io/node-ipc/testing/regression/public-method-accessor-stability/</loc></url>
   <url><loc>https://riaevangelist.github.io/node-ipc/testing/regression/server-socket-cleanup-invariants/</loc></url>
+  <url><loc>https://riaevangelist.github.io/node-ipc/testing/unit/runtime-parser-selection/</loc></url>
+  <url><loc>https://riaevangelist.github.io/node-ipc/testing/unit/messageparser-compatibility-and-fast-payloads/</loc></url>
+  <url><loc>https://riaevangelist.github.io/node-ipc/testing/functional/guarded-protocol-boundaries/</loc></url>
+  <url><loc>https://riaevangelist.github.io/node-ipc/testing/functional/assured-allowlist-and-network-tls-gate/</loc></url>
+  <url><loc>https://riaevangelist.github.io/node-ipc/testing/functional/direct-transport-hot-path/</loc></url>
+  <url><loc>https://riaevangelist.github.io/node-ipc/testing/functional/guarded-client-failure-and-logging-paths/</loc></url>
+  <url><loc>https://riaevangelist.github.io/node-ipc/testing/functional/guarded-server-logging-and-datagram-paths/</loc></url>
+  <url><loc>https://riaevangelist.github.io/node-ipc/testing/unit/tls-option-loading-and-verification-defaults/</loc></url>
+  <url><loc>https://riaevangelist.github.io/node-ipc/testing/integration/raw-bytes-and-tls-connection-timing/</loc></url>
+  <url><loc>https://riaevangelist.github.io/node-ipc/testing/regression/local-socket-root-and-cleanup-safety/</loc></url>
+  <url><loc>https://riaevangelist.github.io/node-ipc/testing/regression/client-reconnect-and-stale-socket-lifecycle/</loc></url>
 </urlset>

@@ -48,7 +48,8 @@ try {
     await forceGc();
     const beforeImport = memory();
     const baselineResources = resources();
-    const adapter = await import(`./adapters/${config.adapter}.js`);
+    const {loadAdapter}=await import('./adapters/index.js');
+    const adapter=await loadAdapter(config.adapter);
     await forceGc();
     const afterImport = memory();
     const peak = {...afterImport};
@@ -144,7 +145,8 @@ try {
                 ready
             },
             metrics: {
-                bytesPerSecond: measured.exact.receivedBytes / elapsedSeconds,
+                applicationBytesPerSecond:measured.exact.applicationReceivedBytes/elapsedSeconds,
+                bytesPerSecond:measured.exact.applicationReceivedBytes/elapsedSeconds,
                 cpu,
                 elapsedNs: measured.elapsedNs.toString(),
                 eventLoopDelayNs: delay ? {
@@ -156,6 +158,7 @@ try {
                 eventLoopUtilization: elu,
                 framesPerSecond: measured.exact.receivedFrames / elapsedSeconds,
                 millisecondsPerMillion: Number(measured.elapsedNs) / measured.exact.receivedFrames,
+                wireBytesPerSecond:measured.exact.wireReceivedBytes/elapsedSeconds,
                 resourceUsage: {
                     end: resourceEnd,
                     start: resourceStart

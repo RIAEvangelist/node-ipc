@@ -11,6 +11,7 @@ ipc.config.id = 'hello';
 ipc.config.retry= 1500;
 ipc.config.sync= true;
 ipc.config.tls={
+    // DEVELOPMENT ONLY: disabling verification permits man-in-the-middle attacks.
     rejectUnauthorized:false
 };
 

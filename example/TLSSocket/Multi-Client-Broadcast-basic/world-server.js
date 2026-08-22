@@ -1,4 +1,5 @@
 import ipc from '../../../node-ipc.js';
+import {serverCertificate,serverKey} from '../certificates.js';
 
 /***************************************\
  *
@@ -9,9 +10,10 @@ import ipc from '../../../node-ipc.js';
 
 ipc.config.id = 'world';
 ipc.config.retry= 1500;
+// LOCAL DEVELOPMENT ONLY: these repository fixtures are public and expired.
 ipc.config.tls={
-    public: __dirname+'/../../../local-node-ipc-certs/server.pub',
-    private: __dirname+'/../../../local-node-ipc-certs/private/server.key'
+    public: serverCertificate,
+    private: serverKey
 };
 
 var messages={

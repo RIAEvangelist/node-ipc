@@ -22,6 +22,8 @@ const baseRoutes=Object.freeze([
     '/',
     '/quick-start/',
     '/config/',
+    '/profiles/',
+    '/parsers/',
     '/api/',
     '/unix-windows/',
     '/tcp/',
@@ -35,6 +37,10 @@ const baseRoutes=Object.freeze([
     '/testing/regression/',
     '/coverage/',
     '/benchmarks/',
+    '/benchmarks/profiles/',
+    '/benchmarks/resources/',
+    '/benchmarks/methodology/',
+    '/benchmarks/runs/',
     '/security/'
 ]);
 const categoryCopy=Object.freeze({
@@ -111,7 +117,7 @@ function categoryCount(inventory,category){
 function navigation(root,current){
     const item=(href,label,key) => `<a href="${href}"${current === key ? ' aria-current="page"' : ''}>${label}</a>`;
     return `<header class="site-header"><div class="shell header-inner"><a class="brand" href="${root}" aria-label="node-ipc documentation home"><span class="brand-mark" aria-hidden="true">IPC</span><span>node-ipc<small>main documentation</small></span></a><button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="site-nav">Menu</button><nav class="site-nav" id="site-nav" data-site-nav aria-label="Primary navigation">
-${item(root,'Home','home')}${item(`${root}quick-start/`,'Quick start','quick-start')}${item(`${root}config/`,'Config','config')}${item(`${root}api/`,'API','api')}<details class="nav-cluster"><summary>Transports</summary><div class="nav-menu">${item(`${root}unix-windows/`,'Unix / Windows','unix-windows')}${item(`${root}tcp/`,'TCP','tcp')}${item(`${root}tls/`,'TLS','tls')}${item(`${root}udp/`,'UDP','udp')}</div></details>${item(`${root}examples/`,'Examples','examples')}<details class="nav-cluster" open><summary>Testing</summary><div class="nav-menu">${item(`${root}testing/`,'Overview','testing')}${item(`${root}testing/unit/`,'Unit','unit')}${item(`${root}testing/functional/`,'Functional','functional')}${item(`${root}testing/integration/`,'Integration','integration')}${item(`${root}testing/regression/`,'Regression','regression')}${item(`${root}coverage/`,'Coverage','coverage')}${item(`${root}benchmarks/`,'Benchmarks','benchmarks')}</div></details>${item(`${root}security/`,'Security','security')}
+${item(root,'Home','home')}${item(`${root}quick-start/`,'Quick start','quick-start')}${item(`${root}config/`,'Config','config')}${item(`${root}profiles/`,'Profiles','profiles')}${item(`${root}parsers/`,'Parsers','parsers')}${item(`${root}api/`,'API','api')}<details class="nav-cluster"><summary>Transports</summary><div class="nav-menu">${item(`${root}unix-windows/`,'Unix / Windows','unix-windows')}${item(`${root}tcp/`,'TCP','tcp')}${item(`${root}tls/`,'TLS','tls')}${item(`${root}udp/`,'UDP','udp')}</div></details>${item(`${root}examples/`,'Examples','examples')}<details class="nav-cluster" open><summary>Testing</summary><div class="nav-menu">${item(`${root}testing/`,'Overview','testing')}${item(`${root}testing/unit/`,'Unit','unit')}${item(`${root}testing/functional/`,'Functional','functional')}${item(`${root}testing/integration/`,'Integration','integration')}${item(`${root}testing/regression/`,'Regression','regression')}${item(`${root}coverage/`,'Coverage','coverage')}${item(`${root}benchmarks/`,'Benchmarks','benchmarks')}</div></details>${item(`${root}security/`,'Security','security')}
 </nav></div></header>`;
 }
 
@@ -142,7 +148,7 @@ ${head({title:'Testing Overview | node-ipc',description:`Exact node-ipc correctn
 <section class="live-panel" data-live-panel data-kind="tests" data-source="data/test-results.json" aria-labelledby="latest-tests"><h2 id="latest-tests">Latest generated result</h2><p class="muted">This panel loads the workflow result. Inventory pages describe intent; they never claim a pass by themselves.</p><p class="status-line" data-live-status role="status" aria-live="polite"><span class="status-dot loading"></span><span data-status-label>Loading generated workflow data…</span></p><div class="live-output" data-live-output></div><template data-static-fallback><div class="metric-grid"><article class="metric"><span class="metric-label">Inventoried</span><strong class="metric-value">${inventory.total}</strong><span class="metric-note">Not proof of execution</span></article>${categoryOrder.map((category) => `<article class="metric"><span class="metric-label">${category}</span><strong class="metric-value">${inventory.categories[category]}</strong><span class="metric-note">${categoryGroups(inventory,category).length} groups</span></article>`).join('')}</div><div class="callout warning"><strong>Static inventory only.</strong><p>Generated test results are unavailable. Do not infer that the ${inventory.total} cases passed.</p></div></template></section>
 <section class="section" aria-labelledby="topology"><p class="eyebrow">Exact topology</p><h2 id="topology">Four sets, ${inventory.groups.length} small-group pages</h2><div class="route-grid">${categoryCards}</div></section>
 <section class="section" aria-labelledby="counting"><h2 id="counting">What counts—and what does not</h2><div class="card-grid two"><article class="card"><h3>${inventory.total} categorized correctness cases</h3><p>Only the named unit, functional, integration, and regression inventory contributes to ${inventory.total}. The separate transport-smoke gate owns its cross-process fixture assertions.</p></article><article class="card"><h3>Separate release gates</h3><p>Cross-process fixtures, module loaders, installed-package behavior, benchmark accounting, and tracked-record validation remain visible but never inflate correctness.</p></article></div><table><thead><tr><th>Gate</th><th>Purpose</th><th>In the ${inventory.total}?</th></tr></thead><tbody><tr><td>Unit / functional / integration / regression</td><td>${inventory.total} named categorized behaviors</td><td>Yes</td></tr><tr><td>Cross-process transport smoke · 8 assertions</td><td>Starts six legacy TCP, UDP4, UDP6, Unix, and Unix-sync fixtures; fails on crash, leak, forced termination, or nonzero exit</td><td>No</td></tr><tr><td>Runtime import / require smoke</td><td>Exercises main's native ESM entry through both supported loader paths</td><td>No</td></tr><tr><td>Installed-package smoke</td><td>Packs, installs, and runs a real consumer outside the source tree</td><td>No</td></tr><tr><td>Benchmark harness · 11 checks</td><td>Validates measurement isolation, exact accounting, cleanup, memory, and GC observation</td><td>No</td></tr><tr><td>Tracked benchmark validator</td><td>Rejects malformed or ineligible benchmark records before publication</td><td>No</td></tr><tr><td>Coverage</td><td>Exposes exercised and missed code paths</td><td>No; evidence only</td></tr></tbody></table></section>
-<section class="section" aria-labelledby="commands"><h2 id="commands">Run the gates</h2><div class="card-grid two"><article class="card"><h3>Complete project gate</h3><pre><code>npm test</code></pre><p>Runs the ${inventory.total} Vanilla Test cases with native V8 coverage, all three smoke gates, the 11 benchmark harness checks, and the tracked-record validator.</p></article><article class="card"><h3>Benchmark evidence only</h3><pre><code>npm run benchmark:test
+<section class="section" aria-labelledby="commands"><h2 id="commands">Run the gates</h2><div class="card-grid two"><article class="card"><h3>Complete project gate</h3><pre><code>npm test</code></pre><p>Runs the ${inventory.total} Vanilla Test cases with native V8 coverage, all three smoke gates, the 18 benchmark harness checks, and the tracked-record validator.</p></article><article class="card"><h3>Benchmark evidence only</h3><pre><code>npm run benchmark:test
 npm run benchmark:validate</code></pre><p>Benchmark gates remain separate from correctness totals and measured vehicle comparisons.</p></article></div></section>
 <div class="next-links"><a href="../examples/">← Examples</a><a href="./unit/">Unit group index →</a></div></main>${footer('../','Testing',`${inventory.total} named correctness cases across ${inventory.groups.length} five-case groups.`)}
 </body></html>
@@ -156,7 +162,7 @@ function renderCategoryPage(inventory,category){
     const config=categoryCopy[category];
     const cards=groups.map((group,index) => `<article class="test-card"><span class="test-count">${group.count}</span><p class="eyebrow">Group ${index+1} of ${groups.length}</p><h3>${escapeHTML(group.name)}</h3><p>Five exact named cases from the tracked suite inventory.</p><a href="./${group.slug}/">Open exact cases →</a></article>`).join('\n');
     const regressionNote=category === 'Regression' && groups.some((group) => group.name === 'event-pubsub transport compatibility')
-        ? '<div class="callout warning"><strong>event-pubsub scope is specific.</strong><p>That group directly tests compatibility with the currently published <code>event-pubsub</code> dependency. It does not cover or certify the in-repository replacement work in <code>entities/Events.js</code>.</p></div>'
+        ? '<div class="callout warning"><strong>event-pubsub scope is specific.</strong><p>That group directly tests compatibility with the installed <code>event-pubsub</code> dependency. It does not extend its five named cases into a general event-dispatch guarantee.</p></div>'
         : '';
     const categoryIndex=categoryOrder.indexOf(category);
     const nextCategory=categoryOrder[categoryIndex+1];
@@ -226,7 +232,7 @@ function renderHome(source,inventory){
       <h2 id="quality-visible">Testing stays visible</h2>
       <p class="muted">The ${inventory.total}-case correctness inventory is split into ${inventory.groups.length} focused five-case groups. Generated workflow data is authoritative about what is currently implemented and passing.</p>
       <div class="route-grid">${cards}</div>
-      <div class="callout success"><strong>Correctness stays honest.</strong><p>The 8-assertion cross-process transport smoke, runtime loader smoke, installed-package smoke, 11 benchmark harness checks, and tracked-record validator are reported separately. They do not inflate the ${inventory.total}-case correctness count.</p></div>
+      <div class="callout success"><strong>Correctness stays honest.</strong><p>The 8-assertion cross-process transport smoke, runtime loader smoke, installed-package smoke, 18 benchmark harness checks, and tracked-record validator are reported separately. They do not inflate the ${inventory.total}-case correctness count.</p></div>
       <div class="button-row"><a class="button primary" href="./testing/">Testing overview</a><a class="button" href="./coverage/">Coverage evidence</a><a class="button" href="./benchmarks/">Benchmark provenance</a></div>
     </section>`;
     return replaceGeneratedBlock(

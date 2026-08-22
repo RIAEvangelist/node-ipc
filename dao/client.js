@@ -1,255 +1,282 @@
-import net from 'net';
-import tls from 'tls';
-import EventParser from '../entities/EventParser.js';
-import Message from 'js-message';
-import fs from 'fs';
-import Queue from 'js-queue';
+import net from 'node:net';
+import tls from 'node:tls';
 import Events from 'event-pubsub';
-
-let eventParser = new EventParser();
+import Queue from 'js-queue';
+import {createParser,IPCProtocolError} from '../entities/EventParser.js';
+import {createClientTLSOptions} from '../entities/TLS.js';
 
 class Client extends Events{
     constructor(config,log){
         super();
+        this.Client=Client;
         this.config=config;
         this.log=log;
         this.publish=super.emit;
-        
-        (config.maxRetries)? this.retriesRemaining=config.maxRetries:0;
-
-        eventParser=new EventParser(this.config);
+        this.retriesRemaining=config.maxRetries || 0;
+        this.parser=createParser(config);
+        this.raw=this.parser.raw;
+        this.encoding=this.parser.encoding || 'utf8';
+        this.encode=this.parser.encode.bind(this.parser);
+        this.writeSocket=Number.isFinite(this.parser.maxPendingBytes)
+            ? this.writeGuarded
+            : this.writeDirect;
+        this.send=config.sync ? this.sendQueued : this.writeSocket;
+        this.queue=config.sync ? new Queue : null;
+        this.receive=this.raw
+            ? (config.sync ? this.receiveRawSync : this.receiveRaw)
+            : (this.parser.messageTimeout ? this.receiveGuarded : this.receiveFramed);
+        this.dispatch=config.sync ? this.dispatchSync : this.dispatchDirect;
+        this.emit=config.logPayloads ? this.emitLogged : this.emitDirect;
+        if(config.logPayloads){
+            this.dispatch=config.sync ? this.dispatchLoggedSync : this.dispatchLogged;
+        }
+        this.receiveMessage=this.dispatch.bind(this);
     }
 
-    Client=Client;
-    queue =new Queue;
     socket=false;
-    connect=connect;
-    emit=emit;
     retriesRemaining=0;
+    retryTimer=false;
     explicitlyDisconnected=false;
-}
+    protocolViolation=false;
 
-function emit(type,data){
-    this.log('dispatching event to ', this.id, this.path, ' : ', type, ',', data);
-
-    let message=new Message;
-    message.type=type;
-    message.data=data;
-
-    if(this.config.rawBuffer){
-        message=Buffer.from(type,this.config.encoding);
-    }else{
-        message=eventParser.format(message);
+    emitDirect(type,data){
+        return this.send(this.encode(type,data));
     }
 
-    //volitile emit
-    if(!this.config.sync){
-        this.socket.write(message);
-        return;
+    emitLogged(type,data){
+        this.log('dispatching event to',this.id,this.path,':',this.raw ? '<raw-buffer>' : type,data);
+        return this.send(this.encode(type,data));
     }
 
-    //sync, non-volitile, ack emit
-    this.queue.add(
-        syncEmit.bind(this,message)
-    );
-}
-
-function syncEmit(message){
-    this.log('dispatching event to ', this.id, this.path, ' : ', message);
-    this.socket.write(message);
-}
-
-function connect(){
-    //init client object for scope persistance especially inside of socket events.
-    let client=this;
-
-    client.log('requested connection to ', client.id, client.path);
-    if(!this.path){
-        client.log('\n\n######\nerror: ', client.id ,' client has not specified socket path it wishes to connect to.');
-        return;
+    sendQueued(message){
+        this.queue.add(() => this.writeSocket(message));
+        return true;
     }
 
-    const options={};
+    writeDirect(message){
+        return this.socket.write(message);
+    }
 
-    if(!client.port){
-        client.log('Connecting client on Unix Socket :', client.path);
+    writeGuarded(message){
+        const bytes=Buffer.isBuffer(message)
+            ? message.length
+            : Buffer.byteLength(message,this.encoding);
+        if(this.socket.writableLength+bytes > this.parser.maxPendingBytes){
+            const error=new IPCProtocolError(
+                'ERR_IPC_BACKPRESSURE',
+                'pending socket writes exceed maxPendingBytes'
+            );
+            this.protocolFailure(this.socket,error);
+            return false;
+        }
+        return this.socket.write(message);
+    }
 
-        options.path=client.path;
+    dispatchDirect(message){
+        this.publish(message.type,message.data);
+    }
 
-        if (process.platform ==='win32' && !client.path.startsWith('\\\\.\\pipe\\')){
-            options.path = options.path.replace(/^\//, '');
-            options.path = options.path.replace(/\//g, '-');
-            options.path= `\\\\.\\pipe\\${options.path}`;
+    dispatchSync(message){
+        this.publish(message.type,message.data);
+        this.queue.next();
+    }
+
+    dispatchLogged(message){
+        this.log('received event',message.type,message.data);
+        this.publish(message.type,message.data);
+    }
+
+    dispatchLoggedSync(message){
+        this.log('received event',message.type,message.data);
+        this.publish(message.type,message.data);
+        this.queue.next();
+    }
+
+    connect(){
+        if(!this.path){
+            this.log('client has no socket path');
+            return;
+        }
+        if(this.socket && !this.socket.destroyed){
+            return this.socket;
         }
 
-        client.socket = net.connect(options);
-    }else{
-        options.host=client.path;
-        options.port=client.port;
-
-        if(client.config.interface.localAddress){
-          options.localAddress=client.config.interface.localAddress;
+        if(this.retryTimer){
+            clearTimeout(this.retryTimer);
+            this.retryTimer=false;
         }
 
-        if(client.config.interface.localPort){
-          options.localPort=client.config.interface.localPort;
+        const options=this.connectionOptions();
+        const secure=Boolean(this.port && this.config.tls);
+        if(this.port && this.parser.profile === 'assured' && !secure){
+            throw new IPCProtocolError(
+                'ERR_IPC_ASSURED_TRANSPORT',
+                'The assured parser requires TLS for network connections.'
+            );
         }
 
-        if(client.config.interface.family){
-          options.family=client.config.interface.family;
-        }
-
-        if(client.config.interface.hints){
-          options.hints=client.config.interface.hints;
-        }
-
-        if(client.config.interface.lookup){
-          options.lookup=client.config.interface.lookup;
-        }
-
-        if(!client.config.tls){
-            client.log('Connecting client via TCP to', options);
-            client.socket = net.connect(options);
+        let socket;
+        if(!this.port){
+            this.log('connecting client on local socket',options.path);
+            socket=net.connect(options);
+        }else if(secure){
+            this.log('connecting client via TLS',this.path,this.port);
+            socket=tls.connect(createClientTLSOptions(
+                this.config.tls,
+                options,
+                this.parser.profile === 'assured'
+            ));
         }else{
-            client.log('Connecting client via TLS to', client.path ,client.port,client.config.tls);
-            if(client.config.tls.private){
-                client.config.tls.key=fs.readFileSync(client.config.tls.private);
-            }
-            if(client.config.tls.public){
-                client.config.tls.cert=fs.readFileSync(client.config.tls.public);
-            }
-            if(client.config.tls.trustedConnections){
-                if(typeof client.config.tls.trustedConnections === 'string'){
-                    client.config.tls.trustedConnections=[client.config.tls.trustedConnections];
-                }
-                client.config.tls.ca=[];
-                for(let i=0; i<client.config.tls.trustedConnections.length; i++){
-                    client.config.tls.ca.push(
-                        fs.readFileSync(client.config.tls.trustedConnections[i])
-                    );
-                }
-            }
+            this.log('connecting client via TCP',options);
+            socket=net.connect(options);
+        }
+        this.socket=socket;
 
-            Object.assign(client.config.tls,options);
+        socket.setNoDelay?.(true);
+        if(!this.raw){
+            socket.setEncoding(this.encoding);
+        }
 
-            client.socket = tls.connect(
-                client.config.tls
-            );
+        socket.on('error',(error) => {
+            if(socket !== this.socket){
+                return;
+            }
+            this.log('client socket error',error);
+            this.publish('error',error);
+        });
+        socket.on(secure ? 'secureConnect' : 'connect',() => this.connected(socket));
+        socket.on('close',() => this.closed(socket));
+        socket.on('data',(data) => {
+            if(socket === this.socket){
+                this.receive(socket,data);
+            }
+        });
+        return socket;
+    }
+
+    connectionOptions(){
+        if(!this.port){
+            let socketPath=this.path;
+            if(process.platform === 'win32' && !socketPath.startsWith('\\\\.\\pipe\\')){
+                socketPath=`\\\\.\\pipe\\${socketPath.replace(/^\//,'').replace(/\//g,'-')}`;
+            }
+            return {path:socketPath};
+        }
+
+        const options={host:this.path,port:this.port};
+        const source=this.config.interface;
+        for(const name of ['localAddress','localPort','family','hints','lookup']){
+            if(source[name]){
+                options[name]=source[name];
+            }
+        }
+        return options;
+    }
+
+    connected(socket=this.socket){
+        if(socket !== this.socket){
+            return;
+        }
+        this.retriesRemaining=this.config.maxRetries;
+        this.publish('connect');
+    }
+
+    closed(socket=this.socket){
+        this.clearMessageTimer(socket);
+        if(socket !== this.socket){
+            return;
+        }
+        this.log('connection closed',this.id,this.path);
+
+        if(
+            this.config.stopRetrying ||
+            this.retriesRemaining < 1 ||
+            this.explicitlyDisconnected ||
+            this.protocolViolation
+        ){
+            this.publish('disconnect');
+            socket.destroy();
+            this.publish('destroy');
+            return;
+        }
+
+        this.retryTimer=setTimeout(() => {
+            this.retryTimer=false;
+            if(this.explicitlyDisconnected){
+                return;
+            }
+            this.retriesRemaining--;
+            this.connect();
+        },this.config.retry);
+        this.publish('disconnect');
+    }
+
+    receiveRaw(socket,data){
+        this.publish('data',data);
+    }
+
+    receiveRawSync(socket,data){
+        this.publish('data',data);
+        this.queue.next();
+    }
+
+    receiveFramed(socket,data){
+        try{
+            socket.ipcBuffer=this.parser.read(socket.ipcBuffer || '',data,this.receiveMessage);
+        }catch(error){
+            this.handleReadError(socket,error);
         }
     }
 
-    client.socket.setEncoding(this.config.encoding);
-
-    client.socket.on(
-        'error',
-        function(err){
-            client.log('\n\n######\nerror: ', err);
-            client.publish('error', err);
-
+    receiveGuarded(socket,data){
+        this.receiveFramed(socket,data);
+        if(socket.destroyed){
+            return;
         }
-    );
-
-    client.socket.on(
-        'connect',
-        function connectionMade(){
-            client.publish('connect');
-            client.retriesRemaining=client.config.maxRetries;
-            client.log('retrying reset');
+        if(socket.ipcBuffer){
+            this.startMessageTimer(socket);
+        }else{
+            this.clearMessageTimer(socket);
         }
-    );
+    }
 
-    client.socket.on(
-        'close',
-        function connectionClosed(){
-            client.log('connection closed' ,client.id , client.path,
-            client.retriesRemaining, 'tries remaining of', client.config.maxRetries
-        );
+    handleReadError(socket,error){
+        if(error instanceof IPCProtocolError){
+            this.protocolFailure(socket,error);
+            return;
+        }
+        throw error;
+    }
 
-            if(
-                client.config.stopRetrying ||
-                client.retriesRemaining<1 ||
-                client.explicitlyDisconnected
-
-            ){
-                client.publish('disconnect');
-                client.log(
-                    (client.config.id),
-                    'exceeded connection rety amount of',
-                    ' or stopRetrying flag set.'
-                );
-
-                client.socket.destroy();
-                client.publish('destroy');
-                client=undefined;
-
-                return;
-            }
-
-            setTimeout(
-                function retryTimeout(){
-                    if (client.explicitlyDisconnected) {
-                        return;
-                    }
-                    client.retriesRemaining--;
-                    client.connect();
-                }.bind(null,client),
-                client.config.retry
+    startMessageTimer(socket){
+        if(socket.ipcMessageTimer){
+            return;
+        }
+        socket.ipcMessageTimer=setTimeout(() => {
+            this.protocolFailure(
+                socket,
+                new IPCProtocolError('ERR_IPC_MESSAGE_TIMEOUT','incomplete message exceeded messageTimeout')
             );
+        },this.parser.messageTimeout);
+        socket.ipcMessageTimer.unref?.();
+    }
 
-            client.publish('disconnect');
+    clearMessageTimer(socket){
+        if(!socket?.ipcMessageTimer){
+            return;
         }
-    );
+        clearTimeout(socket.ipcMessageTimer);
+        socket.ipcMessageTimer=undefined;
+    }
 
-    client.socket.on(
-        'data',
-        function(data) {
-            client.log('## received events ##');
-            if(client.config.rawBuffer){
-                client.publish(
-                   'data',
-                   Buffer.from(data,client.config.encoding)
-                );
-                if(!client.config.sync){
-                    return;
-                }
-
-                client.queue.next();
-                return;
-            }
-
-            if(!this.ipcBuffer){
-                this.ipcBuffer='';
-            }
-
-            data=(this.ipcBuffer+=data);
-
-            if(data.slice(-1)!=eventParser.delimiter || data.indexOf(eventParser.delimiter) == -1){
-                client.log('Messages are large, You may want to consider smaller messages.');
-                return;
-            }
-
-            this.ipcBuffer='';
-
-            const events = eventParser.parse(data);
-            const eCount = events.length;
-            for(let i=0; i<eCount; i++){
-                let message=new Message;
-                message.load(events[i]);
-
-                client.log('detected event', message.type, message.data);
-                client.publish(
-                   message.type,
-                   message.data
-                );
-            }
-
-            if(!client.config.sync){
-                return;
-            }
-
-            client.queue.next();
-        }
-    );
+    protocolFailure(socket,error){
+        this.clearMessageTimer(socket);
+        socket.ipcBuffer='';
+        this.protocolViolation=true;
+        this.log('IPC protocol error',error.code || 'ERR_IPC_PROTOCOL',error.message);
+        socket.destroy();
+        this.publish('error',error);
+    }
 }
 
 export {

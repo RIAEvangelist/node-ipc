@@ -18,6 +18,8 @@ jobs:
     timeout-minutes: 15
     outputs:
       benchmark_manifest_sha256: ${{ steps.stage.outputs.benchmark_manifest_sha256 }}
+      benchmark_dashboard_sha256: ${{ steps.stage.outputs.benchmark_dashboard_sha256 }}
+      benchmark_chart_sha256: ${{ steps.stage.outputs.benchmark_chart_sha256 }}
     permissions:
       contents: read
       pages: read
@@ -91,6 +93,7 @@ jobs:
           coverage_root="coverage/node"
           benchmark_root="benchmark/results"
           benchmark_schema="benchmark/result-schema.json"
+          benchmark_chart="docs/assets/node-ipc-benchmark.svg"
           header_asset="assets/node-ipc-header.png"
           performance_asset="assets/node-ipc-performance-tiers.png"
           artifact_root="_site"
@@ -105,11 +108,13 @@ jobs:
           test -s docs/data/routes.json
           test -s "$benchmark_root/index.json"
           test -s "$benchmark_schema"
+          test -s "$benchmark_chart"
           test -s "$header_asset"
           test -s "$performance_asset"
           test ! -e "$artifact_root"
           git ls-files --error-unmatch "$benchmark_root/index.json" >/dev/null
           git ls-files --error-unmatch "$benchmark_schema" >/dev/null
+          git ls-files --error-unmatch "$benchmark_chart" >/dev/null
           git ls-files --error-unmatch "$header_asset" >/dev/null
           git ls-files --error-unmatch "$performance_asset" >/dev/null
           git ls-files --error-unmatch docs/data/test-inventory.json >/dev/null
@@ -150,6 +155,7 @@ jobs:
             cp "$source" "$artifact_root/data/benchmarks/"
           done
           cp "$benchmark_schema" "$artifact_root/data/benchmarks/result-schema.json"
+          npm run benchmark:dashboard -- --output="$artifact_root/data/benchmarks/dashboard.json"
 
           for entry in "${page_entries[@]}"; do
             test -s "$artifact_root/$entry"
@@ -162,8 +168,11 @@ jobs:
           test -s "$artifact_root/data/coverage-summary.json"
           test -s "$artifact_root/data/test-results.json"
           test -s "$artifact_root/data/benchmarks/index.json"
+          test -s "$artifact_root/data/benchmarks/dashboard.json"
           test -s "$artifact_root/data/benchmarks/result-schema.json"
+          test -s "$artifact_root/assets/node-ipc-benchmark.svg"
           cmp -s "$benchmark_schema" "$artifact_root/data/benchmarks/result-schema.json"
+          cmp -s "$benchmark_chart" "$artifact_root/assets/node-ipc-benchmark.svg"
 
           forbidden_entry="$({
             find "$artifact_root" \
@@ -192,13 +201,14 @@ jobs:
             for source in "${benchmark_files[@]}"; do
               printf 'data/benchmarks/%s\n' "${source#benchmark/results/}"
             done
-            printf '%s\n' data/benchmarks/result-schema.json
+            printf '%s\n' data/benchmarks/dashboard.json data/benchmarks/result-schema.json
           } | LC_ALL=C sort -u > "$expected_inventory"
           find "$artifact_root" -type f -printf '%P\n' | LC_ALL=C sort -u > "$actual_inventory"
           diff -u "$expected_inventory" "$actual_inventory"
           printf 'Verified %s files in the isolated Pages artifact.\n' "$(wc -l < "$actual_inventory")"
 
           node --input-type=module <<'NODE'
+          import {createHash} from 'node:crypto';
           import {readFile} from 'node:fs/promises';
 
           const root = '_site';
@@ -207,6 +217,7 @@ jobs:
               'data/test-results.json',
               'data/test-inventory.json',
               'data/routes.json',
+              'data/benchmarks/dashboard.json',
               'data/benchmarks/index.json',
               'data/benchmarks/result-schema.json'
           ];
@@ -218,6 +229,28 @@ jobs:
           const schema = JSON.parse(await readFile(`${root}/data/benchmarks/result-schema.json`, 'utf8'));
           if (schema.$id !== 'https://riaevangelist.github.io/node-ipc/data/benchmarks/result-schema.json') {
               throw new Error(`Unexpected benchmark schema $id: ${schema.$id}`);
+          }
+
+          const manifestBytes = await readFile(`${root}/data/benchmarks/index.json`);
+          const manifest = JSON.parse(manifestBytes);
+          const dashboard = JSON.parse(await readFile(`${root}/data/benchmarks/dashboard.json`, 'utf8'));
+          if (dashboard.schemaVersion !== 1 || dashboard.rankingEligible !== false || dashboard.certification !== false) {
+              throw new Error('Benchmark dashboard policy or schema is invalid.');
+          }
+          if (dashboard.source.manifest !== 'data/benchmarks/index.json'
+              || dashboard.source.manifestSha256 !== createHash('sha256').update(manifestBytes).digest('hex')
+              || dashboard.source.resultCount !== manifest.results.length
+              || dashboard.source.comparisonState !== manifest.comparisonState) {
+              throw new Error('Benchmark dashboard is not linked to the staged manifest.');
+          }
+          const indexed = new Map(manifest.results.map(entry => [`data/benchmarks/${entry.file}`, entry.sha256]));
+          for (const environment of dashboard.environments) {
+              for (const run of environment.runs) {
+                  if (run.rankingEligible !== false || run.certification !== false
+                      || indexed.get(run.raw.detail) !== run.raw.sha256) {
+                      throw new Error(`${run.id}: dashboard raw-detail linkage is invalid.`);
+                  }
+              }
           }
 
           const inventory = JSON.parse(await readFile(`${root}/data/test-inventory.json`, 'utf8'));
@@ -242,6 +275,8 @@ jobs:
           NODE
 
           printf 'benchmark_manifest_sha256=%s\n' "$(sha256sum "$artifact_root/data/benchmarks/index.json" | cut -d ' ' -f 1)" >> "$GITHUB_OUTPUT"
+          printf 'benchmark_dashboard_sha256=%s\n' "$(sha256sum "$artifact_root/data/benchmarks/dashboard.json" | cut -d ' ' -f 1)" >> "$GITHUB_OUTPUT"
+          printf 'benchmark_chart_sha256=%s\n' "$(sha256sum "$artifact_root/assets/node-ipc-benchmark.svg" | cut -d ' ' -f 1)" >> "$GITHUB_OUTPUT"
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
@@ -277,6 +312,8 @@ jobs:
 
       - name: Verify the complete live site
         env:
+          EXPECTED_BENCHMARK_CHART_SHA256: ${{ needs.build.outputs.benchmark_chart_sha256 }}
+          EXPECTED_BENCHMARK_DASHBOARD_SHA256: ${{ needs.build.outputs.benchmark_dashboard_sha256 }}
           EXPECTED_BENCHMARK_MANIFEST_SHA256: ${{ needs.build.outputs.benchmark_manifest_sha256 }}
           LIVE_BASE_URL: ${{ steps.deployment.outputs.page_url }}
           LIVE_CACHE_KEY: ${{ github.run_id }}-${{ github.run_attempt }}
@@ -356,6 +393,22 @@ jobs:
           const manifest = JSON.parse(manifestBytes.toString('utf8'));
           assert.ok(Array.isArray(manifest.results), 'benchmark manifest results must be an array');
 
+          const dashboardResponse = await live('data/benchmarks/dashboard.json', /^application\/json\b/u);
+          const dashboardBytes = Buffer.from(await dashboardResponse.arrayBuffer());
+          assert.equal(
+              createHash('sha256').update(dashboardBytes).digest('hex'),
+              process.env.EXPECTED_BENCHMARK_DASHBOARD_SHA256,
+              'live benchmark dashboard differs from the deployed artifact'
+          );
+          const dashboard = JSON.parse(dashboardBytes.toString('utf8'));
+          assert.equal(dashboard.schemaVersion, 1);
+          assert.equal(dashboard.rankingEligible, false);
+          assert.equal(dashboard.certification, false);
+          assert.equal(dashboard.source.manifest, 'data/benchmarks/index.json');
+          assert.equal(dashboard.source.manifestSha256, process.env.EXPECTED_BENCHMARK_MANIFEST_SHA256);
+          assert.equal(dashboard.source.resultCount, manifest.results.length);
+          assert.equal(dashboard.source.comparisonState, manifest.comparisonState);
+
           const schema = await json('data/benchmarks/result-schema.json');
           assert.equal(
               schema.$id,
@@ -374,6 +427,23 @@ jobs:
               const detail = JSON.parse(bytes.toString('utf8'));
               assert.equal(detail.record?.file, entry.file, `${entry.file}: record.file mismatch`);
           }
+
+          const indexed = new Map(manifest.results.map(entry => [`data/benchmarks/${entry.file}`, entry.sha256]));
+          for (const environment of dashboard.environments) {
+              for (const run of environment.runs) {
+                  assert.equal(run.rankingEligible, false);
+                  assert.equal(run.certification, false);
+                  assert.equal(indexed.get(run.raw.detail), run.raw.sha256, `${run.id}: raw-detail linkage mismatch`);
+              }
+          }
+
+          const chartResponse = await live('assets/node-ipc-benchmark.svg', /^image\/svg\+xml\b/u);
+          const chartBytes = Buffer.from(await chartResponse.arrayBuffer());
+          assert.equal(
+              createHash('sha256').update(chartBytes).digest('hex'),
+              process.env.EXPECTED_BENCHMARK_CHART_SHA256,
+              'live benchmark chart differs from the deployed artifact'
+          );
 
           await Promise.all([
               live('assets/node-ipc-header.png', /^image\/png\b/u),

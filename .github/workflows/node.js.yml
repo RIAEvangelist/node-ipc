@@ -10,6 +10,30 @@ permissions:
   contents: read
 
 jobs:
+  dependencies:
+    name: Dependency audit · Node 24 · Ubuntu
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Use Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install exact dependencies
+        run: npm ci
+      - name: Audit the complete dependency tree
+        run: npm audit --audit-level=high
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+      - name: Verify the complete production tree
+        run: npm ls --omit=dev --all
+
   test:
     name: Tests · Node ${{ matrix.node }} · ${{ matrix.os }}
     runs-on: ${{ matrix.os }}

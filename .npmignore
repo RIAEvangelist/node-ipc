@@ -6,5 +6,6 @@ test
 /benchmark/
 /docs/
 /.github/
+/local-node-ipc-certs/
 /node-ipc.cjs
 /.codex-*.lock.json

@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import os from 'node:os';
+import path from 'node:path';
 import Message from 'js-message';
 
 import {Client} from '../../dao/client.js';
@@ -43,11 +44,50 @@ const groups=[
             {
                 name:'defines the local protocol namespace and delimiter',
                 run(){
-                    const config=new Defaults;
-                    assert.equal(config.appspace,'app.');
-                    assert.equal(typeof config.socketRoot,'string');
-                    assert.ok(config.socketRoot.length > 0);
-                    assert.equal(config.delimiter,'\f');
+                    const platformDescriptor=Object.getOwnPropertyDescriptor(process,'platform');
+                    const getuidDescriptor=Object.getOwnPropertyDescriptor(process,'getuid');
+                    const originalUserInfo=os.userInfo;
+                    const originalTmpdir=os.tmpdir;
+                    const hadRuntimeRoot=Object.hasOwn(process.env,'XDG_RUNTIME_DIR');
+                    const originalRuntimeRoot=process.env.XDG_RUNTIME_DIR;
+                    try{
+                        Object.defineProperty(process,'platform',{...platformDescriptor,value:'win32'});
+                        os.userInfo=() => ({username:'Test User'});
+                        let config=new Defaults;
+                        assert.equal(config.appspace,'app.');
+                        assert.equal(config.socketRoot,'/node-ipc-Test_User/');
+                        assert.equal(config.delimiter,'\f');
+
+                        Object.defineProperty(process,'platform',{...platformDescriptor,value:'linux'});
+                        const runtimeRoot=path.join(process.cwd(),'runtime-root');
+                        process.env.XDG_RUNTIME_DIR=runtimeRoot;
+                        config=new Defaults;
+                        assert.equal(config.socketRoot,path.join(runtimeRoot,'node-ipc')+path.sep);
+
+                        delete process.env.XDG_RUNTIME_DIR;
+                        const tempRoot=path.join(process.cwd(),'temp-root');
+                        os.tmpdir=() => tempRoot;
+                        Object.defineProperty(process,'getuid',{configurable:true,value:() => 321});
+                        config=new Defaults;
+                        assert.equal(config.socketRoot,path.join(tempRoot,'node-ipc-321')+path.sep);
+
+                        Object.defineProperty(process,'getuid',{configurable:true,value:undefined});
+                        os.userInfo=() => ({username:'fallback user'});
+                        config=new Defaults;
+                        assert.equal(config.socketRoot,path.join(tempRoot,'node-ipc-fallback_user')+path.sep);
+
+                        Object.defineProperty(process,'platform',{...platformDescriptor,value:'win32'});
+                        os.userInfo=() => { throw new Error('unavailable'); };
+                        assert.equal(new Defaults().socketRoot,'/node-ipc-user/');
+                    }finally{
+                        Object.defineProperty(process,'platform',platformDescriptor);
+                        if(getuidDescriptor) Object.defineProperty(process,'getuid',getuidDescriptor);
+                        else delete process.getuid;
+                        os.userInfo=originalUserInfo;
+                        os.tmpdir=originalTmpdir;
+                        if(hadRuntimeRoot) process.env.XDG_RUNTIME_DIR=originalRuntimeRoot;
+                        else delete process.env.XDG_RUNTIME_DIR;
+                    }
                 }
             },
             {
@@ -57,6 +97,7 @@ const groups=[
                     assert.equal(config.encoding,'utf8');
                     assert.equal(config.rawBuffer,false);
                     assert.equal(config.sync,false);
+                    assert.equal(config.identifyPeer,false);
                 }
             },
             {
@@ -76,10 +117,17 @@ const groups=[
                 run(){
                     const original=os.networkInterfaces;
                     try{
-                        os.networkInterfaces=() => [[{family:'IPv6'}]];
-                        const config=new Defaults;
+                        os.networkInterfaces=() => ({loopback:[{family:'IPv6'}]});
+                        let config=new Defaults;
                         assert.equal(config.IPType,'IPv6');
                         assert.equal(config.networkHost,'::1');
+                        os.networkInterfaces=() => ({empty:[]});
+                        config=new Defaults;
+                        assert.equal(config.IPType,'');
+                        assert.equal(config.networkHost,'127.0.0.1');
+                        os.networkInterfaces=() => null;
+                        config=new Defaults;
+                        assert.equal(config.IPType,'');
                     }finally{
                         os.networkInterfaces=original;
                     }
@@ -158,10 +206,10 @@ const groups=[
                 }
             },
             {
-                name:'does not serialize event-emitter internals',
+                name:'preserves object payloads without inspecting their fields',
                 run(){
                     const data={_maxListeners:10,private:'not-for-wire'};
-                    assert.deepEqual(parseFrame(new Parser().format(message('unit.emitter',data))).data,{});
+                    assert.deepEqual(parseFrame(new Parser().format(message('unit.emitter',data))).data,data);
                 }
             }
         ]
@@ -245,7 +293,7 @@ const groups=[
                 run(){
                     const instance=new IPCModule;
                     assert.equal(instance.server,false);
-                    assert.deepEqual(instance.of,{});
+                    assert.deepEqual(Object.keys(instance.of),[]);
                 }
             }
         ]

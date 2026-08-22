@@ -1,4 +1,9 @@
 import ipc from '../../../node-ipc.js';
+import {
+    clientCertificate,
+    clientKey,
+    serverCertificate
+} from '../certificates.js';
 
 /***************************************\
  *
@@ -9,12 +14,14 @@ import ipc from '../../../node-ipc.js';
 
 ipc.config.id = 'hello';
 ipc.config.retry= 1500;
+// DEVELOPMENT FIXTURES ONLY: replace every repository key/certificate before deployment.
 ipc.config.tls={
-    private: __dirname+'/../../../local-node-ipc-certs/private/client.key',
-    public: __dirname+'/../../../local-node-ipc-certs/client.pub',
+    private: clientKey,
+    public: clientCertificate,
+    // DEVELOPMENT ONLY: the CA entry below does not protect a client when verification is disabled.
     rejectUnauthorized:false,
     trustedConnections: [
-        __dirname+'/../../../local-node-ipc-certs/server.pub'
+        serverCertificate
     ]
 };
 

@@ -34,6 +34,7 @@ npm install --save-exact node-ipc@12.0.0</code></pre><p class="mini-note">The ex
 
 ipc.config.id = 'world';
 ipc.config.silent = true;
+ipc.config.parser = 'fast';
 
 ipc.serve(() =&gt; {
   ipc.server.on('app.message', (data, socket) =&gt; {
@@ -49,6 +50,7 @@ ipc.server.start();</code></pre></section>
 
 ipc.config.id = 'hello';
 ipc.config.silent = true;
+ipc.config.parser = 'fast';
 
 ipc.connectTo('world', () =&gt; {
   ipc.of.world.on('connect', () =&gt; {
@@ -62,9 +64,10 @@ ipc.connectTo('world', () =&gt; {
 });</code></pre></section>
       <section class="section" id="run"><h2>5. Run both processes</h2><div class="card-grid two"><article class="card"><h3>Terminal one</h3><pre><code>node server.js</code></pre></article><article class="card"><h3>Terminal two</h3><pre><code>node client.js</code></pre></article></div><div class="callout success"><strong>Expected output</strong><p>The client prints <code>hello world!</code>, disconnects, and leaves the server ready for the next client.</p></div></section>
       <section class="section" id="loader"><h2>Main-branch CommonJS loading</h2><p>On Node.js 22.12+, main's native ESM entry point can also be loaded synchronously. Main does not generate a separate transpiled CommonJS bundle.</p><pre><code>const ipc = require('node-ipc').default;</code></pre><p class="mini-note">Node 22.12 may print its experimental <code>require(esm)</code> warning; 22.13 and newer do not print it by default.</p></section>
+      <section class="section" id="profile"><h2>Choose controls before production</h2><p>This trusted local example uses the default Fast profile. Use Guarded for bounded framing and event-name controls, or Assured with mutually authenticated TLS and an event allow-list on a hostile network.</p><div class="button-row"><a class="button primary" href="../profiles/">Compare profiles</a><a class="button" href="../parsers/">Parser contract</a><a class="button" href="../security/">Security checklist</a></div></section>
       <div class="next-links"><a href="../">← Documentation home</a><a href="../config/">Main configuration →</a></div>
     </div>
-    <aside class="page-nav" aria-label="On this page"><strong>On this page</strong><a href="#requirements">Runtime</a><a href="#install">Install</a><a href="#server">Server</a><a href="#client">Client</a><a href="#run">Run</a><a href="#loader">CommonJS</a></aside>
+    <aside class="page-nav" aria-label="On this page"><strong>On this page</strong><a href="#requirements">Runtime</a><a href="#install">Install</a><a href="#server">Server</a><a href="#client">Client</a><a href="#run">Run</a><a href="#loader">CommonJS</a><a href="#profile">Profiles</a></aside>
   </div>
 </main>
 <footer class="site-footer"><div class="shell footer-inner"><div><h2>node-ipc</h2><p class="footer-note">Local and remote process communication. Match examples to the published or main lane.</p></div><div><h2>Next</h2><div class="footer-links"><a href="../config/">Configuration</a><a href="../api/">API reference</a><a href="../examples/">Examples</a></div></div><div><h2>Project</h2><div class="footer-links"><a href="https://github.com/RIAEvangelist/node-ipc">GitHub</a><a href="https://www.npmjs.com/package/node-ipc">npm</a><a href="../security/">Security</a></div></div></div></footer>

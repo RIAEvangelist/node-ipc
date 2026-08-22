@@ -1,4 +1,5 @@
 import os from 'os';
+import path from 'path';
 
 class Defaults{
 
@@ -8,17 +9,26 @@ class Defaults{
 
 
     appspace='app.';
-    socketRoot='/tmp/';
+    socketRoot=getSocketRoot();
     id=os.hostname();
 
     encoding='utf8';
     rawBuffer=false;
+    parser='fast';
     sync=false;
     unlink=true;
+    identifyPeer=false;
 
     delimiter='\f';
+    maxMessageSize=1024*1024;
+    maxPendingBytes=8*1024*1024;
+    maxEventNameLength=256;
+    messageTimeout=30000;
+    allowReservedEvents=false;
+    allowedEvents=false;
 
     silent=false;
+    logPayloads=false;
     logDepth=5;
     logInColor=true;
     logger=console.log.bind(console);
@@ -35,6 +45,7 @@ class Defaults{
 
     readableAll = false;
     writableAll = false;
+    secureSocketRoot = true;
 
     interface={
         localAddress:false,
@@ -46,18 +57,41 @@ class Defaults{
     
 }
 
-function getIPType() {
-    const networkInterfaces = os.networkInterfaces();
-    let IPType = '';
-    if (networkInterfaces
-        && Array.isArray(networkInterfaces)
-        && networkInterfaces.length > 0) {
-        // getting the family of first network interface available
-        IPType = networkInterfaces [
-            Object.keys( networkInterfaces )[0]
-        ][0].family;
+function getSocketRoot(){
+    const userName=safePathSegment(getUserName());
+    if(process.platform === 'win32'){
+        return `/node-ipc-${userName}/`;
     }
-    return IPType;
+
+    const runtimeRoot=process.env.XDG_RUNTIME_DIR;
+    if(runtimeRoot){
+        return path.join(runtimeRoot,'node-ipc')+path.sep;
+    }
+
+    const userId=typeof process.getuid === 'function' ? process.getuid() : userName;
+    return path.join(os.tmpdir(),`node-ipc-${userId}`)+path.sep;
+}
+
+function getUserName(){
+    try{
+        return os.userInfo().username;
+    }catch{
+        return 'user';
+    }
+}
+
+function safePathSegment(value){
+    return String(value).replace(/[^a-zA-Z0-9_.-]/g,'_');
+}
+
+function getIPType() {
+    const interfaces=os.networkInterfaces();
+    for(const addresses of Object.values(interfaces || {})){
+        if(addresses?.length){
+            return addresses[0].family;
+        }
+    }
+    return '';
 }
 
 export {

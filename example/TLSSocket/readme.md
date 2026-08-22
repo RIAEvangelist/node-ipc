@@ -1,25 +1,49 @@
-# Using TLS and SSL for Secure node-ipc
+# Using TLS securely
 
-### document in progress
-Still working on this. If you look at the examples and can help, please jump right in.
+TLS protects a connection only when certificate identities are verified. TCP and UDP do not provide authentication; services exposed beyond loopback must authenticate and authorize application messages, or use mutually authenticated TLS (mTLS).
 
-#### important cli commands
-- openssl genrsa -out server.key 2048
-- openssl req -new -x509 -key server.key -out server.pub -days 365 -config openssl.cnf
-- openssl req -new -x509 -key client.key -out client.pub -days 365 -config openssl.cnf
-- talk about openssl.cnf edits
+The upcoming Assured profile adds Guarded protocol controls and an explicit event allow-list. Its network contract requires mutually authenticated TLS: clients provide a key and certificate, trust the server CA, and keep verification enabled; servers trust a client CA, request a client certificate, and reject unauthorized clients. Local Assured servers require the owner-only Unix socket-root policy; built-in Assured local service rejects Windows because node-ipc cannot prove a named-pipe ACL.
 
-#### using the local node-ipc certs
-This should **ONLY** be done on your local machine. Both the public and private certs are available here on git hub, so its not a good idea to use them over the network.
+```javascript
+ipc.config.parser = 'assured';
+ipc.config.allowedEvents = ['hello', 'goodbye'];
+ipc.config.secureSocketRoot = true;
+```
 
-#### talk about security
-- keep private keys private, don't share
+Set parser and TLS configuration before creating the client or server; each endpoint selects its hot-path handlers once.
 
-#### talk about using hostname not ip for best security validation of certs
+## Server requirements
 
+A TLS server must supply its own `key` and `cert`, or the existing `private` and `public` file-path aliases. The server fails closed when they are missing; there is no bundled certificate fallback.
 
-#### examples
-- basic with default keys
-- specikfying keys
-- encrypted but venerable to man in the middle
-- two way authenticated pub private
+```javascript
+ipc.config.tls = {
+    private: '/secure/path/server.key',
+    public: '/secure/path/server.crt',
+    requestCert: true,
+    rejectUnauthorized: true,
+    trustedConnections: ['/secure/path/client-ca.crt']
+};
+```
+
+Keep keys outside the package and source tree with owner-only permissions. Use currently valid certificates whose names match the host clients use. The certificates and private keys under `local-node-ipc-certs` are public, expired development fixtures; never use them as a network identity.
+
+## Client verification
+
+Assured clients must supply their own key and certificate, trust the intended server CA, and keep `rejectUnauthorized` set to `true`.
+
+```javascript
+ipc.config.tls = {
+    private: '/secure/path/client.key',
+    public: '/secure/path/client.crt',
+    trustedConnections: ['/secure/path/server-ca.crt'],
+    rejectUnauthorized: true,
+    servername: 'ipc.example.internal'
+};
+```
+
+Other profiles can use server-authenticated TLS without a client certificate, but that does not authenticate clients. Use mTLS or application authentication when the server must know who connected.
+
+`rejectUnauthorized: false` disables certificate identity verification and is vulnerable to man-in-the-middle attacks. It appears in some legacy examples only so expired local fixtures can be exercised on an isolated development machine. Never copy that setting into an external or untrusted deployment.
+
+The `basic-most-secure` and `rawBuffer-only-works-with-most-secure` examples show the shape of mTLS configuration, but you must replace every repository certificate and key path with your own valid material before running them securely.

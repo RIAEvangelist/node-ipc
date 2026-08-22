@@ -1,0 +1,49 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Parser Contract | node-ipc</title><meta name="description" content="The node-ipc built-in parser exports, custom parser object and class contract, hot-path properties, error behavior, and js-message compatibility option."><meta name="theme-color" content="#050812"><link rel="canonical" href="https://riaevangelist.github.io/node-ipc/parsers/">
+<meta property="og:type" content="article"><meta property="og:site_name" content="node-ipc documentation"><meta property="og:title" content="Parser contract | node-ipc"><meta property="og:description" content="Use an official profile or bring a direct parser with two required methods."><meta property="og:url" content="https://riaevangelist.github.io/node-ipc/parsers/"><meta property="og:image" content="https://riaevangelist.github.io/node-ipc/assets/node-ipc-header.png"><meta property="og:image:alt" content="node-ipc local and remote process communication"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="../assets/site.css"><script src="../assets/site.js" defer></script>
+</head><body><a class="skip-link" href="#content">Skip to content</a><header class="site-header"><div class="shell header-inner"><a class="brand" href="../" aria-label="node-ipc documentation home"><span class="brand-mark" aria-hidden="true">IPC</span><span>node-ipc<small>main documentation</small></span></a><button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="site-nav">Menu</button><nav class="site-nav" id="site-nav" data-site-nav aria-label="Primary navigation">
+<a href="../">Home</a><a href="../quick-start/">Quick start</a><a href="../config/">Config</a><a href="../api/">API</a><details class="nav-cluster"><summary>Transports</summary><div class="nav-menu"><a href="../unix-windows/">Unix / Windows</a><a href="../tcp/">TCP</a><a href="../tls/">TLS</a><a href="../udp/">UDP</a></div></details><a href="../examples/">Examples</a><details class="nav-cluster"><summary>Testing</summary><div class="nav-menu"><a href="../testing/">Overview</a><a href="../coverage/">Coverage</a><a href="../benchmarks/">Benchmarks</a></div></details><a href="../security/">Security</a>
+</nav></div></header>
+<main id="content" class="shell page-shell"><nav aria-label="Breadcrumb"><ol class="crumbs"><li><a href="../">Home</a></li><li><a href="../profiles/">Runtime profiles</a></li><li aria-current="page">Parsers</li></ol></nav><header class="page-hero compact"><p class="eyebrow">Two required methods</p><h1>Parser contract</h1><p class="lead">Use a built-in parser for the official profiles, opt into the ecosystem compatibility parser, or provide one direct custom class or object. Parser selection and method binding happen once.</p></header>
+
+<section class="section" id="official"><h2>Official exports</h2><pre><code>import {
+  RawParser,
+  FastParser,
+  GuardedParser,
+  AssuredParser,
+  IPCProtocolError
+} from 'node-ipc';
+
+import {
+  createParser,
+  reservedEventTypes
+} from 'node-ipc/parsers';</code></pre><table><thead><tr><th>Export</th><th>Contract</th></tr></thead><tbody><tr><td><code>RawParser</code></td><td>Buffer pass-through and no node-ipc framing.</td></tr><tr><td><code>FastParser</code> / <code>Parser</code></td><td>Direct JSON event envelopes separated by the configured delimiter.</td></tr><tr><td><code>GuardedParser</code></td><td>Fast plus bounded frames/writes, envelope and name controls, and incomplete-frame timing.</td></tr><tr><td><code>AssuredParser</code></td><td>Guarded plus a required event allow-list; the client/server runtime adds mutual-TLS or secure-local-root startup gates.</td></tr><tr><td><code>IPCProtocolError</code></td><td>A receive-path protocol failure that node-ipc publishes as <code>error</code> and closes.</td></tr><tr><td><code>createParser(config)</code></td><td>Resolves the configured built-in, class, or object and checks the two required methods once.</td></tr></tbody></table></section>
+
+<section class="section" id="custom"><h2>Custom class or object</h2><pre><code>class ApplicationParser {
+  constructor(config) {
+    this.delimiter = config.delimiter;
+  }
+
+  encode(type, data) {
+    // Return a string, Buffer, or Uint8Array accepted by the socket.
+    return encodeApplicationFrame(type, data);
+  }
+
+  read(remainder, chunk, receive) {
+    // Call receive({type, data}) once for every complete message.
+    // Return only the unconsumed remainder for the next chunk.
+    return decodeApplicationFrames(remainder, chunk, receive);
+  }
+}
+
+ipc.config.parser = ApplicationParser;
+// An already-created ApplicationParser object is also accepted.</code></pre><table><thead><tr><th>Member</th><th>Required</th><th>Meaning</th></tr></thead><tbody><tr><td><code>encode(type, data)</code></td><td>Yes</td><td>Produces the outbound wire value without node-ipc wrapping it again.</td></tr><tr><td><code>read(remainder, chunk, receive)</code></td><td>Yes</td><td>Consumes complete frames, emits <code>{type, data}</code> objects in order, and returns the remaining partial frame.</td></tr><tr><td><code>raw</code></td><td>No</td><td>When true, incoming Buffers go straight to <code>data</code> and <code>read()</code> is not on the receive path.</td></tr><tr><td><code>maxPendingBytes</code></td><td>No</td><td>A truthy byte limit selects the bounded stream-write handler once.</td></tr><tr><td><code>messageTimeout</code></td><td>No</td><td>A truthy millisecond value selects incomplete-frame timing once.</td></tr></tbody></table><div class="callout warning"><strong>The custom parser owns its checks.</strong><p>node-ipc does not layer Guarded validation around a custom parser. Validate framing, envelope shape, event names, sizes, and state directly if the trust boundary requires them. Throw <code>IPCProtocolError</code> for a receive-path violation that should publish <code>error</code> and close the connection.</p></div><p class="mini-note">A parser class is constructed for each client/server. A parser object is used as supplied and may be shared if the same config object creates several endpoints; provide separate objects or keep it stateless.</p></section>
+
+<section class="section" id="message"><h2>js-message compatibility</h2><pre><code>import MessageParser from 'node-ipc/parsers/message';
+
+ipc.config.parser = MessageParser;</code></pre><p>This official subpath preserves an ecosystem integration without putting <code>js-message</code> on the default path. It is explicit opt-in compatibility behavior: malformed envelopes become a message whose type is <code>error</code>. It is not a hardened decoder and does not add Guarded or Assured controls.</p><p>Use it when that behavior is part of the application contract. Use Guarded or Assured when you need node-ipc protocol containment, or extend an official parser when you need both compatibility and a reviewed policy.</p></section>
+
+<section class="section" id="wire"><h2>Wire and transport notes</h2><ul class="check-list"><li>Fast, Guarded, and Assured use UTF-8 <code>{type, data}</code> JSON envelopes followed by <code>ipc.config.delimiter</code>.</li><li>Raw emits transport chunks. A TCP or local-socket chunk is not an application message boundary; the caller must frame its own protocol.</li><li>UDP preserves datagram boundaries, but delivery, ordering, duplication, replay, identity, and confidentiality remain application concerns.</li><li>Both peers must use compatible framing, event names, and Assured allow-lists. Custom parsers that own another encoding should return Buffers.</li><li>Parser selection is per client/server instance. Built-in parsers and custom parser classes have per-endpoint instances.</li></ul><div class="button-row"><a class="button primary" href="../profiles/">Compare profiles</a><a class="button" href="../security/">Security boundary</a><a class="button" href="../testing/">Test inventory</a></div></section>
+<div class="next-links"><a href="../profiles/">← Runtime profiles</a><a href="../api/">API reference →</a></div></main>
+<footer class="site-footer"><div class="shell footer-inner"><div><h2>Parsers</h2><p class="footer-note">Direct contracts, per endpoint, with no hidden policy layer.</p></div><div><h2>Reference</h2><div class="footer-links"><a href="../profiles/">Profiles</a><a href="../config/">Configuration</a><a href="../api/">API</a></div></div><div><h2>Evidence</h2><div class="footer-links"><a href="../testing/">Testing</a><a href="../benchmarks/">Benchmarks</a><a href="../security/">Security</a></div></div></div></footer>
+</body></html>

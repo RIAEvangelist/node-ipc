@@ -1,4 +1,11 @@
 const SITE_ROOT = new URL('../', document.currentScript?.src ?? window.location.href);
+const BENCHMARK_ADAPTER_NAMES = new Map([
+  ['node-net', 'node:net baseline'],
+  ['node-ipc-raw', 'Raw'],
+  ['node-ipc-fast', 'Fast'],
+  ['node-ipc-guarded', 'Guarded'],
+  ['node-ipc-assured', 'Assured']
+]);
 
 const text = value => value === null || value === undefined || value === '' ? 'Not reported' : String(value);
 const number = value => Number.isFinite(Number(value)) ? Number(value) : null;
@@ -67,23 +74,36 @@ async function fetchJSON(panel) {
 }
 
 async function benchmarkPayload(panel) {
-  const manifest = await fetchJSON(panel);
-  const records = Array.isArray(manifest?.results) ? manifest.results : [];
-  if (!records.length) return manifest;
-  const runs = await Promise.all(records.map(async record => {
-    if (!record.file) throw new Error('Benchmark manifest entry has no file');
-    const response = await fetch(new URL(`data/benchmarks/${encodeURIComponent(record.file)}`, SITE_ROOT), {cache: 'no-store'});
-    if (!response.ok) throw new Error(`Benchmark detail HTTP ${response.status}`);
-    const bytes = await response.arrayBuffer();
-    const digest = [...new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))]
-      .map(value => value.toString(16).padStart(2, '0'))
-      .join('');
-    if (digest !== record.sha256) throw new Error(`Benchmark detail integrity mismatch: ${record.file}`);
-    const detail = JSON.parse(new TextDecoder().decode(bytes));
-    detail.manifest = {...record, resultCount: records.length, updatedAt: manifest.updatedAt};
-    return detail;
-  }));
-  return {manifest, runs};
+  const dashboard = await fetchJSON(panel);
+  if (dashboard?.schemaVersion !== 1) throw new Error('Unsupported benchmark dashboard');
+  if (dashboard.rankingEligible !== false || dashboard.certification !== false) {
+    throw new Error('Benchmark ranking or certification must remain disabled');
+  }
+
+  const manifestPath = dashboard.source?.manifest;
+  if (manifestPath !== 'data/benchmarks/index.json') throw new Error('Unexpected benchmark manifest path');
+  const response = await fetch(new URL(manifestPath, SITE_ROOT), {cache: 'no-store'});
+  if (!response.ok) throw new Error(`Benchmark manifest HTTP ${response.status}`);
+  const bytes = await response.arrayBuffer();
+  const digest = [...new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))]
+    .map(value => value.toString(16).padStart(2, '0'))
+    .join('');
+  if (digest !== dashboard.source.manifestSha256) throw new Error('Benchmark manifest integrity mismatch');
+
+  const manifest = JSON.parse(new TextDecoder().decode(bytes));
+  if (manifest.schemaVersion !== dashboard.source.schemaVersion) throw new Error('Benchmark schema mismatch');
+  if (!Array.isArray(manifest.results) || manifest.results.length !== dashboard.source.resultCount) {
+    throw new Error('Benchmark result count mismatch');
+  }
+  if (manifest.comparisonState !== dashboard.source.comparisonState) throw new Error('Benchmark state mismatch');
+  const indexed = new Map(manifest.results.map(record => [`data/benchmarks/${record.file}`, record.sha256]));
+  const runs = dashboardRuns(dashboard);
+  if (runs.length !== indexed.size) throw new Error('Benchmark dashboard record count mismatch');
+  for (const {run} of runs) {
+    if (run.rankingEligible !== false || run.certification !== false) throw new Error('Benchmark evidence policy mismatch');
+    if (indexed.get(run.raw?.detail) !== run.raw?.sha256) throw new Error('Benchmark detail linkage mismatch');
+  }
+  return {dashboard, manifest};
 }
 
 function initNavigation() {
@@ -220,189 +240,154 @@ function renderCoverage(panel, payload) {
   status(panel, 'live', 'Fresh generated coverage summary loaded');
 }
 
-function benchmarkRuns(payload) {
-  if (Array.isArray(payload)) return payload;
-  if (Array.isArray(payload?.runs)) return payload.runs;
-  if (Array.isArray(payload?.results)) return payload.results;
-  if (payload?.samples || payload?.schemaVersion) return [payload];
-  return [];
-}
-
-function adapterNames(run) {
-  const configured = run?.config?.adapters;
-  if (Array.isArray(configured)) return [...new Set(configured)];
-  return [...new Set((run?.samples ?? []).map(sample => sample.adapter).filter(Boolean))];
-}
-
-function benchmarkLabels(run) {
-  const dirty = run?.repository?.dirty;
-  const oracle = run?.oracle?.implementation;
-  const labels = [];
-  labels.push(dirty === true ? 'DIRTY TREE' : dirty === false ? 'CLEAN TREE' : 'TREE STATE UNKNOWN');
-  labels.push(oracle === 'standard-c' ? 'C ORACLE' : oracle === 'node-net' ? 'NON-C SMOKE' : 'ORACLE UNKNOWN');
-  if (run?.evidence?.publishable === false || run?.manifest?.publishable === false) labels.push('NOT PUBLISHABLE');
-  return labels;
-}
-
-function rawSamplesTable(samples) {
+function benchmarkTable(headers, rows) {
   const wrapper = element('div', {className: 'table-scroll'});
   const table = element('table');
   const head = element('thead');
   const headRow = element('tr');
-  for (const label of ['#', 'Pass', 'Adapter', 'ms / million', 'p95 latency', 'Cleanup', 'GC observed']) {
+  for (const label of headers) {
     headRow.append(element('th', {scope: 'col', textContent: label}));
   }
   head.append(headRow);
   const body = element('tbody');
-  samples.forEach((sample, index) => {
+  for (const values of rows) {
     const row = element('tr');
-    const values = [
-      sample.index ?? index,
-      sample.pass,
-      sample.adapter,
-      number(sample.metrics?.millisecondsPerMillion)?.toFixed(3) ?? 'Not reported',
-      sample.latencyNs?.p95 ? `${formatNumber(sample.latencyNs.p95)} ns` : 'Not measured',
-      sample.cleanup?.clean === true ? 'Clean' : sample.cleanup?.clean === false ? 'Not clean' : 'Unknown',
-      sample.gc?.observed === true ? 'Yes' : sample.gc?.observed === false ? 'No' : 'Unknown'
-    ];
-    values.forEach(value => row.append(element('td', {textContent: text(value)})));
-    body.append(row);
-  });
-  table.append(head, body);
-  wrapper.append(table);
-  return wrapper;
-}
-
-function trackedRunsTable(runs) {
-  const wrapper = element('div', {className: 'table-scroll'});
-  const table = element('table');
-  const head = element('thead');
-  const headRow = element('tr');
-  for (const label of ['Environment', 'Node', 'Speed ms / million', 'Peak RSS', 'Installed', 'Cleanup', 'Evidence']) {
-    headRow.append(element('th', {scope: 'col', textContent: label}));
-  }
-  head.append(headRow);
-  const body = element('tbody');
-  for (const run of [...runs].sort((a, b) => `${a.system?.platform}:${a.system?.node}`.localeCompare(`${b.system?.platform}:${b.system?.node}`))) {
-    const row = element('tr');
-    const speed = run.summary?.groups?.find(group => group.adapter === 'node-net' && group.pass === 'speed');
-    const values = [
-      `${text(run.system?.platform)} ${text(run.system?.architecture)} · ${text(run.system?.environment?.imageOS)} ${text(run.system?.environment?.imageVersion)}`,
-      run.system?.node,
-      number(speed?.millisecondsPerMillion?.median)?.toFixed(3) ?? 'Not reported',
-      formatBytes(run.memory?.maximumWorkerRssBytes),
-      formatBytes(run.packageFootprint?.installed?.bytes),
-      run.cleanup?.clean === true ? 'Clean' : 'Not clean'
-    ];
-    values.forEach(value => row.append(element('td', {textContent: text(value)})));
-    const evidence = element('td');
-    evidence.append(element('a', {
-      href: new URL(`data/benchmarks/${encodeURIComponent(run.record.file)}`, SITE_ROOT).href,
-      textContent: 'Raw JSON'
-    }));
-    row.append(evidence);
+    for (const value of values) {
+      const cell = element('td');
+      if (value?.nodeType) cell.append(value);
+      else cell.textContent = text(value);
+      row.append(cell);
+    }
     body.append(row);
   }
   table.append(head, body);
   wrapper.append(table);
   return wrapper;
+}
+
+function dashboardRuns(dashboard) {
+  return (dashboard.environments ?? []).flatMap(environment => (environment.runs ?? []).map(run => ({environment, run})));
+}
+
+function currentCohort(dashboard) {
+  const cohorts = new Map;
+  for (const item of dashboardRuns(dashboard)) {
+    const cohort = cohorts.get(item.environment.commit) ?? [];
+    cohort.push(item);
+    cohorts.set(item.environment.commit, cohort);
+  }
+  const selected = [...cohorts.values()].sort((left, right) => {
+    const newest = items => Math.max(...items.map(item => Date.parse(item.run.generatedAt) || 0));
+    return newest(right) - newest(left);
+  })[0] ?? [];
+  const current = new Map;
+  for (const item of selected) {
+    const previous = current.get(item.environment.key);
+    if (!previous || item.run.generatedAt > previous.run.generatedAt) current.set(item.environment.key, item);
+  }
+  return [...current.values()].sort((left, right) => environmentName(left.environment).localeCompare(environmentName(right.environment), 'en'));
+}
+
+function environmentName(environment) {
+  return `${text(environment.platform)} · ${text(environment.architecture)} · ${text(environment.node)}`;
+}
+
+function adapterName(id) {
+  return BENCHMARK_ADAPTER_NAMES.get(id) ?? text(id);
+}
+
+function metric(distribution, suffix = '') {
+  const value = number(distribution?.median);
+  return value === null ? 'Pending' : `${formatNumber(Number(value.toFixed(3)))}${suffix}`;
+}
+
+function rawDetailLink(run) {
+  const detail = run.raw?.detail;
+  if (!/^data\/benchmarks\/run-[A-Za-z0-9-]+[.]json$/u.test(detail ?? '')) return 'Unavailable';
+  return element('a', {href: new URL(detail, SITE_ROOT).href, textContent: 'Raw JSON'});
+}
+
+function profileResults(dashboard) {
+  const rows = currentCohort(dashboard).flatMap(({environment, run}) => run.adapters.map(adapter => [
+    environmentName(environment),
+    adapterName(adapter.id),
+    adapter.lane === 'mutually-authenticated-tls' ? 'Mutual TLS' : 'Plaintext',
+    adapter.status === 'measured' ? metric(adapter.passes?.speed?.millisecondsPerMillion, ' ms') : 'Pending',
+    adapter.status === 'measured' ? metric(adapter.passes?.speed?.framesPerSecond, ' msg/s') : 'Pending',
+    adapter.status === 'measured' ? metric(adapter.passes?.latency?.p95RoundTripNanoseconds, ' ns') : 'Pending'
+  ]));
+  return benchmarkTable(['Environment', 'Adapter / profile', 'Lane', 'ms / 1M', 'Throughput', 'p95 round trip'], rows);
+}
+
+function resourceResults(dashboard) {
+  const rows = currentCohort(dashboard).flatMap(({environment, run}) => run.adapters.map(adapter => [
+    environmentName(environment),
+    adapterName(adapter.id),
+    adapter.status === 'measured' ? formatBytes(adapter.memory?.peakRssBytes?.median) : 'Pending',
+    adapter.status === 'measured' ? formatBytes(adapter.memory?.afterCleanupRssBytes?.median) : 'Pending',
+    adapter.status === 'measured' ? formatBytes(adapter.package?.installedBytes) : 'Pending',
+    adapter.status === 'measured' ? `${formatNumber(adapter.gc?.events)} events · ${formatNumber(adapter.gc?.durationMs)} ms` : 'Pending',
+    adapter.status === 'measured' ? adapter.cleanup?.clean === true ? 'Clean' : 'Failed' : 'Pending'
+  ]));
+  return benchmarkTable(['Environment', 'Adapter / profile', 'Peak RSS', 'Post-cleanup RSS', 'Installed', 'GC', 'Cleanup'], rows);
+}
+
+function runResults(dashboard) {
+  const rows = dashboardRuns(dashboard)
+    .sort((left, right) => right.run.generatedAt.localeCompare(left.run.generatedAt, 'en'))
+    .map(({environment, run}) => [
+      environmentName(environment),
+      formatDate(run.generatedAt),
+      `${text(run.comparisonState)} · ${text(run.classification)}`,
+      run.provenance?.oracle?.implementation,
+      `${text(run.provenance?.provider)} · ${text(run.provenance?.imageOS)} ${text(run.provenance?.imageVersion)}`,
+      `${formatNumber(run.provenance?.cpu?.count)} × ${text(run.provenance?.cpu?.model)}`,
+      shortCommit(run.provenance?.commit),
+      run.resources?.cleanup?.clean === true ? 'Clean' : 'Failed',
+      rawDetailLink(run)
+    ]);
+  return benchmarkTable(['Environment', 'Generated', 'Evidence', 'Oracle', 'Runner', 'CPU', 'Commit', 'Cleanup', 'Detail'], rows);
+}
+
+function benchmarkSummary(payload) {
+  const {dashboard, manifest} = payload;
+  const source = dashboard.source;
+  const links = element('div', {className: 'button-row'}, [
+    element('a', {className: 'button', href: new URL(source.manifest, SITE_ROOT).href, textContent: 'Raw manifest'})
+  ]);
+  return [dataList([
+    ['Current comparison state', source.comparisonState],
+    ['Tracked records', formatNumber(source.resultCount)],
+    ['Manifest updated', formatDate(manifest.updatedAt)],
+    ['Manifest SHA-256', source.manifestSha256],
+    ['Rankings', 'Disabled'],
+    ['Certification', 'Disabled']
+  ]), links];
 }
 
 function renderBenchmark(panel, payload) {
   const output = panel.querySelector('[data-live-output]');
-  const runs = benchmarkRuns(payload);
+  const {dashboard} = payload;
+  const runs = dashboardRuns(dashboard);
+  output.replaceChildren(...benchmarkSummary(payload));
+
   if (!runs.length) {
-    output.replaceChildren(
-      element('div', {className: 'callout warning'}, [
-        element('strong', {textContent: '0 verified comparative runs'}),
-        element('p', {textContent: 'The tracked manifest is valid but empty. There is no verified comparison to publish, so rankings are disabled and the page invents no performance result.'})
-      ]),
-      dataList([
-        ['Comparative runs', '0'],
-        ['Comparison state', payload?.comparisonState ?? 'no-verified-runs'],
-        ['Manifest updated', formatDate(payload?.updatedAt)],
-        ['Rankings', 'Disabled']
-      ])
-    );
-    status(panel, 'live', 'Tracked manifest loaded; no comparative results are available');
+    output.prepend(element('div', {className: 'callout warning'}, [
+      element('strong', {textContent: 'No accepted benchmark records'}),
+      element('p', {textContent: 'Missing evidence remains pending. Rankings and certification stay disabled.'})
+    ]));
+    status(panel, 'live', 'Dashboard and manifest verified; no benchmark records are available');
     return;
   }
-  const run = [...runs].sort((a, b) => new Date(b.generatedAt ?? 0) - new Date(a.generatedAt ?? 0))[0];
-  const samples = Array.isArray(run.samples) ? run.samples : [];
-  const labels = benchmarkLabels(run);
-  const adapters = adapterNames(run);
 
-  output.replaceChildren();
-  output.append(
-    element('p', {className: 'divider-label', textContent: 'Tracked environments'}),
-    trackedRunsTable(runs),
-    element('p', {className: 'divider-label', textContent: 'Newest run detail'})
-  );
-  const pills = element('div', {className: 'pills'});
-  labels.forEach(label => pills.append(element('span', {className: `pill ${label === 'CLEAN TREE' || label === 'C ORACLE' ? 'good' : 'warn'}`, textContent: label})));
-  output.append(pills);
-
-  const machine = run.system?.machine?.id ?? run.system?.machine ?? run.system?.hostname ?? run.machine?.id ?? run.machine ?? run.runner?.name ?? 'Not reported';
-  output.append(
-    element('p', {className: 'divider-label', textContent: 'Run provenance'}),
-    dataList([
-      ['Generated', formatDate(run.generatedAt)],
-      ['Machine', machine],
-      ['OS', `${text(run.system?.platform ?? run.os)} ${text(run.system?.release ?? '')}`.trim()],
-      ['Architecture', run.system?.architecture ?? run.system?.arch ?? run.architecture],
-      ['Node', run.system?.node ?? run.node],
-      ['Runner image', `${text(run.system?.environment?.imageOS)} ${text(run.system?.environment?.imageVersion)}`.trim()],
-      ['Commit', shortCommit(run.repository?.commit ?? run.commit)],
-      ['Tree', run.repository?.dirty === true ? 'Dirty — development result' : run.repository?.dirty === false ? 'Clean' : 'Unknown'],
-      ['Classification', run.evidence?.classification ?? run.manifest?.classification ?? 'Not reported'],
-      ['Publishable', run.evidence?.publishable === true || run.manifest?.publishable === true ? 'Yes' : 'No — evidence only'],
-      ['Ranking eligible', run.evidence?.rankingEligible === true || run.manifest?.rankingEligible === true ? 'Yes' : 'No'],
-      ['Exclusion reasons', Array.isArray(run.evidence?.reasons) ? run.evidence.reasons.join(', ') : 'Not reported'],
-      ['Oracle source', `${text(run.oracle?.implementation)} · ${shortCommit(run.oracle?.source?.sha256 ?? run.oracle?.sourceSha256)}`],
-      ['Oracle build', run.oracle?.build ? JSON.stringify(run.oracle.build) : 'No compiled C build — smoke only'],
-      ['Adapters', adapters.join(', ') || 'Not reported']
-    ])
-  );
-
-  output.append(
-    element('p', {className: 'divider-label', textContent: 'Configuration and accounting'}),
-    dataList([
-      ['Passes', Array.isArray(run.config?.passes) ? run.config.passes.join(', ') : run.config?.passes],
-      ['Frames', run.config?.frames ? JSON.stringify(run.config.frames) : 'Not reported'],
-      ['Payload', run.config?.payloadBytes === undefined ? 'Not reported' : `${formatNumber(run.config.payloadBytes)} bytes`],
-      ['Samples per pass', run.config?.samplesPerPass],
-      ['Warm-up frames', formatNumber(run.config?.warmupFrames)],
-      ['Raw samples retained', formatNumber(samples.length)],
-      ['Cleanup', run.cleanup?.clean === true ? `Clean (${formatNumber(run.cleanup.samples)} samples)` : run.cleanup?.clean === false ? 'Not clean — not publishable' : 'Not reported'],
-      ['Memory peak', formatBytes(run.memory?.maximumWorkerRssBytes)],
-      ['GC', run.gc ? `${formatNumber(run.gc.events)} events · ${formatNumber(run.gc.forcedRuns)} forced · ${text(run.gc.durationMs)} ms` : 'Not reported'],
-      ['Package footprint', run.packageFootprint ? formatBytes(run.packageFootprint.installed?.bytes) : 'Not captured in this run']
-    ])
-  );
-
-  const comparable = run.repository?.dirty === false
-    && run.oracle?.implementation === 'standard-c'
-    && adapters.includes('node-ipc')
-    && adapters.length > 1
-    && (run.evidence?.rankingEligible === true || run.manifest?.rankingEligible === true);
-  const notice = element('div', {className: `callout ${comparable ? 'success' : 'warning'}`});
-  notice.append(
-    element('strong', {textContent: comparable ? 'Comparable adapter evidence is present.' : 'No vehicle ranking is published.'}),
-    element('p', {textContent: comparable
-      ? 'This clean C-oracle run includes node-ipc and comparator adapters. Vehicle tiers still require explicit, like-for-like profile results before they can be ranked.'
-      : 'Rankings are withheld until comparable, clean-tree, standard-C-oracle results include real node-ipc adapters. Dirty-tree and Node-oracle runs remain clearly labelled smoke evidence.'})
-  );
-  output.append(notice);
-
-  if (samples.length) {
-    output.append(element('p', {className: 'divider-label', textContent: 'Raw samples'}), rawSamplesTable(samples));
-  } else {
-    output.append(element('div', {className: 'callout warning'}, [
-      element('strong', {textContent: 'No raw samples are attached.'}),
-      element('p', {textContent: 'The provenance is visible, but this run cannot support a performance comparison.'})
-    ]));
-  }
-  status(panel, 'live', `${formatNumber(runs.length)} tracked benchmark run${runs.length === 1 ? '' : 's'} loaded`);
+  const view = panel.dataset.view ?? 'runs';
+  const viewContent = view === 'profiles'
+    ? profileResults(dashboard)
+    : view === 'resources'
+      ? resourceResults(dashboard)
+      : runResults(dashboard);
+  output.prepend(viewContent);
+  status(panel, 'live', `Compact dashboard and manifest verified · ${formatNumber(runs.length)} tracked run${runs.length === 1 ? '' : 's'}`);
 }
 
 async function initLivePanels() {

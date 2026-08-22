@@ -1,0 +1,136 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-labelledby="title description">
+  <title id="title">node-ipc tracked plaintext profiles; Assured mTLS pending</title>
+  <desc id="description">Six exact-environment panels from commit 1379eaae9d2897b453fd1b4070323806fa794e95. Only baseline evidence is tracked; plaintext profiles remain pending. Assured remains a separate pending mutually authenticated TLS lane.</desc>
+  <rect width="1200" height="420" rx="18" fill="#050812"/>
+  <rect x="1" y="1" width="1198" height="418" rx="17" fill="none" stroke="#21304a" stroke-width="2"/>
+  <text x="38" y="42" fill="#f2f7ff" font-family="system-ui, sans-serif" font-size="25" font-weight="700">node-ipc profile benchmark</text>
+  <text x="38" y="67" fill="#9fb1c8" font-family="system-ui, sans-serif" font-size="14">Speed pass median milliseconds per million messages · exact OS, architecture, Node, and commit</text>
+  <text x="1162" y="42" fill="#72839b" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="13" text-anchor="end">1379eaae9d28</text>
+  <g class="environment" transform="translate(38 87)">
+    <rect width="552" height="88" rx="10" fill="#0c1322" stroke="#21304a"/>
+    <text x="16" y="23" fill="#f2f7ff" font-family="system-ui, sans-serif" font-size="15" font-weight="700">Linux · x64 · v22.12.0</text>
+    <text x="536" y="23" fill="#72839b" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="10" text-anchor="end">BASELINE ONLY · PROFILES PENDING</text>
+    <g transform="translate(16 43)">
+      <text x="0" y="0" fill="#9fb1c8" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">NET</text>
+      <text x="0" y="21" fill="#f2f7ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12">2566 ms</text>
+    </g>
+    <g transform="translate(148 43)">
+      <text x="0" y="0" fill="#62f28c" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">RAW</text>
+      <text x="0" y="21" fill="#72839b" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12">pending</text>
+    </g>
+    <g transform="translate(280 43)">
+      <text x="0" y="0" fill="#48d8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">FAST</text>
+      <text x="0" y="21" fill="#72839b" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12">pending</text>
+    </g>
+    <g transform="translate(412 43)">
+      <text x="0" y="0" fill="#ffc857" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">GUARDED</text>
+      <text x="0" y="21" fill="#72839b" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12">pending</text>
+    </g>
+  </g>
+  <g class="environment" transform="translate(610 87)">
+    <rect width="552" height="88" rx="10" fill="#0c1322" stroke="#21304a"/>
+    <text x="16" y="23" fill="#f2f7ff" font-family="system-ui, sans-serif" font-size="15" font-weight="700">Linux · x64 · v24.18.1</text>
+    <text x="536" y="23" fill="#72839b" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="10" text-anchor="end">BASELINE ONLY · PROFILES PENDING</text>
+    <g transform="translate(16 43)">
+      <text x="0" y="0" fill="#9fb1c8" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">NET</text>
+      <text x="0" y="21" fill="#f2f7ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12">2256 ms</text>
+    </g>
+    <g transform="translate(148 43)">
+      <text x="0" y="0" fill="#62f28c" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">RAW</text>
+      <text x="0" y="21" fill="#72839b" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12">pending</text>
+    </g>
+    <g transform="translate(280 43)">
+      <text x="0" y="0" fill="#48d8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">FAST</text>
+      <text x="0" y="21" fill="#72839b" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12">pending</text>
+    </g>
+    <g transform="translate(412 43)">
+      <text x="0" y="0" fill="#ffc857" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">GUARDED</text>
+      <text x="0" y="21" fill="#72839b" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12">pending</text>
+    </g>
+  </g>
+  <g class="environment" transform="translate(38 186)">
+    <rect width="552" height="88" rx="10" fill="#0c1322" stroke="#21304a"/>
+    <text x="16" y="23" fill="#f2f7ff" font-family="system-ui, sans-serif" font-size="15" font-weight="700">macOS · arm64 · v22.12.0</text>
+    <text x="536" y="23" fill="#72839b" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="10" text-anchor="end">BASELINE ONLY · PROFILES PENDING</text>
+    <g transform="translate(16 43)">
+      <text x="0" y="0" fill="#9fb1c8" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">NET</text>
+      <text x="0" y="21" fill="#f2f7ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12">3083 ms</text>
+    </g>
+    <g transform="translate(148 43)">
+      <text x="0" y="0" fill="#62f28c" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">RAW</text>
+      <text x="0" y="21" fill="#72839b" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12">pending</text>
+    </g>
+    <g transform="translate(280 43)">
+      <text x="0" y="0" fill="#48d8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">FAST</text>
+      <text x="0" y="21" fill="#72839b" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12">pending</text>
+    </g>
+    <g transform="translate(412 43)">
+      <text x="0" y="0" fill="#ffc857" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">GUARDED</text>
+      <text x="0" y="21" fill="#72839b" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12">pending</text>
+    </g>
+  </g>
+  <g class="environment" transform="translate(610 186)">
+    <rect width="552" height="88" rx="10" fill="#0c1322" stroke="#21304a"/>
+    <text x="16" y="23" fill="#f2f7ff" font-family="system-ui, sans-serif" font-size="15" font-weight="700">macOS · arm64 · v24.18.1</text>
+    <text x="536" y="23" fill="#72839b" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="10" text-anchor="end">BASELINE ONLY · PROFILES PENDING</text>
+    <g transform="translate(16 43)">
+      <text x="0" y="0" fill="#9fb1c8" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">NET</text>
+      <text x="0" y="21" fill="#f2f7ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12">4152 ms</text>
+    </g>
+    <g transform="translate(148 43)">
+      <text x="0" y="0" fill="#62f28c" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">RAW</text>
+      <text x="0" y="21" fill="#72839b" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12">pending</text>
+    </g>
+    <g transform="translate(280 43)">
+      <text x="0" y="0" fill="#48d8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">FAST</text>
+      <text x="0" y="21" fill="#72839b" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12">pending</text>
+    </g>
+    <g transform="translate(412 43)">
+      <text x="0" y="0" fill="#ffc857" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">GUARDED</text>
+      <text x="0" y="21" fill="#72839b" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12">pending</text>
+    </g>
+  </g>
+  <g class="environment" transform="translate(38 285)">
+    <rect width="552" height="88" rx="10" fill="#0c1322" stroke="#21304a"/>
+    <text x="16" y="23" fill="#f2f7ff" font-family="system-ui, sans-serif" font-size="15" font-weight="700">Windows · x64 · v22.12.0</text>
+    <text x="536" y="23" fill="#72839b" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="10" text-anchor="end">BASELINE ONLY · PROFILES PENDING</text>
+    <g transform="translate(16 43)">
+      <text x="0" y="0" fill="#9fb1c8" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">NET</text>
+      <text x="0" y="21" fill="#f2f7ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12">351.1 ms</text>
+    </g>
+    <g transform="translate(148 43)">
+      <text x="0" y="0" fill="#62f28c" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">RAW</text>
+      <text x="0" y="21" fill="#72839b" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12">pending</text>
+    </g>
+    <g transform="translate(280 43)">
+      <text x="0" y="0" fill="#48d8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">FAST</text>
+      <text x="0" y="21" fill="#72839b" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12">pending</text>
+    </g>
+    <g transform="translate(412 43)">
+      <text x="0" y="0" fill="#ffc857" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">GUARDED</text>
+      <text x="0" y="21" fill="#72839b" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12">pending</text>
+    </g>
+  </g>
+  <g class="environment" transform="translate(610 285)">
+    <rect width="552" height="88" rx="10" fill="#0c1322" stroke="#21304a"/>
+    <text x="16" y="23" fill="#f2f7ff" font-family="system-ui, sans-serif" font-size="15" font-weight="700">Windows · x64 · v24.18.1</text>
+    <text x="536" y="23" fill="#72839b" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="10" text-anchor="end">BASELINE ONLY · PROFILES PENDING</text>
+    <g transform="translate(16 43)">
+      <text x="0" y="0" fill="#9fb1c8" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">NET</text>
+      <text x="0" y="21" fill="#f2f7ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12">369.6 ms</text>
+    </g>
+    <g transform="translate(148 43)">
+      <text x="0" y="0" fill="#62f28c" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">RAW</text>
+      <text x="0" y="21" fill="#72839b" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12">pending</text>
+    </g>
+    <g transform="translate(280 43)">
+      <text x="0" y="0" fill="#48d8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">FAST</text>
+      <text x="0" y="21" fill="#72839b" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12">pending</text>
+    </g>
+    <g transform="translate(412 43)">
+      <text x="0" y="0" fill="#ffc857" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">GUARDED</text>
+      <text x="0" y="21" fill="#72839b" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12">pending</text>
+    </g>
+  </g>
+  <text x="38" y="402" fill="#72839b" font-family="system-ui, sans-serif" font-size="13">Pending is not zero. Assured uses a separate mutually authenticated TLS (mTLS) lane. Rankings and certification are disabled.</text>
+</svg>

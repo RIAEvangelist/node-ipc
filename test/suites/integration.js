@@ -20,6 +20,7 @@ function quietIPC(){
     instance.config.stopRetrying=true;
     instance.config.retry=25;
     instance.config.maxRetries=0;
+    instance.config.identifyPeer=true;
     return instance;
 }
 

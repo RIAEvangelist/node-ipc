@@ -13,7 +13,9 @@ const resultsDirectory=resultsDirectoryArgument
     : canonicalResultsDirectory;
 const index=await readJson(path.join(resultsDirectory,'index.json'));
 const schema=await readJson(path.join(directory,'result-schema.json'));
+const canonicalAdapters=['node-net','node-ipc-raw','node-ipc-fast','node-ipc-guarded'];
 const sourceHashCache=new Map();
+const comparisonStates=[];
 const directoryEntries=await readdir(resultsDirectory,{withFileTypes:true});
 for(const entry of directoryEntries){
     assert.ok(entry.isFile(),`${entry.name}: benchmark results must contain regular files only`);
@@ -32,10 +34,9 @@ assert.equal(
 );
 assert.ok(validDate(index.updatedAt),'benchmark results index updatedAt must be an ISO timestamp');
 assert.ok(Array.isArray(index.results),'benchmark results index must contain a results array');
-assert.equal(
-    index.comparisonState,
-    index.results.length === 0 ? 'no-verified-runs' : 'baseline-only',
-    'benchmark comparison state must honestly reflect whether verified evidence exists'
+assert.ok(
+    ['no-verified-runs','baseline-only','profile-comparison'].includes(index.comparisonState),
+    'benchmark comparison state is invalid'
 );
 assert.equal(new Set(index.results.map((entry) => entry.id)).size,index.results.length,'benchmark run ids must be unique and append-only');
 assert.deepEqual(
@@ -54,7 +55,17 @@ for(const entry of index.results){
     const schemaFailures=schemaErrors(result,schema,'$');
     assert.deepEqual(schemaFailures,[],`${entry.file}: result does not match result-schema.json`);
     validateResult(result,entry);
+    comparisonStates.push(result.evidence.comparison.state);
 }
+
+const expectedComparisonState=index.results.length === 0
+    ? 'no-verified-runs'
+    : comparisonStates.includes('profile-comparison') ? 'profile-comparison' : 'baseline-only';
+assert.equal(
+    index.comparisonState,
+    expectedComparisonState,
+    'benchmark comparison state must honestly reflect its tracked evidence'
+);
 
 process.stdout.write(`validated ${index.results.length} sanitized tracked benchmark result${index.results.length === 1 ? '' : 's'}\n`);
 
@@ -99,7 +110,14 @@ function validateResult(result,entry){
     assert.equal(result.cleanup.openSockets,0,`${entry.file}: sockets remain open`);
     assert.equal(result.cleanup.samples,result.samples.length,`${entry.file}: cleanup sample count mismatch`);
     assert.equal(result.evidence?.authority,'snapshot-noisy',`${entry.file}: hosted evidence must be labelled snapshot/noisy`);
-    assert.equal(result.evidence?.comparison?.state,'baseline-only',`${entry.file}: comparisons must remain baseline-only`);
+    const expectedComparison=result.config.adapters.some((adapter) => adapter.startsWith('node-ipc-'))
+        ? 'profile-comparison'
+        : 'baseline-only';
+    assert.equal(result.evidence?.comparison?.state,expectedComparison,`${entry.file}: comparison state is incorrect`);
+    if(expectedComparison === 'profile-comparison'){
+        assert.equal(result.evidence.comparison.baseline,'node-net',`${entry.file}: profile baseline is incorrect`);
+        assert.equal(result.evidence.comparison.certification,false,`${entry.file}: profile evidence cannot claim certification`);
+    }
     assert.equal(result.evidence?.privacy?.sanitized,true,`${entry.file}: tracked evidence must be privacy-sanitized`);
     assert.equal(result.evidence?.publishable,true,`${entry.file}: only publishable evidence may be tracked`);
     assert.equal(result.evidence?.classification,'clean-c-oracle-snapshot',`${entry.file}: tracked evidence must be a clean C-oracle snapshot`);
@@ -125,9 +143,33 @@ function validateResult(result,entry){
         assert.equal(sample.exact?.byteCountsVerified,true,`${label} byte counts were not verified`);
         assert.equal(sample.exact?.oracleByteCountVerified,true,`${label} oracle byte counts were not verified`);
         assert.equal(sample.exact?.configuredFrames,result.config.frames[sample.pass],`${label} configured-frame count differs from its pass`);
-        assert.equal(sample.exact?.sentBytes,sample.exact.configuredFrames*result.config.payloadBytes,`${label} sent-byte count mismatch`);
-        assert.equal(sample.exact?.receivedBytes,sample.exact.configuredFrames*result.config.payloadBytes,`${label} received-byte count mismatch`);
-        assert.equal(sample.exact?.oracleBytes,(sample.exact.configuredFrames+result.config.warmupFrames)*result.config.payloadBytes,`${label} oracle byte count mismatch`);
+        if(Object.hasOwn(sample.exact,'applicationSentBytes')){
+            const applicationBytes=sample.exact.configuredFrames*result.config.payloadBytes;
+            const totalWireBytes=sample.exact.probeWireSentBytes
+                +sample.exact.warmupWireSentBytes
+                +sample.exact.wireSentBytes;
+            const totalWireBytesReceived=sample.exact.probeWireReceivedBytes
+                +sample.exact.warmupWireReceivedBytes
+                +sample.exact.wireReceivedBytes;
+            assert.equal(sample.exact.applicationSentBytes,applicationBytes,`${label} application sent-byte count mismatch`);
+            assert.equal(sample.exact.applicationReceivedBytes,applicationBytes,`${label} application received-byte count mismatch`);
+            assert.equal(sample.exact.applicationByteCountsVerified,true,`${label} application byte counts were not verified`);
+            assert.equal(sample.exact.sentBytes,sample.exact.wireSentBytes,`${label} wire sent-byte alias mismatch`);
+            assert.equal(sample.exact.receivedBytes,sample.exact.wireReceivedBytes,`${label} wire received-byte alias mismatch`);
+            assert.equal(sample.exact.wireReceivedBytes,sample.exact.wireSentBytes,`${label} measured wire bytes differ`);
+            assert.equal(sample.exact.probeWireReceivedBytes,sample.exact.probeWireSentBytes,`${label} probe wire bytes differ`);
+            assert.equal(sample.exact.warmupWireReceivedBytes,sample.exact.warmupWireSentBytes,`${label} warmup wire bytes differ`);
+            assert.equal(sample.exact.framingOverheadBytes,sample.exact.wireSentBytes-applicationBytes,`${label} framing overhead mismatch`);
+            assert.equal(sample.exact.contentVerified,true,`${label} payload content was not verified`);
+            assert.equal(sample.exact.sequenceVerified,true,`${label} payload sequence was not verified`);
+            assert.ok(sample.exact.correctnessFrames > 0,`${label} correctness probe did not run`);
+            assert.equal(totalWireBytesReceived,totalWireBytes,`${label} total reflected wire bytes differ`);
+            assert.equal(sample.exact.oracleBytes,totalWireBytes,`${label} oracle wire-byte count mismatch`);
+        }else{
+            assert.equal(sample.exact?.sentBytes,sample.exact.configuredFrames*result.config.payloadBytes,`${label} sent-byte count mismatch`);
+            assert.equal(sample.exact?.receivedBytes,sample.exact.configuredFrames*result.config.payloadBytes,`${label} received-byte count mismatch`);
+            assert.equal(sample.exact?.oracleBytes,(sample.exact.configuredFrames+result.config.warmupFrames)*result.config.payloadBytes,`${label} oracle byte count mismatch`);
+        }
         assert.equal(sample.cleanup.oracle?.bytesIn,sample.exact.oracleBytes,`${label} oracle input byte count mismatch`);
         assert.equal(sample.cleanup.oracle?.bytesOut,sample.exact.oracleBytes,`${label} oracle output byte count mismatch`);
         assert.equal(sample.cleanup.worker?.openSockets,0,`${label} worker left sockets open`);
@@ -157,7 +199,14 @@ function validateResult(result,entry){
     validateSampleTopology(result,entry.file);
     validateAggregateCleanup(result.samples,result.cleanup,entry.file);
     validatePackageFootprint(result.packageFootprint,entry.file);
-    assert.equal(result.evidence?.rankingEligible,false,`${entry.file}: rankings stay disabled until comparable node-ipc adapters exist`);
+    for(const adapter of result.config.adapters.filter((name) => name.startsWith('node-ipc-'))){
+        assert.equal(
+            result.memory.packageInstalledBytes?.[adapter],
+            result.packageFootprint.installed.bytes,
+            `${entry.file}: ${adapter} package footprint mismatch`
+        );
+    }
+    assert.equal(result.evidence?.rankingEligible,false,`${entry.file}: profile evidence is not a certification or ranking`);
 
     const manifestFields={
         architecture:result.system.architecture,
@@ -223,8 +272,10 @@ function canonicalConfiguration(config){
         && config.timeoutMs === 600000
         && [...config.passes].sort().join(',') === 'latency,resource,speed'
         && new Set(config.passes).size === 3
-        && new Set(config.adapters).size === config.adapters.length
-        && config.adapters.includes('node-net');
+        && (
+            JSON.stringify(config.adapters) === JSON.stringify(['node-net'])
+            || JSON.stringify(config.adapters) === JSON.stringify(canonicalAdapters)
+        );
 }
 
 function oracleBuildVerified(oracle,system,sourceHashes){
@@ -291,6 +342,9 @@ function publicationSamplesClean(samples,cleanup){
             && sample.exact?.sentFrames === sample.exact?.configuredFrames
             && sample.exact?.receivedFrames === sample.exact?.configuredFrames
             && sample.exact?.byteCountsVerified
+            && (sample.exact?.applicationByteCountsVerified ?? true)
+            && (sample.exact?.contentVerified ?? true)
+            && (sample.exact?.sequenceVerified ?? true)
             && sample.exact?.oracleByteCountVerified);
 }
 

@@ -105,7 +105,16 @@
       "properties": {
         "authority": {"const": "snapshot-noisy"},
         "classification": {"const": "clean-c-oracle-snapshot"},
-        "comparison": {"type": "object", "required": ["adapters", "state"]},
+        "comparison": {
+          "type": "object",
+          "required": ["adapters", "state"],
+          "properties": {
+            "adapters": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}},
+            "baseline": {"const": "node-net"},
+            "certification": {"const": false},
+            "state": {"enum": ["baseline-only", "profile-comparison"]}
+          }
+        },
         "packageFootprintStatus": {"const": "measured"},
         "privacy": {"type": "object", "required": ["excluded", "sanitized"]},
         "publishable": {"const": true},

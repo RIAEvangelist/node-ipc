@@ -1,21 +1,32 @@
 {
   "name": "node-ipc",
-  "version": "12.0.0",
-  "description": "A nodejs module for local and remote Inter Process Communication (IPC), Neural Networking, and able to facilitate machine learning.",
+  "version": "13.0.0",
+  "description": "Fast local and network IPC for Node.js using Unix sockets, Windows named pipes, TCP, TLS, and UDP.",
   "type": "module",
   "main": "./node-ipc.js",
-  "exports": "./node-ipc.js",
-  "directories": {
-    "example": "example"
+  "exports": {
+    ".": "./node-ipc.js",
+    "./parsers": "./entities/EventParser.js",
+    "./parsers/message": "./entities/MessageParser.js"
   },
+  "files": [
+    "node-ipc.js",
+    "dao/",
+    "entities/",
+    "services/",
+    "README.md",
+    "MIGRATION.md",
+    "SECURITY.md",
+    "licence"
+  ],
+  "sideEffects": false,
   "engines": {
     "node": ">=22.12.0"
   },
   "dependencies": {
-    "event-pubsub": "5.0.3",
+    "event-pubsub": "6.1.0",
     "js-message": "3.0.0",
-    "js-queue": "2.0.2",
-    "strong-type": "2.0.0"
+    "js-queue": "2.0.2"
   },
   "devDependencies": {
     "node-http-server": "9.0.2",
@@ -24,12 +35,15 @@
   "scripts": {
     "benchmark": "node ./benchmark/run.js",
     "benchmark:c-smoke": "node ./benchmark/c-oracle-smoke.js",
+    "benchmark:chart": "node ./benchmark/render-chart.js",
+    "benchmark:chart:check": "node ./benchmark/render-chart.js --check",
+    "benchmark:dashboard": "node ./benchmark/dashboard.js",
     "benchmark:quick": "node ./benchmark/run.js --quick",
     "benchmark:record": "node ./benchmark/record-result.js --full --oracle=c --footprint",
     "benchmark:test": "node ./benchmark/test.js",
     "benchmark:validate": "node ./benchmark/validate-results.js",
     "coverage": "echo 'See your coverage report at http://127.0.0.1:8080' && node-http-server host=127.0.0.1 domain=127.0.0.1 port=8080 root=./coverage/node/",
-    "test": "npm run test:correctness && npm run test:smoke && npm run benchmark:test && npm run benchmark:validate",
+    "test": "npm run test:correctness && npm run test:smoke && npm run benchmark:test && npm run benchmark:validate && npm run benchmark:chart:check",
     "test:correctness": "npm run test:inventory && vanilla-test coverage node",
     "test:inventory": "node ./test/inventory.js",
     "test:smoke": "npm run test:smoke:runtime && npm run test:smoke:transport && npm run test:smoke:package",
@@ -68,5 +82,5 @@
   "bugs": {
     "url": "https://github.com/RIAEvangelist/node-ipc/issues"
   },
-  "homepage": "http://riaevangelist.github.io/node-ipc/"
+  "homepage": "https://riaevangelist.github.io/node-ipc/"
 }

@@ -17,6 +17,7 @@ const repositoryRoot=path.resolve(directory,'..');
 const resultsDirectory=path.join(directory,'results');
 const indexPath=path.join(resultsDirectory,'index.json');
 const validator=path.join(directory,'validate-results.js');
+const canonicalAdapters=['node-net','node-ipc-raw','node-ipc-fast','node-ipc-guarded'];
 const expectedCommit=git('rev-parse','HEAD');
 
 validate(resultsDirectory);
@@ -61,7 +62,7 @@ if(existing.length === candidates.length){
             (latest,{result}) => result.record.recordedAt > latest ? result.record.recordedAt : latest,
             index.updatedAt
         ),
-        comparisonState:'baseline-only',
+        comparisonState:'profile-comparison',
         results:[...index.results,...entries]
     };
     await install(additions,updated);
@@ -128,8 +129,15 @@ async function readCandidate(sourceFile){
     assert.equal(result.schemaVersion,2,`${file}: schemaVersion must be 2`);
     assert.equal(result.record?.file,file,`${file}: record.file mismatch`);
     assert.equal(result.evidence?.publishable,true,`${file}: result is not publishable`);
-    assert.equal(result.evidence?.rankingEligible,false,`${file}: baseline result cannot rank`);
-    assert.deepEqual(result.config?.adapters,['node-net'],`${file}: expected node-net baseline only`);
+    assert.equal(result.evidence?.rankingEligible,false,`${file}: profile result cannot rank or certify`);
+    const baseline=JSON.stringify(result.config?.adapters) === JSON.stringify(['node-net']);
+    const profiles=JSON.stringify(result.config?.adapters) === JSON.stringify(canonicalAdapters);
+    assert.ok(baseline || profiles,`${file}: unexpected adapter set`);
+    assert.equal(
+        result.evidence?.comparison?.state,
+        profiles ? 'profile-comparison' : 'baseline-only',
+        `${file}: comparison state does not match its adapters`
+    );
     return {file,result,serialized,sha256:sha256(serialized)};
 }
 
@@ -150,6 +158,7 @@ function validateBatch(candidates){
 
     const first=candidates[0].result.system.environment;
     for(const {file,result} of candidates){
+        assert.deepEqual(result.config.adapters,canonicalAdapters,`${file}: expected the canonical profile adapters`);
         const environment=result.system.environment;
         assert.equal(result.repository.commit,expectedCommit,`${file}: measured commit is not current HEAD`);
         assert.equal(environment.provider,'github-actions',`${file}: expected GitHub Actions evidence`);

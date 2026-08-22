@@ -1,4 +1,9 @@
 import ipc from '../../../node-ipc.js';
+import {
+    clientCertificate,
+    clientKey,
+    serverCertificate
+} from '../certificates.js';
 
 /***************************************\
  *
@@ -10,12 +15,13 @@ import ipc from '../../../node-ipc.js';
 ipc.config.id = 'hello';
 ipc.config.retry= 1500;
 ipc.config.networkHost='localhost';
+// Replace these public, expired fixtures with a valid client identity and trusted server CA.
 ipc.config.tls={
-    private: __dirname+'/../../../local-node-ipc-certs/private/client.key',
-    public: __dirname+'/../../../local-node-ipc-certs/client.pub',
+    private: clientKey,
+    public: clientCertificate,
     rejectUnauthorized:true,
     trustedConnections: [
-        __dirname+'/../../../local-node-ipc-certs/server.pub'
+        serverCertificate
     ]
 };
 

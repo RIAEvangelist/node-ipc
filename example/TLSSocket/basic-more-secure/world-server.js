@@ -1,4 +1,10 @@
 import ipc from '../../../node-ipc.js';
+import {
+    clientCertificate,
+    dhParameters,
+    serverCertificate,
+    serverKey
+} from '../certificates.js';
 
 /***************************************\
  *
@@ -9,14 +15,16 @@ import ipc from '../../../node-ipc.js';
 
 ipc.config.id = 'world';
 ipc.config.retry= 1500;
+// DEVELOPMENT FIXTURES ONLY: replace every repository key/certificate before deployment.
 ipc.config.tls={
-    public: __dirname+'/../../../local-node-ipc-certs/server.pub',
-    private: __dirname+'/../../../local-node-ipc-certs/private/server.key',
-    dhparam: __dirname+'/../../../local-node-ipc-certs/private/dhparam.pem',
+    public: serverCertificate,
+    private: serverKey,
+    dhparam: dhParameters,
     requestCert: true,
+    // DEVELOPMENT ONLY: this accepts clients whose certificates cannot be verified.
     rejectUnauthorized:false,
     trustedConnections: [
-        __dirname+'/../../../local-node-ipc-certs/client.pub'
+        clientCertificate
     ]
 };
 
