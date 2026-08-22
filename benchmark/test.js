@@ -50,9 +50,16 @@ async function run() {
             assert.equal(result.samples.filter(sample => sample.pass === pass).length,4);
         }
     });
-    await check(test, 'benchmark starts fresh oracle and worker processes for every sample', () => {
-        assert.equal(new Set(result.samples.map(sample => sample.pids.oracle)).size,12);
-        assert.equal(new Set(result.samples.map(sample => sample.pids.worker)).size,12);
+    await check(test, 'benchmark records fresh oracle and worker processes for every sample', () => {
+        assert.equal(result.pids.samples.length,12);
+        result.samples.forEach((sample,index) => {
+            assert.deepEqual(result.pids.samples[index],sample.pids);
+            assert.ok(Number.isInteger(sample.pids.oracle) && sample.pids.oracle > 0);
+            assert.ok(Number.isInteger(sample.pids.worker) && sample.pids.worker > 0);
+            assert.notEqual(sample.pids.oracle,sample.pids.worker);
+            assert.notEqual(sample.pids.oracle,result.pids.runner);
+            assert.notEqual(sample.pids.worker,result.pids.runner);
+        });
     });
     await check(test, 'benchmark records every fresh endpoint binding and temporary root', () => {
         assert.equal(result.endpoints.length,12);
