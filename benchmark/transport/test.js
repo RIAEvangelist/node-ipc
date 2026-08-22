@@ -25,6 +25,7 @@ assert.deepEqual(result.config.versions,versionOrder);
 assert.equal(result.config.messages,128);
 assert.equal(result.config.pairsPerTransport,1);
 assert.equal(result.config.currentVersion,'13.0.0');
+assert.equal(result.oracles['node-byte-reflector'].runtime,process.version);
 assert.equal(result.samples.length,transportOrder.length*versionOrder.length);
 assert.equal(result.summary.length,transportOrder.length);
 assert.equal(result.cleanup.clean,true);
@@ -35,6 +36,7 @@ for(const transport of transportOrder){
     assert.deepEqual(samples.map((sample) => sample.version),versionOrder);
     for(const sample of samples){
         assert.equal(sample.rootVersion,'13.0.0');
+        assert.equal(sample.oracle,'node-byte-reflector');
         assert.equal(sample.exact.countVerified,true);
         assert.equal(sample.exact.contentVerified,true);
         assert.equal(sample.exact.sequenceVerified,true);

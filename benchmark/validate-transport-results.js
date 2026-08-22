@@ -93,6 +93,11 @@ function validateResult(result,entry,serialized){
     assert.equal(result.subjects.current.source.commit,result.repository.commit,`${label}: current source commit differs`);
     assert.equal(result.subjects.current.source.packageJsonSha256,gitBlobHash(result.repository.commit,'package.json'),`${label}: current package manifest hash differs`);
     assert.equal(result.subjects.current.source.packageLockSha256,gitBlobHash(result.repository.commit,'package-lock.json'),`${label}: current lock hash differs`);
+    assert.equal(
+        result.oracles['standard-c-datagram-reflector'].build.sourceSha256,
+        gitBlobHash(result.repository.commit,'benchmark/oracle/echo.c'),
+        `${label}: datagram oracle source differs from its measured commit`
+    );
     const committedPackage=JSON.parse(gitShow(result.repository.commit,'package.json'));
     assert.equal(result.config.currentVersion,committedPackage.version,`${label}: current package version differs from its commit`);
     assertNoEphemeralData(result,label);

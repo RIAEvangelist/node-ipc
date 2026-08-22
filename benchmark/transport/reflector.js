@@ -8,8 +8,8 @@ import {fileURLToPath} from 'node:url';
 const config=JSON.parse(process.argv[2] || '{}');
 const resources=() => process.getActiveResourcesInfo().sort();
 const baselineResources=resources();
-const cpuStart=process.cpuUsage();
-const wallStart=process.hrtime.bigint();
+let cpuStart=process.cpuUsage();
+let wallStart=process.hrtime.bigint();
 const sockets=new Set;
 const stats={bytesIn:0,bytesOut:0,messagesIn:0,messagesOut:0,pendingSends:0};
 let server;
@@ -78,10 +78,7 @@ function startDatagram(){
         stats.pendingSends+=1;
         server.send(message,rinfo.port,rinfo.address,(error) => {
             stats.pendingSends-=1;
-            if(error){
-                send({type:'socket-error',error:error.message});
-                return;
-            }
+            if(error){send({type:'socket-error',error:error.message});return;}
             stats.bytesOut+=message.length;
             stats.messagesOut+=1;
         });
@@ -130,6 +127,12 @@ async function close(){
 }
 
 process.on('message',(message) => {
+    if(message === 'measure'){
+        cpuStart=process.cpuUsage();
+        wallStart=process.hrtime.bigint();
+        send({type:'measure-ready'});
+        return;
+    }
     if(message === 'close') close().catch((error) => {
         send({type:'error',error:error.stack || error.message});
         process.exitCode=1;

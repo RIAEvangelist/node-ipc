@@ -17,7 +17,7 @@ fs.mkdirSync(outputDirectory, {recursive: true});
 for (const compiler of candidates) {
     const cl = path.basename(compiler).toLowerCase() === 'cl' || path.basename(compiler).toLowerCase() === 'cl.exe';
     const compileArguments = cl
-        ? ['/nologo', '/O2', `/Fe:${output}`, source, 'ws2_32.lib']
+        ? ['/nologo', '/O2', `/Fe:${output}`, `/Fo:${path.join(outputDirectory,'raw-echo.obj')}`, source, 'ws2_32.lib']
         : ['-O3', '-std=c11', source, '-o', output, ...(process.platform === 'win32' ? ['-lws2_32'] : [])];
     const recordedFlags = cl
         ? ['/nologo', '/O2', 'ws2_32.lib']

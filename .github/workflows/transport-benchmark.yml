@@ -44,6 +44,11 @@ jobs:
       - name: Prepare exact node-ipc 12.0.0 tag fixture
         run: node benchmark/transport/prepare-v12.js "${{ runner.temp }}/node-ipc-v12"
 
+      - name: Build and test the standard-C datagram oracle
+        run: |
+          node benchmark/oracle/build.js
+          npm run benchmark:transport:c-oracle:test
+
       - name: Record paired million-message transport comparison
         env:
           NODE_IPC_BENCHMARK_NODE_LANE: ${{ matrix.node }}

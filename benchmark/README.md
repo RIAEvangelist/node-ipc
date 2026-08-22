@@ -42,20 +42,26 @@ npm run benchmark:quick
 npm run benchmark:test
 ```
 
-The v12/current transport comparison is a separate `snapshot-noisy` lane. It uses a Node reflector consistently for both subjects and never becomes profile, ranking, or certification evidence. TLS disables peer verification and excludes the handshake; that lane measures encrypted bulk transfer, not authenticated TLS. Its byte fields count the 101-byte node-ipc frame at the reflector boundary, before TLS encryption.
+The v12/current transport comparison is a separate `snapshot-noisy` lane. Native local IPC, TCP, and TLS use the Node byte reflector; official UDP4 and UDP6 evidence uses the standard-C exact-count reflector. Both subjects use the same oracle implementation within every pair. Standard-C records retain the oracle source and binary SHA-256, compiler and version, fixed flags, and platform/architecture target. This lane never becomes profile, ranking, or certification evidence. TLS disables peer verification and excludes the handshake; that lane measures encrypted bulk transfer, not authenticated TLS. Its byte fields count the 101-byte node-ipc frame at the reflector boundary, before TLS encryption.
 
 Prepare the exact v12 tag in an empty directory outside the repository, then run the paired harness:
 
 ```sh
 npm run benchmark:transport:prepare -- <empty-v12-directory>
+node benchmark/oracle/build.js
+npm run benchmark:transport:c-oracle:test
 npm run benchmark:transport -- --legacy-root=<empty-v12-directory>
 ```
 
 Recording requires a clean committed tree, the canonical full configuration, and an output directory outside the repository:
 
 ```sh
+node benchmark/oracle/build.js
+npm run benchmark:transport:c-oracle:test
 npm run benchmark:transport:record -- --legacy-root=<empty-v12-directory> --current-root=. --output-directory=<output-directory>
 ```
+
+No transport result is hosted until the complete six-job matrix passes oracle provenance, exact-count, correctness, cleanup, schema, and append-only manifest validation.
 
 ## Tracked evidence
 

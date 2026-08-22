@@ -11,6 +11,7 @@
     "repository",
     "system",
     "evidence",
+    "oracles",
     "config",
     "subjects",
     "samples",
@@ -78,12 +79,59 @@
         "reasons": {"type": "array", "maxItems": 0}
       }
     },
+    "oracles": {
+      "type": "object",
+      "required": ["node-byte-reflector", "standard-c-datagram-reflector"],
+      "properties": {
+        "node-byte-reflector": {
+          "type": "object",
+          "required": ["implementation", "runtime"],
+          "properties": {
+            "implementation": {"const": "node-byte-reflector"},
+            "runtime": {"type": "string", "pattern": "^v[0-9]+[.]"}
+          },
+          "additionalProperties": false
+        },
+        "standard-c-datagram-reflector": {
+          "type": "object",
+          "required": ["implementation", "build"],
+          "properties": {
+            "implementation": {"const": "standard-c-datagram-reflector"},
+            "build": {
+              "type": "object",
+              "required": ["binarySha256", "compiler", "flags", "sourceSha256", "target", "version"],
+              "properties": {
+                "binarySha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+                "compiler": {"type": "string", "minLength": 1},
+                "flags": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+                "sourceSha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+                "target": {
+                  "type": "object",
+                  "required": ["architecture", "name", "platform"],
+                  "properties": {
+                    "architecture": {"type": "string", "minLength": 1},
+                    "name": {"type": "string", "minLength": 1},
+                    "platform": {"type": "string", "minLength": 1}
+                  },
+                  "additionalProperties": false
+                },
+                "version": {"type": "string", "minLength": 1}
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
     "config": {
       "type": "object",
-      "required": ["currentVersion", "messages", "pairsPerTransport", "payloadBytes", "probeFrames", "transports", "udpWindow", "versions", "warmupFrames"],
+      "required": ["currentVersion", "messages", "oracleByTransport", "pairsPerTransport", "payloadBytes", "probeFrames", "transports", "udpWindow", "versions", "warmupFrames"],
       "properties": {
         "currentVersion": {"type": "string", "minLength": 1},
         "messages": {"const": 1000000},
+        "oracleByTransport": {"const": {"local": "node-byte-reflector", "tcp": "node-byte-reflector", "tls": "node-byte-reflector", "udp4": "standard-c-datagram-reflector", "udp6": "standard-c-datagram-reflector"}},
         "pairsPerTransport": {"const": 7},
         "payloadBytes": {"const": 64},
         "probeFrames": {"const": 64},
@@ -107,12 +155,17 @@
       "maxItems": 70,
       "items": {
         "type": "object",
-        "required": ["transport", "securityMode", "pairIndex", "orderIndex", "version", "rootVersion", "metrics", "exact", "cleanup"],
+        "required": ["transport", "oracle", "securityMode", "pairIndex", "orderIndex", "version", "rootVersion", "metrics", "exact", "cleanup"],
         "properties": {
           "metrics": {
             "type": "object",
-            "required": ["oracleSaturated"],
-            "properties": {"oracleSaturated": {"const": false}}
+            "required": ["oracleCpuMicroseconds", "oracleCpuToWallRatio", "oracleSaturated", "oracleWallNs"],
+            "properties": {
+              "oracleCpuMicroseconds": {"type": "number", "minimum": 0},
+              "oracleCpuToWallRatio": {"type": "number", "minimum": 0},
+              "oracleSaturated": {"const": false},
+              "oracleWallNs": {"type": "string", "pattern": "^[0-9]+$"}
+            }
           }
         }
       }

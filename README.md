@@ -83,7 +83,7 @@ The chart is generated from tracked, clean profile runs. Results stay separated 
 
 ![Paired node-ipc v12.0.0 and current million-message transport timings on Linux, macOS, and Windows](https://riaevangelist.github.io/node-ipc/assets/node-ipc-transport-comparison.svg)
 
-The paired CI snapshot reports median time for 1,000,000 completed messages through the native local transport, TCP, TLS, UDP4, and UDP6. TLS is an encryption-only throughput lane with peer verification disabled and its handshake outside timing. Results remain grouped by operating system and transport; they are not a cross-platform or cross-transport ranking. See the [transport comparison](https://riaevangelist.github.io/node-ipc/benchmarks/transports/) for exact timings, pending lanes, raw samples, and methodology.
+The paired CI snapshot reports median time for 1,000,000 completed messages through the native local transport, TCP, TLS, UDP4, and UDP6. Local IPC, TCP, and TLS use the Node byte reflector; official UDP4 and UDP6 evidence uses the standard-C exact-count reflector. Both versions use the same oracle within every pair, and C-oracle source, binary, compiler, flags, and target provenance are retained. TLS is an encryption-only throughput lane with peer verification disabled and its handshake outside timing. Results remain grouped by operating system and transport; they are not a cross-platform or cross-transport ranking. The hosted view remains Pending until a complete valid matrix passes every provenance, count, and cleanup gate. See the [transport comparison](https://riaevangelist.github.io/node-ipc/benchmarks/transports/) for exact timings, pending lanes, raw samples, and methodology.
 
 ----
 #### Contents

@@ -19,6 +19,7 @@ const projectRoot=path.resolve(directory,'..');
 const provided=process.argv.slice(2);
 const full=provided.includes('--full');
 const runArguments=provided.filter((argument) => argument !== '--full' && !argument.startsWith('--output-directory='));
+const udpOracleArguments=runArguments.filter((argument) => argument.startsWith('--udp-oracle='));
 const outputArgument=provided.find((argument) => argument.startsWith('--output-directory='));
 const outputDirectory=path.resolve(
     outputArgument?.slice('--output-directory='.length)
@@ -32,6 +33,10 @@ if(!full){
 if(!outputArgument && !process.env.NODE_IPC_TRANSPORT_OUTPUT_DIRECTORY){
     throw new Error('tracked transport recording requires --output-directory or NODE_IPC_TRANSPORT_OUTPUT_DIRECTORY');
 }
+if(udpOracleArguments.length>1 || udpOracleArguments.some((argument) => argument !== '--udp-oracle=c')){
+    throw new Error('tracked transport recording requires the standard-C UDP oracle');
+}
+const effectiveRunArguments=udpOracleArguments.length ? runArguments : [...runArguments,'--udp-oracle=c'];
 
 const repositoryBefore=await repositoryState();
 assert.equal(repositoryBefore.dirty,false,'tracked transport recording requires a clean Git tree');
@@ -40,7 +45,7 @@ assert.equal(await git('rev-parse','12.0.0^{commit}'),legacyProvenance.commit,'t
 
 const {stdout,stderr}=await execute(
     process.execPath,
-    [path.join(directory,'transport','run.js'),...runArguments],
+    [path.join(directory,'transport','run.js'),...effectiveRunArguments],
     {cwd:projectRoot,encoding:'utf8',maxBuffer:128*1024*1024,windowsHide:true}
 );
 if(stderr.trim()) process.stderr.write(stderr);
@@ -53,9 +58,15 @@ assert.equal(harnessConfig.subjects?.['legacy-v12']?.tag,legacyProvenance.tag,'t
 assert.equal(harnessConfig.subjects?.['legacy-v12']?.version,legacyProvenance.version,'transport harness legacy version differs');
 assert.equal(harnessConfig.subjects?.current?.commit,repositoryBefore.commit,'transport harness current commit differs');
 assert.equal(harnessConfig.subjects?.current?.version,currentPackage.version,'transport harness current version differs');
+assert.equal(
+    runtime.oracles?.['standard-c-datagram-reflector']?.build?.sourceSha256,
+    sha256(await gitBytes('show',`${repositoryBefore.commit}:benchmark/oracle/echo.c`)),
+    'standard-C oracle source differs from the measured commit'
+);
 runtime.config={
     currentVersion:currentPackage.version,
     messages:harnessConfig.measuredFrames,
+    oracleByTransport:harnessConfig.oracleByTransport,
     pairsPerTransport:harnessConfig.samplesPerVersion,
     payloadBytes:harnessConfig.payloadBytes,
     probeFrames:harnessConfig.probeFrames,
@@ -150,6 +161,7 @@ const result={
         rankingEligible:false,
         reasons:[]
     },
+    oracles:runtime.oracles,
     config:runtime.config,
     subjects,
     samples:runtime.samples,

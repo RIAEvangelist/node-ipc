@@ -1,5 +1,6 @@
 coverage/**/* linguist-generated=true
 /benchmark/results/*.json text eol=lf
+/benchmark/oracle/echo.c text eol=lf
 /benchmark/transport-results/*.json text eol=lf
 /benchmark/transport-result-schema.json text eol=lf
 /docs/data/*.json text eol=lf

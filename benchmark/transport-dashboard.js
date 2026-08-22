@@ -96,7 +96,9 @@ function runFrom(detail,entry,rawBase){
             runId:detail.system.environment?.runId,
             commit:detail.repository.commit,
             dirty:detail.repository.dirty,
-            subjects:detail.subjects
+            subjects:detail.subjects,
+            oracles:detail.oracles,
+            oracleByTransport:detail.config.oracleByTransport
         },
         cleanup:detail.cleanup,
         raw:{detail:`${rawBase}${encodeURIComponent(entry.file)}`,sha256:entry.sha256}

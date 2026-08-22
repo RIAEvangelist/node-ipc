@@ -44,6 +44,7 @@
     "benchmark:transport": "node ./benchmark/transport/run.js",
     "benchmark:transport:chart": "node ./benchmark/render-transport-chart.js",
     "benchmark:transport:chart:check": "node ./benchmark/render-transport-chart.js --check",
+    "benchmark:transport:c-oracle:test": "node ./benchmark/transport/c-oracle.test.js",
     "benchmark:transport:dashboard": "node ./benchmark/transport-dashboard.js",
     "benchmark:transport:evidence:test": "node ./benchmark/transport-evidence.test.js",
     "benchmark:transport:merge": "node ./benchmark/merge-transport-results.js",

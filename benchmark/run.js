@@ -8,6 +8,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {names as availableAdapters} from './adapters/index.js';
 import {packageFootprint} from './footprint.js';
+import {lineMessages} from './oracle/line-messages.js';
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const sha256 = async file => createHash('sha256').update(await readFile(file)).digest('hex');
@@ -141,43 +142,6 @@ const inventory = async directory => {
     return result;
 };
 
-const lineMessages = child => {
-    const listeners = new Set();
-    const messages = [];
-    let buffered = '';
-    child.stdout.setEncoding('utf8');
-    child.stdout.on('data', chunk => {
-        buffered += chunk;
-        let end;
-        while ((end = buffered.indexOf('\n')) !== -1) {
-            const line = buffered.slice(0, end).trim();
-            buffered = buffered.slice(end + 1);
-            if (line) {
-                const message = JSON.parse(line);
-                messages.push(message);
-                for (const listener of listeners) {
-                    listener(message);
-                }
-            }
-        }
-    });
-    return type => deadline(new Promise((resolve, reject) => {
-        const existing = messages.find(message => message.type === type);
-        if (existing) {
-            resolve(existing);
-            return;
-        }
-        const receive = message => {
-            if (message.type === type) {
-                listeners.delete(receive);
-                resolve(message);
-            }
-        };
-        listeners.add(receive);
-        child.once('error', reject);
-    }), config.timeoutMs, `C oracle ${type}`);
-};
-
 const startOracle = async trialDirectory => {
     const started = process.hrtime.bigint();
     if (config.oracle === 'node') {
@@ -223,7 +187,7 @@ const startOracle = async trialDirectory => {
         env: trialEnvironment(trialDirectory),
         stdio: ['ignore', 'pipe', 'pipe']
     });
-    const message = lineMessages(child);
+    const message = lineMessages(child,config.timeoutMs);
     let ready;
     try {
         ready = await message('ready');

@@ -3,6 +3,13 @@ import {createHash} from 'node:crypto';
 
 const transportOrder=Object.freeze(['local','tcp','tls','udp4','udp6']);
 const subjectOrder=Object.freeze(['legacy-v12','current']);
+const oracleByTransport=Object.freeze({
+    local:'node-byte-reflector',
+    tcp:'node-byte-reflector',
+    tls:'node-byte-reflector',
+    udp4:'standard-c-datagram-reflector',
+    udp6:'standard-c-datagram-reflector'
+});
 const canonical={
     messages:1000000,
     pairsPerTransport:7,
@@ -110,6 +117,24 @@ function validateCanonicalRuntime(runtime,label='transport runtime'){
     assert.ok(runtime.system && typeof runtime.system === 'object',`${label}: system evidence is required`);
     assert.ok(runtime.repository && typeof runtime.repository === 'object',`${label}: repository evidence is required`);
     assert.ok(runtime.config && typeof runtime.config === 'object',`${label}: configuration is required`);
+    assert.deepEqual(Object.keys(runtime.oracles || {}).sort(),['node-byte-reflector','standard-c-datagram-reflector'],`${label}: oracle provenance differs`);
+    assert.equal(runtime.oracles?.['node-byte-reflector']?.implementation,'node-byte-reflector',`${label}: stream oracle differs`);
+    assert.equal(runtime.oracles?.['node-byte-reflector']?.runtime,runtime.system.node,`${label}: stream oracle runtime differs`);
+    const datagramBuild=runtime.oracles?.['standard-c-datagram-reflector']?.build;
+    assert.equal(runtime.oracles?.['standard-c-datagram-reflector']?.implementation,'standard-c-datagram-reflector',`${label}: datagram oracle differs`);
+    assert.match(datagramBuild?.binarySha256 ?? '',/^[0-9a-f]{64}$/u,`${label}: datagram oracle binary hash differs`);
+    assert.match(datagramBuild?.sourceSha256 ?? '',/^[0-9a-f]{64}$/u,`${label}: datagram oracle source hash differs`);
+    assert.ok(typeof datagramBuild?.compiler === 'string' && datagramBuild.compiler.length>0,`${label}: datagram oracle compiler is missing`);
+    const msvc=/^cl(?:[.]exe)?$/iu.test(datagramBuild?.compiler ?? '');
+    const expectedFlags=msvc
+        ? ['/nologo','/O2','ws2_32.lib']
+        : ['-O3','-std=c11',...(runtime.system.platform === 'win32' ? ['-lws2_32'] : [])];
+    assert.deepEqual(datagramBuild?.flags,expectedFlags,`${label}: datagram oracle flags differ`);
+    assert.ok(typeof datagramBuild?.version === 'string' && datagramBuild.version.length>0,`${label}: datagram oracle compiler version is missing`);
+    assert.equal(datagramBuild?.target?.architecture,runtime.system.architecture,`${label}: datagram oracle architecture differs`);
+    assert.equal(datagramBuild?.target?.platform,runtime.system.platform,`${label}: datagram oracle platform differs`);
+    assert.equal(datagramBuild?.target?.name,runtime.system.platform === 'win32' ? 'raw-echo.exe' : 'raw-echo',`${label}: datagram oracle target differs`);
+    assert.deepEqual(runtime.config.oracleByTransport,oracleByTransport,`${label}: transport oracle mapping differs`);
     assert.deepEqual(runtime.config.transports,transportOrder,`${label}: canonical transports differ`);
     assert.deepEqual(runtime.config.versions,subjectOrder,`${label}: canonical subjects differ`);
     assert.equal(runtime.config.messages,canonical.messages,`${label}: measured-message count differs`);
@@ -139,12 +164,19 @@ function validateCanonicalRuntime(runtime,label='transport runtime'){
         const sampleLabel=`${label}: sample ${index}`;
         assert.ok(transportOrder.includes(sample.transport),`${sampleLabel}: unknown transport`);
         assert.ok(subjectOrder.includes(sample.version),`${sampleLabel}: unknown subject`);
+        assert.equal(sample.oracle,oracleByTransport[sample.transport],`${sampleLabel}: oracle selection differs`);
         assert.equal(sample.securityMode,sample.transport === 'tls' ? 'encryption-only' : 'plaintext',`${sampleLabel}: transport security semantics differ`);
         assert.ok(Number.isInteger(sample.pairIndex) && sample.pairIndex >= 0 && sample.pairIndex < canonical.pairsPerTransport,`${sampleLabel}: invalid pair index`);
         assert.equal(sample.rootVersion,sample.version === 'legacy-v12' ? legacyProvenance.version : runtime.config.currentVersion,`${sampleLabel}: package version differs`);
         assert.ok(Number.isFinite(sample.metrics?.millisecondsPerMillion) && sample.metrics.millisecondsPerMillion > 0,`${sampleLabel}: invalid timing`);
         assert.ok(/^\d+$/u.test(String(sample.metrics?.elapsedNs ?? '')),`${sampleLabel}: elapsedNs must be an integer string`);
         assert.equal(sample.metrics.millisecondsPerMillion,Number(sample.metrics.elapsedNs)/canonical.messages,`${sampleLabel}: timing normalization differs`);
+        assert.ok(Number.isFinite(sample.metrics.oracleCpuMicroseconds) && sample.metrics.oracleCpuMicroseconds >= 0,`${sampleLabel}: invalid oracle CPU time`);
+        assert.ok(Number.isFinite(sample.metrics.oracleCpuToWallRatio) && sample.metrics.oracleCpuToWallRatio >= 0,`${sampleLabel}: invalid oracle CPU ratio`);
+        assert.ok(/^\d+$/u.test(String(sample.metrics.oracleWallNs ?? '')),`${sampleLabel}: oracle wall time must be an integer string`);
+        const oracleCpuToWallRatio=sample.metrics.oracleCpuMicroseconds/(Number(sample.metrics.elapsedNs)/1000);
+        assert.equal(sample.metrics.oracleCpuToWallRatio,oracleCpuToWallRatio,`${sampleLabel}: oracle CPU ratio differs`);
+        assert.equal(sample.metrics.oracleSaturated,oracleCpuToWallRatio>=0.9,`${sampleLabel}: oracle saturation flag differs`);
         assert.equal(sample.metrics.oracleSaturated,false,`${sampleLabel}: reflector was CPU-saturated`);
         assert.equal(sample.exact?.probeFrames,canonical.probeFrames,`${sampleLabel}: probe count differs`);
         assert.equal(sample.exact?.warmupFrames,canonical.warmupFrames,`${sampleLabel}: warm-up count differs`);
@@ -211,6 +243,7 @@ export {
     implementationFor,
     legacyProvenance,
     manifestEntry,
+    oracleByTransport,
     sha256,
     subjectOrder,
     summarize,

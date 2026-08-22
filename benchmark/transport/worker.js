@@ -28,6 +28,27 @@ async function forceGc(){
     }
 }
 
+function measureReady(){
+    return new Promise((resolve,reject) => {
+        const receive=(message) => {
+            if(message !== 'measure-ready') return;
+            clean();
+            resolve();
+        };
+        const disconnect=() => {
+            clean();
+            reject(new Error('benchmark parent disconnected before measurement'));
+        };
+        const clean=() => {
+            process.off('message',receive);
+            process.off('disconnect',disconnect);
+        };
+        process.on('message',receive);
+        process.once('disconnect',disconnect);
+        process.send?.({type:'measure-start'});
+    });
+}
+
 function payload(index,sequential){
     return sequential ? index.toString(16).padStart(8,'0')+tail : constant;
 }
@@ -194,6 +215,7 @@ async function runStream(ipc){
     const probe=await runStreamPhase(client,socket,config.probeFrames,true);
     const warmup=await runStreamPhase(client,socket,config.warmupFrames,false);
     await forceGc();
+    await measureReady();
     const measured=await runStreamPhase(client,socket,config.measuredFrames,false);
 
     client.explicitlyDisconnected=true;
@@ -221,6 +243,7 @@ async function runDatagram(ipc){
     const probe=await runDatagramPhase(ipc.server,peer,config.probeFrames,config.udpWindow);
     const warmup=await runDatagramPhase(ipc.server,peer,config.warmupFrames,config.udpWindow);
     await forceGc();
+    await measureReady();
     const measured=await runDatagramPhase(ipc.server,peer,config.measuredFrames,config.udpWindow);
 
     const closed=once(socket,'close');

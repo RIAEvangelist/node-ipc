@@ -63,5 +63,7 @@ jobs:
       - run: npm test
       - name: Build the standard C oracle
         run: node benchmark/oracle/build.js
-      - name: Accept the standard C oracle
-        run: node benchmark/c-oracle-smoke.js
+      - name: Accept the standard C oracles
+        run: |
+          node benchmark/c-oracle-smoke.js
+          npm run benchmark:transport:c-oracle:test

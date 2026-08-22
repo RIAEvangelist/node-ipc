@@ -6,7 +6,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {buildTransportDashboard} from './transport-dashboard.js';
 import {renderTransportChart} from './render-transport-chart.js';
-import {legacyProvenance,manifestEntry,sha256,summarize,transportOrder,validateCanonicalRuntime} from './transport-evidence.js';
+import {legacyProvenance,manifestEntry,oracleByTransport,sha256,summarize,transportOrder,validateCanonicalRuntime} from './transport-evidence.js';
 
 const directory=path.dirname(fileURLToPath(import.meta.url));
 const root=path.resolve(directory,'..');
@@ -27,8 +27,14 @@ try{
         ['win32','windows-latest','v22.13.0','22.13.0'],['win32','windows-latest','v24.18.1','24.18.1']
     ];
     const saturated=makeResult({laneIndex:0,node:lanes[0][2],nodeLane:lanes[0][3],osLane:lanes[0][1],platform:lanes[0][0]});
+    saturated.samples[0].metrics.oracleCpuMicroseconds=Number(saturated.samples[0].metrics.elapsedNs)/1000;
+    saturated.samples[0].metrics.oracleCpuToWallRatio=1;
     saturated.samples[0].metrics.oracleSaturated=true;
     assert.throws(() => validateCanonicalRuntime(saturated),/reflector was CPU-saturated/u);
+    const forgedSaturation=makeResult({laneIndex:0,node:lanes[0][2],nodeLane:lanes[0][3],osLane:lanes[0][1],platform:lanes[0][0]});
+    forgedSaturation.samples[0].metrics.oracleCpuMicroseconds=Number(forgedSaturation.samples[0].metrics.elapsedNs)/1000*0.95;
+    forgedSaturation.samples[0].metrics.oracleCpuToWallRatio=0.95;
+    assert.throws(() => validateCanonicalRuntime(forgedSaturation),/oracle saturation flag differs/u);
     const invalidBytes=makeResult({laneIndex:0,node:lanes[0][2],nodeLane:lanes[0][3],osLane:lanes[0][1],platform:lanes[0][0]});
     invalidBytes.samples[0].exact.totalWireBytes-=1;
     assert.throws(() => validateCanonicalRuntime(invalidBytes),/total wire byte count differs/u);
@@ -56,6 +62,8 @@ try{
     for(const environment of dashboard.environments){
         assert.deepEqual(environment.runs[0].transports.map((transport) => transport.id),transportOrder);
         assert.ok(environment.runs[0].transports.every((transport) => transport.status === 'measured'));
+        assert.deepEqual(environment.runs[0].provenance.oracleByTransport,oracleByTransport);
+        assert.equal(environment.runs[0].provenance.oracles['standard-c-datagram-reflector'].implementation,'standard-c-datagram-reflector');
     }
     const chart=renderTransportChart(dashboard);
     assert.equal((chart.match(/<g class="environment"/gu) || []).length,6);
@@ -78,14 +86,24 @@ function makeResult({laneIndex,node,nodeLane,osLane,platform}){
             for(let orderIndex=0;orderIndex<2;orderIndex+=1){
                 const version=order[orderIndex];
                 const milliseconds=(version === 'legacy-v12' ? 3000 : 800)+pairIndex;
+                const elapsedNs=String(milliseconds*1000000);
+                const oracleCpuMicroseconds=milliseconds*500;
                 samples.push({
                     transport,
+                    oracle:oracleByTransport[transport],
                     securityMode:transport === 'tls' ? 'encryption-only' : 'plaintext',
                     pairIndex,
                     orderIndex,
                     version,
                     rootVersion:version === 'legacy-v12' ? '12.0.0' : currentPackage.version,
-                    metrics:{elapsedNs:String(milliseconds*1000000),millisecondsPerMillion:milliseconds,oracleSaturated:false},
+                    metrics:{
+                        elapsedNs,
+                        millisecondsPerMillion:milliseconds,
+                        oracleCpuMicroseconds,
+                        oracleCpuToWallRatio:oracleCpuMicroseconds/(Number(elapsedNs)/1000),
+                        oracleSaturated:false,
+                        oracleWallNs:elapsedNs
+                    },
                     exact:{
                         applicationBytes:64000000,
                         contentVerified:true,
@@ -130,8 +148,17 @@ function makeResult({laneIndex,node,nodeLane,osLane,platform}){
     };
     const config={
         currentVersion:currentPackage.version,messages:1000000,pairsPerTransport:7,payloadBytes:64,
+        oracleByTransport:{...oracleByTransport},
         probeFrames:64,transports:[...transportOrder],udpWindow:64,
         versions:['legacy-v12','current'],warmupFrames:100000
+    };
+    const oracles={
+        'standard-c-datagram-reflector':{implementation:'standard-c-datagram-reflector',build:{
+                binarySha256:sha256(`binary-${laneIndex}`),compiler:'cc',flags:['-O3','-std=c11',...(platform === 'win32' ? ['-lws2_32'] : [])],
+                sourceSha256:packageHash(commit,'benchmark/oracle/echo.c'),target:{architecture:'x64',name:platform === 'win32' ? 'raw-echo.exe' : 'raw-echo',platform},
+                version:'cc synthetic'
+        }},
+        'node-byte-reflector':{implementation:'node-byte-reflector',runtime:node}
     };
     const result={
         schemaVersion:1,id,generatedAt,record:{file,recordedAt:generatedAt},repository,system,
@@ -141,6 +168,7 @@ function makeResult({laneIndex,node,nodeLane,osLane,platform}){
             privacy:{excluded:['absolute-paths','ephemeral-endpoints','process-ids'],sanitized:true},
             publishable:true,rankingEligible:false,reasons:[]
         },
+        oracles,
         config,
         subjects:{
             'legacy-v12':{id:'legacy-v12',version:'12.0.0',source:{kind:'git-tag-archive',tag:'12.0.0',commit:legacyProvenance.commit,packageJsonSha256:packageHash(legacyProvenance.commit,'package.json'),packageLockSha256:packageHash(legacyProvenance.commit,'package-lock.json')}},

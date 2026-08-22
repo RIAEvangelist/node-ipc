@@ -1,10 +1,12 @@
-import {fork,execFileSync} from 'node:child_process';
+import {execFileSync,fork,spawn} from 'node:child_process';
 import {createHash,randomUUID} from 'node:crypto';
+import dgram from 'node:dgram';
 import {once} from 'node:events';
 import {lstat,mkdtemp,readFile,readdir,rm} from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {lineMessages} from '../oracle/line-messages.js';
 import {commit as legacyCommit,tag as legacyTag} from './prepare-v12.js';
 
 const directory=path.dirname(fileURLToPath(import.meta.url));
@@ -103,21 +105,111 @@ function localEndpoint(trial){
         : path.join(trial,'node-ipc.sock');
 }
 
+function datagramEndpointReleased(transport,endpoint){
+    const socket=dgram.createSocket(transport);
+    return new Promise((resolve) => {
+        let settled=false;
+        const finish=(released) => {
+            if(settled) return;
+            settled=true;
+            socket.removeAllListeners('error');
+            try{socket.close(() => resolve(released));}catch{resolve(released);}
+        };
+        socket.once('error',() => finish(false));
+        socket.bind(endpoint.port,endpoint.host,() => finish(true));
+    });
+}
+
+async function cDatagramOracle(){
+    const oracleDirectory=path.resolve(directory,'../oracle');
+    const binary=path.join(oracleDirectory,'bin',process.platform === 'win32' ? 'raw-echo.exe' : 'raw-echo');
+    const build=JSON.parse(await readFile(path.join(oracleDirectory,'bin','build.json'),'utf8'));
+    const [binarySha256,sourceSha256]=await Promise.all([
+        sha256(binary),
+        sha256(path.join(oracleDirectory,'echo.c'))
+    ]);
+    if(build.binarySha256 !== binarySha256 || build.sourceSha256 !== sourceSha256){
+        throw new Error('standard-C oracle build hashes do not match its source and binary');
+    }
+    if(build.target?.architecture !== process.arch || build.target?.platform !== process.platform){
+        throw new Error('standard-C oracle target differs from the current runtime');
+    }
+    return {
+        binary,
+        evidence:{
+            implementation:'standard-c-datagram-reflector',
+            build:{
+                binarySha256,
+                compiler:path.basename(build.compiler),
+                flags:build.flags,
+                sourceSha256,
+                target:build.target,
+                version:build.version
+            }
+        }
+    };
+}
+
+function normalizeCOracle(entry){
+    if(!Number.isFinite(entry.measuredCpuSeconds) || entry.measuredCpuSeconds<0){
+        throw new Error('standard-C oracle did not report measured CPU time');
+    }
+    if(!/^\d+$/u.test(String(entry.measuredWallNs))){
+        throw new Error('standard-C oracle did not report measured wall time');
+    }
+    return {
+        cleanup:{
+            activeHandles:[],
+            activeResourceDelta:[],
+            clean:entry.activeSocketsAfterClose === 0,
+            endpointRemoved:false,
+            observedActiveResources:[],
+            openSockets:entry.activeSocketsAfterClose,
+            pendingSends:0
+        },
+        cpu:{user:Math.round(entry.measuredCpuSeconds*1000000),system:0},
+        stats:{
+            bytesIn:entry.bytesIn,
+            bytesOut:entry.bytesOut,
+            messagesIn:entry.messagesIn,
+            messagesOut:entry.messagesOut,
+            pendingSends:0
+        },
+        wallNs:entry.measuredWallNs
+    };
+}
+
 async function runTrial(options,subject,transport,pairIndex,orderIndex){
     const trial=await mkdtemp(path.join(os.tmpdir(),'node-ipc-transport-'));
     const endpointPath=transport === 'local' ? localEndpoint(trial) : null;
     const host=transport === 'udp6' ? '::1' : '127.0.0.1';
-    const reflector=captureErrors(fork(path.join(directory,'reflector.js'),[JSON.stringify({
-        certificates:options.certificates,
-        endpointPath,
-        host,
-        transport
-    })],{
-        cwd:trial,
-        env:trialEnvironment(trial),
-        execArgv:[],
-        silent:true
-    }));
+    const nativeDatagram=transport.startsWith('udp') && options.datagramOracle;
+    const totalFrames=options.probeFrames+options.warmupFrames+options.measuredFrames;
+    const reflector=nativeDatagram
+        ? captureErrors(spawn(options.datagramOracle.binary,[
+            '--host',host,
+            '--port','0',
+            '--transport',transport,
+            '--messages',String(totalFrames),
+            '--measure-after',String(options.probeFrames+options.warmupFrames)
+        ],{
+            cwd:trial,
+            env:trialEnvironment(trial),
+            stdio:['ignore','pipe','pipe'],
+            windowsHide:true
+        }))
+        : captureErrors(fork(path.join(directory,'reflector.js'),[JSON.stringify({
+            certificates:options.certificates,
+            endpointPath,
+            host,
+            transport
+        })],{
+            cwd:trial,
+            env:trialEnvironment(trial),
+            execArgv:[],
+            silent:true
+        }));
+    const oracleMessage=nativeDatagram ? lineMessages(reflector,options.timeoutMs,'standard-C datagram oracle') : null;
     let worker;
     let ready;
     let workerResult;
@@ -126,10 +218,12 @@ async function runTrial(options,subject,transport,pairIndex,orderIndex){
     let oracleProcessExit;
     let leftovers;
     try{
-        ready=await message(reflector,'ready',options.timeoutMs);
+        ready=nativeDatagram
+            ? await oracleMessage('ready')
+            : await message(reflector,'ready',options.timeoutMs);
         worker=captureErrors(fork(path.join(directory,'worker.js'),[JSON.stringify({
             certificates:options.certificates,
-            endpoint:ready.endpoint,
+            endpoint:ready.endpoint ?? {host:ready.host,port:ready.port},
             measuredFrames:options.measuredFrames,
             payloadBytes:options.payloadBytes,
             probeFrames:options.probeFrames,
@@ -144,12 +238,33 @@ async function runTrial(options,subject,transport,pairIndex,orderIndex){
             execArgv:['--expose-gc'],
             silent:true
         }));
-        workerResult=(await message(worker,'result',options.timeoutMs)).result;
+        const measureStart=message(worker,'measure-start',options.timeoutMs);
+        await measureStart;
+        if(!nativeDatagram){
+            const measureReady=message(reflector,'measure-ready',options.timeoutMs);
+            reflector.send('measure');
+            await measureReady;
+        }
+        const resultMessage=message(worker,'result',options.timeoutMs);
+        worker.send('measure-ready');
+        workerResult=(await resultMessage).result;
         workerProcessExit=await childExit(worker,options.timeoutMs);
-        const cleanup=message(reflector,'cleanup',options.timeoutMs);
-        reflector.send('close');
-        oracleEnd=await cleanup;
+        if(nativeDatagram){
+            oracleEnd=normalizeCOracle(await oracleMessage('cleanup'));
+        }else{
+            const cleanup=message(reflector,'cleanup',options.timeoutMs);
+            reflector.send('close');
+            oracleEnd=await cleanup;
+        }
         oracleProcessExit=await childExit(reflector,options.timeoutMs);
+        if(transport.startsWith('udp')){
+            const natural=oracleProcessExit[0] === 0 && !oracleProcessExit[1];
+            oracleEnd.cleanup.endpointRemoved=natural && await datagramEndpointReleased(transport,{
+                host:ready.endpoint?.host ?? ready.host,
+                port:ready.endpoint?.port ?? ready.port
+            });
+            oracleEnd.cleanup.clean=oracleEnd.cleanup.clean && oracleEnd.cleanup.endpointRemoved;
+        }
         leftovers=await inventory(trial);
     }catch(error){
         await terminate(worker);
@@ -163,7 +278,7 @@ async function runTrial(options,subject,transport,pairIndex,orderIndex){
     const workerNaturalExit=workerProcessExit[0] === 0 && !workerProcessExit[1];
     const oracleNaturalExit=oracleProcessExit[0] === 0 && !oracleProcessExit[1];
     const cpuMicroseconds=oracleEnd.cpu.user+oracleEnd.cpu.system;
-    const cpuToWallRatio=cpuMicroseconds/(Number(oracleEnd.wallNs)/1000);
+    const cpuToWallRatio=cpuMicroseconds/(Number(workerResult.metrics.elapsedNs)/1000);
     const oracleBytesVerified=oracleEnd.stats.bytesIn === workerResult.exact.totalWireBytes
         && oracleEnd.stats.bytesOut === workerResult.exact.totalWireBytes;
     const datagramCountsVerified=!transport.startsWith('udp') || (
@@ -180,6 +295,7 @@ async function runTrial(options,subject,transport,pairIndex,orderIndex){
 
     return {
         transport,
+        oracle:options.oracleByTransport[transport],
         securityMode:transport === 'tls' ? 'encryption-only' : 'plaintext',
         pairIndex,
         orderIndex,
@@ -282,12 +398,28 @@ async function runBenchmark(input={}){
     if(!quick && subjects['legacy-v12'].version !== legacyTag){
         throw new Error(`legacy root must contain node-ipc ${legacyTag}`);
     }
+    const udpOracle=input.udpOracle ?? value('udp-oracle',quick ? 'node' : 'c');
+    if(!['c','node'].includes(udpOracle)) throw new Error('available UDP oracles: node, c');
+    const datagramOracle=udpOracle === 'c' ? await cDatagramOracle() : null;
+    const nodeOracle={implementation:'node-byte-reflector',runtime:process.version};
+    const datagramOracleName=datagramOracle ? datagramOracle.evidence.implementation : nodeOracle.implementation;
+    const oracleByTransport=Object.fromEntries(transports.map((transport) => [
+        transport,
+        transport.startsWith('udp') ? datagramOracleName : nodeOracle.implementation
+    ]));
+    const oracles={
+        [nodeOracle.implementation]:nodeOracle,
+        ...(datagramOracle ? {[datagramOracle.evidence.implementation]:datagramOracle.evidence} : {})
+    };
     const options={
         certificates:{
             serverCertificate:path.join(currentRoot,'local-node-ipc-certs','server.pub'),
             serverKey:path.join(currentRoot,'local-node-ipc-certs','private','server.key')
         },
+        datagramOracle,
         measuredFrames:input.measuredFrames ?? integer('messages',quick ? 128 : 1000000),
+        oracleByTransport,
+        oracles,
         payloadBytes:input.payloadBytes ?? integer('size',64),
         probeFrames:input.probeFrames ?? integer('probes',quick ? 8 : 64),
         samplesPerVersion:input.samplesPerVersion ?? integer('samples',quick ? 1 : 7),
@@ -317,6 +449,7 @@ async function runBenchmark(input={}){
         schemaVersion:1,
         generatedAt:new Date().toISOString(),
         repository:state,
+        oracles:options.oracles,
         system:{
             architecture:process.arch,
             cpu:{count:os.availableParallelism(),model:os.cpus()[0]?.model ?? null},
@@ -350,6 +483,7 @@ async function runBenchmark(input={}){
             currentVersion:subjects.current.version,
             messages:options.measuredFrames,
             measuredFrames:options.measuredFrames,
+            oracleByTransport:options.oracleByTransport,
             pairsPerTransport:options.samplesPerVersion,
             payloadBytes:options.payloadBytes,
             probeFrames:options.probeFrames,
