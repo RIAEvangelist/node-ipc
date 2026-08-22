@@ -54,8 +54,15 @@ async function run() {
         assert.equal(new Set(result.samples.map(sample => sample.pids.oracle)).size,12);
         assert.equal(new Set(result.samples.map(sample => sample.pids.worker)).size,12);
     });
-    await check(test, 'benchmark gives every sample a fresh endpoint and temporary root', () => {
-        assert.equal(new Set(result.endpoints.map(endpoint => endpoint.port)).size,12);
+    await check(test, 'benchmark records every fresh endpoint binding and temporary root', () => {
+        assert.equal(result.endpoints.length,12);
+        result.endpoints.forEach((endpoint,index) => {
+            assert.deepEqual(endpoint,result.samples[index].endpoint);
+            assert.equal(typeof endpoint.host,'string');
+            assert.ok(endpoint.host.length > 0);
+            assert.ok(Number.isInteger(endpoint.port));
+            assert.ok(endpoint.port > 0 && endpoint.port <= 65535);
+        });
         assert.equal(new Set(result.samples.map(sample => sample.trialDirectory)).size,12);
     });
     await check(test, 'benchmark accounts for application, wire, and reflected byte totals', () => {

@@ -10,7 +10,7 @@ The benchmark contract has three lanes. Results never cross lanes. The current h
 2. **Raw client** connects each compatible client to the same byte reflector.
 3. **End to end** runs each system's native client and server contract.
 
-The raw service reflects bytes without parsing them. "Shared" means the same source and protocol, not one long-lived process: every sample gets a new oracle, worker, connection, port, and temporary directory.
+The raw service reflects bytes without parsing them. "Shared" means the same source and protocol, not one long-lived process: every sample gets a new oracle, worker, connection, operating-system-selected port binding, and temporary directory. After cleanup, the operating system may safely reuse a numeric port in a later sample.
 
 The raw lane reports application bytes and actual socket bytes separately. A 64-frame content and sequence probe runs before warm-up and outside timing. Every measured run still requires exact application, wire, reflected-byte, and frame totals.
 
