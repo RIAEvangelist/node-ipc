@@ -19,6 +19,7 @@
     "/testing/regression/",
     "/coverage/",
     "/benchmarks/",
+    "/benchmarks/transports/",
     "/benchmarks/profiles/",
     "/benchmarks/resources/",
     "/benchmarks/methodology/",

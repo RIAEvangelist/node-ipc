@@ -20,6 +20,9 @@ jobs:
       benchmark_manifest_sha256: ${{ steps.stage.outputs.benchmark_manifest_sha256 }}
       benchmark_dashboard_sha256: ${{ steps.stage.outputs.benchmark_dashboard_sha256 }}
       benchmark_chart_sha256: ${{ steps.stage.outputs.benchmark_chart_sha256 }}
+      transport_manifest_sha256: ${{ steps.stage.outputs.transport_manifest_sha256 }}
+      transport_dashboard_sha256: ${{ steps.stage.outputs.transport_dashboard_sha256 }}
+      transport_chart_sha256: ${{ steps.stage.outputs.transport_chart_sha256 }}
     permissions:
       contents: read
       pages: read
@@ -58,6 +61,9 @@ jobs:
       - name: Validate tracked benchmark results
         run: node benchmark/validate-results.js
 
+      - name: Validate tracked transport comparison results
+        run: node benchmark/validate-transport-results.js
+
       - name: Build the standard C oracle
         run: node benchmark/oracle/build.js
 
@@ -94,6 +100,9 @@ jobs:
           benchmark_root="benchmark/results"
           benchmark_schema="benchmark/result-schema.json"
           benchmark_chart="docs/assets/node-ipc-benchmark.svg"
+          transport_root="benchmark/transport-results"
+          transport_schema="benchmark/transport-result-schema.json"
+          transport_chart="docs/assets/node-ipc-transport-comparison.svg"
           header_asset="assets/node-ipc-header.png"
           performance_asset="assets/node-ipc-performance-tiers.png"
           artifact_root="_site"
@@ -109,12 +118,18 @@ jobs:
           test -s "$benchmark_root/index.json"
           test -s "$benchmark_schema"
           test -s "$benchmark_chart"
+          test -s "$transport_root/index.json"
+          test -s "$transport_schema"
+          test -s "$transport_chart"
           test -s "$header_asset"
           test -s "$performance_asset"
           test ! -e "$artifact_root"
           git ls-files --error-unmatch "$benchmark_root/index.json" >/dev/null
           git ls-files --error-unmatch "$benchmark_schema" >/dev/null
           git ls-files --error-unmatch "$benchmark_chart" >/dev/null
+          git ls-files --error-unmatch "$transport_root/index.json" >/dev/null
+          git ls-files --error-unmatch "$transport_schema" >/dev/null
+          git ls-files --error-unmatch "$transport_chart" >/dev/null
           git ls-files --error-unmatch "$header_asset" >/dev/null
           git ls-files --error-unmatch "$performance_asset" >/dev/null
           git ls-files --error-unmatch docs/data/test-inventory.json >/dev/null
@@ -124,6 +139,14 @@ jobs:
           ((${#benchmark_files[@]} > 0))
           for source in "${benchmark_files[@]}"; do
             relative="${source#benchmark/results/}"
+            [[ "$relative" != */* && "$relative" == *.json ]]
+            test -s "$source"
+          done
+
+          mapfile -t transport_files < <(git ls-files -- "$transport_root")
+          ((${#transport_files[@]} > 0))
+          for source in "${transport_files[@]}"; do
+            relative="${source#benchmark/transport-results/}"
             [[ "$relative" != */* && "$relative" == *.json ]]
             test -s "$source"
           done
@@ -157,6 +180,13 @@ jobs:
           cp "$benchmark_schema" "$artifact_root/data/benchmarks/result-schema.json"
           npm run benchmark:dashboard -- --output="$artifact_root/data/benchmarks/dashboard.json"
 
+          mkdir -p "$artifact_root/data/transport-benchmarks"
+          for source in "${transport_files[@]}"; do
+            cp "$source" "$artifact_root/data/transport-benchmarks/"
+          done
+          cp "$transport_schema" "$artifact_root/data/transport-benchmarks/result-schema.json"
+          node benchmark/transport-dashboard.js --output="$artifact_root/data/transport-benchmarks/dashboard.json"
+
           for entry in "${page_entries[@]}"; do
             test -s "$artifact_root/$entry"
           done
@@ -173,6 +203,12 @@ jobs:
           test -s "$artifact_root/assets/node-ipc-benchmark.svg"
           cmp -s "$benchmark_schema" "$artifact_root/data/benchmarks/result-schema.json"
           cmp -s "$benchmark_chart" "$artifact_root/assets/node-ipc-benchmark.svg"
+          test -s "$artifact_root/data/transport-benchmarks/index.json"
+          test -s "$artifact_root/data/transport-benchmarks/dashboard.json"
+          test -s "$artifact_root/data/transport-benchmarks/result-schema.json"
+          test -s "$artifact_root/assets/node-ipc-transport-comparison.svg"
+          cmp -s "$transport_schema" "$artifact_root/data/transport-benchmarks/result-schema.json"
+          cmp -s "$transport_chart" "$artifact_root/assets/node-ipc-transport-comparison.svg"
 
           forbidden_entry="$({
             find "$artifact_root" \
@@ -202,6 +238,10 @@ jobs:
               printf 'data/benchmarks/%s\n' "${source#benchmark/results/}"
             done
             printf '%s\n' data/benchmarks/dashboard.json data/benchmarks/result-schema.json
+            for source in "${transport_files[@]}"; do
+              printf 'data/transport-benchmarks/%s\n' "${source#benchmark/transport-results/}"
+            done
+            printf '%s\n' data/transport-benchmarks/dashboard.json data/transport-benchmarks/result-schema.json
           } | LC_ALL=C sort -u > "$expected_inventory"
           find "$artifact_root" -type f -printf '%P\n' | LC_ALL=C sort -u > "$actual_inventory"
           diff -u "$expected_inventory" "$actual_inventory"
@@ -219,7 +259,10 @@ jobs:
               'data/routes.json',
               'data/benchmarks/dashboard.json',
               'data/benchmarks/index.json',
-              'data/benchmarks/result-schema.json'
+              'data/benchmarks/result-schema.json',
+              'data/transport-benchmarks/dashboard.json',
+              'data/transport-benchmarks/index.json',
+              'data/transport-benchmarks/result-schema.json'
           ];
 
           for (const file of files) {
@@ -253,6 +296,32 @@ jobs:
               }
           }
 
+          const transportSchema = JSON.parse(await readFile(`${root}/data/transport-benchmarks/result-schema.json`, 'utf8'));
+          if (transportSchema.$id !== 'https://riaevangelist.github.io/node-ipc/data/transport-benchmarks/result-schema.json') {
+              throw new Error(`Unexpected transport benchmark schema $id: ${transportSchema.$id}`);
+          }
+          const transportManifestBytes = await readFile(`${root}/data/transport-benchmarks/index.json`);
+          const transportManifest = JSON.parse(transportManifestBytes);
+          const transportDashboard = JSON.parse(await readFile(`${root}/data/transport-benchmarks/dashboard.json`, 'utf8'));
+          if (transportDashboard.schemaVersion !== 1
+              || transportDashboard.rankingEligible !== false
+              || transportDashboard.certification !== false
+              || transportDashboard.source.manifest !== 'data/transport-benchmarks/index.json'
+              || transportDashboard.source.manifestSha256 !== createHash('sha256').update(transportManifestBytes).digest('hex')
+              || transportDashboard.source.resultCount !== transportManifest.results.length
+              || transportDashboard.source.comparisonState !== transportManifest.comparisonState) {
+              throw new Error('Transport benchmark dashboard is not linked to the staged manifest.');
+          }
+          const transportIndexed = new Map(transportManifest.results.map(entry => [`data/transport-benchmarks/${entry.file}`, entry.sha256]));
+          for (const environment of transportDashboard.environments) {
+              for (const run of environment.runs) {
+                  if (run.rankingEligible !== false || run.certification !== false
+                      || transportIndexed.get(run.raw.detail) !== run.raw.sha256) {
+                      throw new Error(`${run.id}: transport dashboard raw-detail linkage is invalid.`);
+                  }
+              }
+          }
+
           const inventory = JSON.parse(await readFile(`${root}/data/test-inventory.json`, 'utf8'));
           const routeManifest = JSON.parse(await readFile(`${root}/data/routes.json`, 'utf8'));
           const results = JSON.parse(await readFile(`${root}/data/test-results.json`, 'utf8'));
@@ -277,6 +346,9 @@ jobs:
           printf 'benchmark_manifest_sha256=%s\n' "$(sha256sum "$artifact_root/data/benchmarks/index.json" | cut -d ' ' -f 1)" >> "$GITHUB_OUTPUT"
           printf 'benchmark_dashboard_sha256=%s\n' "$(sha256sum "$artifact_root/data/benchmarks/dashboard.json" | cut -d ' ' -f 1)" >> "$GITHUB_OUTPUT"
           printf 'benchmark_chart_sha256=%s\n' "$(sha256sum "$artifact_root/assets/node-ipc-benchmark.svg" | cut -d ' ' -f 1)" >> "$GITHUB_OUTPUT"
+          printf 'transport_manifest_sha256=%s\n' "$(sha256sum "$artifact_root/data/transport-benchmarks/index.json" | cut -d ' ' -f 1)" >> "$GITHUB_OUTPUT"
+          printf 'transport_dashboard_sha256=%s\n' "$(sha256sum "$artifact_root/data/transport-benchmarks/dashboard.json" | cut -d ' ' -f 1)" >> "$GITHUB_OUTPUT"
+          printf 'transport_chart_sha256=%s\n' "$(sha256sum "$artifact_root/assets/node-ipc-transport-comparison.svg" | cut -d ' ' -f 1)" >> "$GITHUB_OUTPUT"
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
@@ -315,6 +387,9 @@ jobs:
           EXPECTED_BENCHMARK_CHART_SHA256: ${{ needs.build.outputs.benchmark_chart_sha256 }}
           EXPECTED_BENCHMARK_DASHBOARD_SHA256: ${{ needs.build.outputs.benchmark_dashboard_sha256 }}
           EXPECTED_BENCHMARK_MANIFEST_SHA256: ${{ needs.build.outputs.benchmark_manifest_sha256 }}
+          EXPECTED_TRANSPORT_CHART_SHA256: ${{ needs.build.outputs.transport_chart_sha256 }}
+          EXPECTED_TRANSPORT_DASHBOARD_SHA256: ${{ needs.build.outputs.transport_dashboard_sha256 }}
+          EXPECTED_TRANSPORT_MANIFEST_SHA256: ${{ needs.build.outputs.transport_manifest_sha256 }}
           LIVE_BASE_URL: ${{ steps.deployment.outputs.page_url }}
           LIVE_CACHE_KEY: ${{ github.run_id }}-${{ github.run_attempt }}
         shell: bash
@@ -444,6 +519,43 @@ jobs:
               process.env.EXPECTED_BENCHMARK_CHART_SHA256,
               'live benchmark chart differs from the deployed artifact'
           );
+
+          const transportManifestResponse = await live('data/transport-benchmarks/index.json', /^application\/json\b/u);
+          const transportManifestBytes = Buffer.from(await transportManifestResponse.arrayBuffer());
+          assert.equal(createHash('sha256').update(transportManifestBytes).digest('hex'), process.env.EXPECTED_TRANSPORT_MANIFEST_SHA256, 'live transport manifest differs from the deployed artifact');
+          const transportManifest = JSON.parse(transportManifestBytes.toString('utf8'));
+          assert.ok(Array.isArray(transportManifest.results));
+          const transportDashboardResponse = await live('data/transport-benchmarks/dashboard.json', /^application\/json\b/u);
+          const transportDashboardBytes = Buffer.from(await transportDashboardResponse.arrayBuffer());
+          assert.equal(createHash('sha256').update(transportDashboardBytes).digest('hex'), process.env.EXPECTED_TRANSPORT_DASHBOARD_SHA256, 'live transport dashboard differs from the deployed artifact');
+          const transportDashboard = JSON.parse(transportDashboardBytes.toString('utf8'));
+          assert.equal(transportDashboard.schemaVersion, 1);
+          assert.equal(transportDashboard.rankingEligible, false);
+          assert.equal(transportDashboard.certification, false);
+          assert.equal(transportDashboard.source.manifest, 'data/transport-benchmarks/index.json');
+          assert.equal(transportDashboard.source.manifestSha256, process.env.EXPECTED_TRANSPORT_MANIFEST_SHA256);
+          assert.equal(transportDashboard.source.resultCount, transportManifest.results.length);
+          assert.equal(transportDashboard.source.comparisonState, transportManifest.comparisonState);
+          const transportSchema = await json('data/transport-benchmarks/result-schema.json');
+          assert.equal(transportSchema.$id, 'https://riaevangelist.github.io/node-ipc/data/transport-benchmarks/result-schema.json');
+          for (const entry of transportManifest.results) {
+              assert.match(entry.file ?? '', /^run-[A-Za-z0-9-]+[.]json$/u, 'unsafe transport detail filename');
+              const response = await live(`data/transport-benchmarks/${encodeURIComponent(entry.file)}`, /^application\/json\b/u);
+              const bytes = Buffer.from(await response.arrayBuffer());
+              assert.equal(createHash('sha256').update(bytes).digest('hex'), entry.sha256, `${entry.file}: transport manifest SHA-256 mismatch`);
+              assert.equal(JSON.parse(bytes.toString('utf8')).record?.file, entry.file);
+          }
+          const transportIndexed = new Map(transportManifest.results.map(entry => [`data/transport-benchmarks/${entry.file}`, entry.sha256]));
+          for (const environment of transportDashboard.environments) {
+              for (const run of environment.runs) {
+                  assert.equal(run.rankingEligible, false);
+                  assert.equal(run.certification, false);
+                  assert.equal(transportIndexed.get(run.raw.detail), run.raw.sha256, `${run.id}: transport raw-detail linkage mismatch`);
+              }
+          }
+          const transportChartResponse = await live('assets/node-ipc-transport-comparison.svg', /^image\/svg\+xml\b/u);
+          const transportChartBytes = Buffer.from(await transportChartResponse.arrayBuffer());
+          assert.equal(createHash('sha256').update(transportChartBytes).digest('hex'), process.env.EXPECTED_TRANSPORT_CHART_SHA256, 'live transport chart differs from the deployed artifact');
 
           await Promise.all([
               live('assets/node-ipc-header.png', /^image\/png\b/u),

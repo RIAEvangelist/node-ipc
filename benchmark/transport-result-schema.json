@@ -1,0 +1,142 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://riaevangelist.github.io/node-ipc/data/transport-benchmarks/result-schema.json",
+  "title": "node-ipc sanitized paired transport benchmark result",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "id",
+    "generatedAt",
+    "record",
+    "repository",
+    "system",
+    "evidence",
+    "config",
+    "subjects",
+    "samples",
+    "summary",
+    "cleanup"
+  ],
+  "properties": {
+    "schemaVersion": {"const": 1},
+    "id": {"type": "string", "pattern": "^run-[A-Za-z0-9-]+$"},
+    "generatedAt": {"type": "string", "format": "date-time"},
+    "record": {
+      "type": "object",
+      "required": ["file", "recordedAt"],
+      "properties": {
+        "file": {"type": "string", "pattern": "^run-[A-Za-z0-9-]+[.]json$"},
+        "recordedAt": {"type": "string", "format": "date-time"}
+      }
+    },
+    "repository": {
+      "type": "object",
+      "required": ["capture", "changedDuringRun", "commit", "dirty", "preExecution", "postExecution"],
+      "properties": {
+        "capture": {"const": "pre-and-post-execution"},
+        "changedDuringRun": {"const": false},
+        "commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "dirty": {"const": false},
+        "preExecution": {"type": "object", "required": ["capturedAt", "commit", "dirty", "statusSha256"]},
+        "postExecution": {"type": "object", "required": ["capturedAt", "commit", "dirty", "statusSha256"]}
+      }
+    },
+    "system": {
+      "type": "object",
+      "required": ["architecture", "cpu", "environment", "machine", "node", "platform", "release", "totalMemoryBytes"],
+      "properties": {
+        "architecture": {"type": "string", "minLength": 1},
+        "cpu": {"type": "object", "required": ["count", "model"]},
+        "environment": {"type": "object"},
+        "machine": {"type": "object", "required": ["id"]},
+        "node": {"type": "string", "pattern": "^v[0-9]+[.]"},
+        "platform": {"type": "string", "minLength": 1},
+        "release": {"type": "string", "minLength": 1},
+        "totalMemoryBytes": {"type": "integer", "minimum": 1}
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["authority", "certification", "classification", "comparison", "privacy", "publishable", "rankingEligible", "reasons"],
+      "properties": {
+        "authority": {"const": "snapshot-noisy"},
+        "certification": {"const": false},
+        "classification": {"const": "clean-end-to-end-transport-comparison"},
+        "comparison": {
+          "type": "object",
+          "required": ["paired", "state", "subjects", "transports"],
+          "properties": {
+            "paired": {"const": true},
+            "state": {"const": "version-comparison"},
+            "subjects": {"const": ["legacy-v12", "current"]},
+            "transports": {"const": ["local", "tcp", "tls", "udp4", "udp6"]}
+          }
+        },
+        "privacy": {"type": "object", "required": ["excluded", "sanitized"]},
+        "publishable": {"const": true},
+        "rankingEligible": {"const": false},
+        "reasons": {"type": "array", "maxItems": 0}
+      }
+    },
+    "config": {
+      "type": "object",
+      "required": ["currentVersion", "messages", "pairsPerTransport", "payloadBytes", "probeFrames", "transports", "udpWindow", "versions", "warmupFrames"],
+      "properties": {
+        "currentVersion": {"type": "string", "minLength": 1},
+        "messages": {"const": 1000000},
+        "pairsPerTransport": {"const": 7},
+        "payloadBytes": {"const": 64},
+        "probeFrames": {"const": 64},
+        "transports": {"const": ["local", "tcp", "tls", "udp4", "udp6"]},
+        "udpWindow": {"const": 64},
+        "versions": {"const": ["legacy-v12", "current"]},
+        "warmupFrames": {"const": 100000}
+      }
+    },
+    "subjects": {
+      "type": "object",
+      "required": ["legacy-v12", "current"],
+      "properties": {
+        "legacy-v12": {"type": "object", "required": ["id", "version", "source"]},
+        "current": {"type": "object", "required": ["id", "version", "source"]}
+      }
+    },
+    "samples": {
+      "type": "array",
+      "minItems": 70,
+      "maxItems": 70,
+      "items": {
+        "type": "object",
+        "required": ["transport", "securityMode", "pairIndex", "orderIndex", "version", "rootVersion", "metrics", "exact", "cleanup"],
+        "properties": {
+          "metrics": {
+            "type": "object",
+            "required": ["oracleSaturated"],
+            "properties": {"oracleSaturated": {"const": false}}
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["metric", "paired", "platform", "groups"],
+      "properties": {
+        "metric": {"const": "milliseconds-per-million-completed-messages"},
+        "paired": {"const": true},
+        "platform": {"type": "string", "minLength": 1},
+        "groups": {"type": "array", "minItems": 5, "maxItems": 5}
+      }
+    },
+    "cleanup": {
+      "type": "object",
+      "required": ["activeHandles", "clean", "pairs", "samples"],
+      "properties": {
+        "activeHandles": {"type": "array", "maxItems": 0},
+        "clean": {"const": true},
+        "pairs": {"const": 35},
+        "samples": {"const": 70}
+      }
+    }
+  },
+  "additionalProperties": false
+}

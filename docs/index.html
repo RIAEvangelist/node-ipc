@@ -26,7 +26,7 @@
   <header class="site-header">
     <div class="shell header-inner">
       <a class="brand" href="./" aria-label="node-ipc documentation home">
-        <span class="brand-mark" aria-hidden="true">IPC</span><span>node-ipc<small>main documentation</small></span>
+        <span class="brand-mark" aria-hidden="true">IPC</span><span>node-ipc<small>13.x documentation</small></span>
       </a>
       <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="site-nav">Menu</button>
       <nav class="site-nav" id="site-nav" data-site-nav aria-label="Primary navigation">
@@ -56,7 +56,7 @@
       <p class="eyebrow">Local + remote inter-process communication</p>
       <h1>Move messages between any processes.</h1>
       <p class="lead"><code>node-ipc</code> is a Node.js library, but its wire protocol is language-agnostic. A process written in any language can participate by following the selected transport and configured encoding and framing—plus the event envelope when framed events are used.</p>
-      <p class="mini-note">This site follows <code>main</code> and the upcoming major: one native ES module for Unix sockets, Windows named pipes, TCP, TLS, and UDP—with each concern on its own page.</p>
+      <p class="mini-note">This site documents node-ipc 13.x and <code>main</code>: one native ES module for Unix sockets, Windows named pipes, TCP, TLS, and UDP—with each concern on its own page.</p>
       <div class="hero-actions">
         <a class="button primary" href="./quick-start/">Start in five minutes</a>
         <a class="button" href="./profiles/">Choose a runtime profile</a>
@@ -65,7 +65,7 @@
 <!-- generated:test-hero-link:end -->
       </div>
       <div class="pills">
-        <span class="pill good">Published 12.0.0 · Node 14+</span><span class="pill info">Main / upcoming · Node 22.12+</span>
+        <span class="pill good">Published 13.0.0 · Node 22.13+</span><span class="pill info">Main tracks 13.x</span>
         <span class="pill info">Main uses native ESM</span><span class="pill good">MIT licensed</span>
       </div>
     </section>
@@ -87,7 +87,7 @@
         <article class="card"><h3>Reliable network</h3><p>Use TCP for ordered, reliable remote messages. Keep loopback as the default until the application is ready for exposure.</p><a class="card-link" href="./tcp/">Open TCP →</a></article>
         <article class="card"><h3>Encrypted network</h3><p>Use TLS with explicit certificates. Add mutual TLS or application authentication when the server must identify clients.</p><a class="card-link" href="./tls/">Open TLS →</a></article>
         <article class="card"><h3>Latency over delivery</h3><p>Use UDP4 or UDP6 for independent datagrams where occasional loss is acceptable and the application handles ordering.</p><a class="card-link" href="./udp/">Open UDP →</a></article>
-        <article class="card"><h3>Configure the runtime</h3><p>Review main-branch message, retry, log, and socket-root options before the first connection is created.</p><a class="card-link" href="./config/">Open configuration →</a></article>
+        <article class="card"><h3>Configure the runtime</h3><p>Review message, retry, log, and socket-root options before the first connection is created.</p><a class="card-link" href="./config/">Open configuration →</a></article>
         <article class="card"><h3>Select message controls</h3><p>Compare Raw, Fast, Guarded, and Assured by exact per-message work and trust boundary.</p><a class="card-link" href="./profiles/">Open runtime profiles →</a></article>
         <article class="card"><h3>Bring a parser</h3><p>Use an official parser, opt into js-message compatibility, or implement the two-method custom contract.</p><a class="card-link" href="./parsers/">Open parser contract →</a></article>
         <article class="card"><h3>Know the contract</h3><p>See the small public surface: connect, serve, disconnect, emit, broadcast, stop, events, and stores.</p><a class="card-link" href="./api/">Open API reference →</a></article>
@@ -109,9 +109,9 @@
 <!-- generated:test-summary:end -->
 
     <section class="section" aria-labelledby="install-now">
-      <p class="eyebrow">Published lane</p><h2 id="install-now">Install the exact 12.0.0 release</h2>
-      <pre><code>npm install --save-exact node-ipc@12.0.0</code></pre>
-      <p class="mini-note">Published 12.0.0 supports Node.js 14+. This documentation follows <code>main</code> and the upcoming major, which requires Node.js 22.12+ and uses native ESM; verify the lane before copying main-only options.</p>
+      <p class="eyebrow">Published release</p><h2 id="install-now">Install the exact 13.0.0 release</h2>
+      <pre><code>npm install --save-exact node-ipc@13.0.0</code></pre>
+      <p class="mini-note">Version 13 requires Node.js 22.13+ and uses native ES modules. Pin the exact release for reproducible deployments.</p>
     </section>
   </main>
 

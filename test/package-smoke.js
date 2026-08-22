@@ -167,18 +167,18 @@ Promise.all([
     const strongTypeManifest=await readJson(path.join(installedRoot,'strong-type','package.json'));
 
     assert.equal(nodeIpcManifest.version,'13.0.0');
-    assert.equal(nodeIpcManifest.engines?.node,'>=22.12.0');
+    assert.equal(nodeIpcManifest.engines?.node,'>=22.13.0');
     assert.deepEqual(nodeIpcManifest.dependencies,{
         'event-pubsub':'6.1.0',
-        'js-message':'3.0.0',
-        'js-queue':'2.0.2'
+        'js-message':'3.1.0',
+        'js-queue':'3.1.0'
     });
     assert.equal(eventPubSubManifest.version,'6.1.0');
     assert.equal(eventPubSubManifest.main,'./index.js');
     assert.equal(eventPubSubManifest.engines?.node,'>=22.12.0');
     assert.equal(Object.hasOwn(eventPubSubManifest,'exports'),false);
     assert.deepEqual(eventPubSubManifest.dependencies,{'strong-type':'2.0.0'});
-    assert.equal(jsQueueManifest.version,'2.0.2');
+    assert.equal(jsQueueManifest.version,'3.1.0');
     assert.equal(strongTypeManifest.version,'2.0.0');
     for(const absent of ['copyfiles','vanilla-test','node-http-server']){
         await assert.rejects(readFile(path.join(installedRoot,absent,'package.json'),'utf8'));
@@ -203,7 +203,9 @@ Promise.all([
     assert.equal(installedNodeIpc?.version,'13.0.0');
     assert.equal(installedNodeIpc?.dependencies?.['event-pubsub']?.version,'6.1.0');
     assert.equal(installedNodeIpc?.dependencies?.['event-pubsub']?.dependencies?.['strong-type']?.version,'2.0.0');
-    assert.equal(installedNodeIpc?.dependencies?.['js-queue']?.version,'2.0.2');
+    assert.equal(installedNodeIpc?.dependencies?.['js-message']?.version,'3.1.0');
+    assert.equal(installedNodeIpc?.dependencies?.['js-queue']?.version,'3.1.0');
+    assert.equal(installedNodeIpc?.dependencies?.['js-queue']?.dependencies?.['easy-stack']?.version,'2.1.0');
     assert.equal(installedNodeIpc?.dependencies?.['strong-type'],undefined);
     execFileSync(process.execPath,['smoke.cjs'],{cwd:consumer,stdio:'inherit'});
     console.log('node-ipc installed package smoke passed');

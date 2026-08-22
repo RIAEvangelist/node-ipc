@@ -46,7 +46,7 @@ jobs:
           - macos-latest
           - windows-latest
         node:
-          - 22.12.0
+            - 22.13.0
           - 24
 
     steps:

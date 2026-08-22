@@ -6,6 +6,9 @@ const BENCHMARK_ADAPTER_NAMES = new Map([
   ['node-ipc-guarded', 'Guarded'],
   ['node-ipc-assured', 'Assured']
 ]);
+const TRANSPORT_ORDER = ['local', 'tcp', 'tls', 'udp4', 'udp6'];
+const PLATFORM_ORDER = new Map([['linux', 0], ['darwin', 1], ['win32', 2]]);
+const PLATFORM_NAMES = new Map([['linux', 'Linux'], ['darwin', 'macOS'], ['win32', 'Windows']]);
 
 const text = value => value === null || value === undefined || value === '' ? 'Not reported' : String(value);
 const number = value => Number.isFinite(Number(value)) ? Number(value) : null;
@@ -73,7 +76,7 @@ async function fetchJSON(panel) {
   return response.json();
 }
 
-async function benchmarkPayload(panel) {
+async function verifiedBenchmarkPayload(panel, expectedManifest, runsFromDashboard) {
   const dashboard = await fetchJSON(panel);
   if (dashboard?.schemaVersion !== 1) throw new Error('Unsupported benchmark dashboard');
   if (dashboard.rankingEligible !== false || dashboard.certification !== false) {
@@ -81,7 +84,7 @@ async function benchmarkPayload(panel) {
   }
 
   const manifestPath = dashboard.source?.manifest;
-  if (manifestPath !== 'data/benchmarks/index.json') throw new Error('Unexpected benchmark manifest path');
+  if (manifestPath !== expectedManifest) throw new Error('Unexpected benchmark manifest path');
   const response = await fetch(new URL(manifestPath, SITE_ROOT), {cache: 'no-store'});
   if (!response.ok) throw new Error(`Benchmark manifest HTTP ${response.status}`);
   const bytes = await response.arrayBuffer();
@@ -96,14 +99,41 @@ async function benchmarkPayload(panel) {
     throw new Error('Benchmark result count mismatch');
   }
   if (manifest.comparisonState !== dashboard.source.comparisonState) throw new Error('Benchmark state mismatch');
-  const indexed = new Map(manifest.results.map(record => [`data/benchmarks/${record.file}`, record.sha256]));
-  const runs = dashboardRuns(dashboard);
+  const rawBase = expectedManifest.slice(0, expectedManifest.lastIndexOf('/') + 1);
+  const indexed = new Map(manifest.results.map(record => [`${rawBase}${record.file}`, record.sha256]));
+  const runs = runsFromDashboard(dashboard);
   if (runs.length !== indexed.size) throw new Error('Benchmark dashboard record count mismatch');
   for (const {run} of runs) {
     if (run.rankingEligible !== false || run.certification !== false) throw new Error('Benchmark evidence policy mismatch');
     if (indexed.get(run.raw?.detail) !== run.raw?.sha256) throw new Error('Benchmark detail linkage mismatch');
   }
   return {dashboard, manifest};
+}
+
+async function benchmarkPayload(panel) {
+  return verifiedBenchmarkPayload(panel, 'data/benchmarks/index.json', dashboardRuns);
+}
+
+async function transportBenchmarkPayload(panel) {
+  const payload = await verifiedBenchmarkPayload(
+    panel,
+    'data/transport-benchmarks/index.json',
+    transportDashboardRuns
+  );
+  if (JSON.stringify(payload.dashboard.transportOrder) !== JSON.stringify(TRANSPORT_ORDER)) {
+    throw new Error('Unexpected transport benchmark order');
+  }
+  for (const {run} of transportDashboardRuns(payload.dashboard)) {
+    if (JSON.stringify((run.transports ?? []).map(transport => transport.id)) !== JSON.stringify(TRANSPORT_ORDER)) {
+      throw new Error('Transport benchmark run is incomplete or out of order');
+    }
+    for (const transport of run.transports ?? []) {
+      if (!['measured', 'pending'].includes(transport.status)) {
+        throw new Error('Unknown transport benchmark status');
+      }
+    }
+  }
+  return payload;
 }
 
 function initNavigation() {
@@ -269,6 +299,10 @@ function dashboardRuns(dashboard) {
   return (dashboard.environments ?? []).flatMap(environment => (environment.runs ?? []).map(run => ({environment, run})));
 }
 
+function transportDashboardRuns(dashboard) {
+  return (dashboard.environments ?? []).flatMap(environment => (environment.runs ?? []).map(run => ({environment, run})));
+}
+
 function currentCohort(dashboard) {
   const cohorts = new Map;
   for (const item of dashboardRuns(dashboard)) {
@@ -292,6 +326,10 @@ function environmentName(environment) {
   return `${text(environment.platform)} · ${text(environment.architecture)} · ${text(environment.node)}`;
 }
 
+function transportEnvironmentName(environment) {
+  return `${PLATFORM_NAMES.get(environment.platform) ?? text(environment.platform)} · ${text(environment.architecture)} · ${text(environment.node)}`;
+}
+
 function adapterName(id) {
   return BENCHMARK_ADAPTER_NAMES.get(id) ?? text(id);
 }
@@ -305,6 +343,113 @@ function rawDetailLink(run) {
   const detail = run.raw?.detail;
   if (!/^data\/benchmarks\/run-[A-Za-z0-9-]+[.]json$/u.test(detail ?? '')) return 'Unavailable';
   return element('a', {href: new URL(detail, SITE_ROOT).href, textContent: 'Raw JSON'});
+}
+
+function transportRawDetailLink(run) {
+  const detail = run.raw?.detail;
+  if (!/^data\/transport-benchmarks\/run-[A-Za-z0-9-]+[.]json$/u.test(detail ?? '')) return 'Unavailable';
+  return element('a', {href: new URL(detail, SITE_ROOT).href, textContent: 'Raw samples'});
+}
+
+function currentTransportCohort(dashboard) {
+  const cohorts = new Map;
+  for (const item of transportDashboardRuns(dashboard)) {
+    const cohort = cohorts.get(item.environment.commit) ?? [];
+    cohort.push(item);
+    cohorts.set(item.environment.commit, cohort);
+  }
+  const selected = [...cohorts.values()].sort((left, right) => {
+    const newest = items => Math.max(...items.map(item => Date.parse(item.run.generatedAt) || 0));
+    return newest(right) - newest(left);
+  })[0] ?? [];
+  const current = new Map;
+  for (const item of selected) {
+    const previous = current.get(item.environment.key);
+    if (!previous || item.run.generatedAt > previous.run.generatedAt) current.set(item.environment.key, item);
+  }
+  return [...current.values()].sort((left, right) => {
+    const platform = (PLATFORM_ORDER.get(left.environment.platform) ?? 99)
+      - (PLATFORM_ORDER.get(right.environment.platform) ?? 99);
+    if (platform) return platform;
+    const node = text(left.environment.node).localeCompare(text(right.environment.node), 'en', {numeric: true});
+    return node || text(left.environment.architecture).localeCompare(text(right.environment.architecture), 'en');
+  });
+}
+
+function transportName(id, platform) {
+  if (id === 'local') return platform === 'win32' ? 'Windows named pipe' : 'Unix domain socket';
+  if (id === 'tcp') return 'TCP · loopback stream';
+  if (id === 'tls') return 'TLS · encryption-only loopback';
+  if (id === 'udp4') return 'UDP4 · loopback datagrams';
+  if (id === 'udp6') return 'UDP6 · loopback datagrams';
+  return text(id);
+}
+
+function transportState() {
+  return 'Pending';
+}
+
+function benchmarkMilliseconds(distribution) {
+  const value = number(distribution?.median);
+  return value === null ? null : `${new Intl.NumberFormat('en-US', {maximumFractionDigits: 3}).format(value)} ms`;
+}
+
+function reductionLabel(distribution) {
+  const value = number(distribution?.median);
+  if (value === null) return null;
+  const magnitude = new Intl.NumberFormat('en-US', {maximumFractionDigits: 1}).format(Math.abs(value));
+  if (value > 0) return `${magnitude}% less time`;
+  if (value < 0) return `${magnitude}% more time`;
+  return 'No time change';
+}
+
+function speedupLabel(distribution) {
+  const value = number(distribution?.median);
+  return value === null ? null : `${value.toFixed(2)}×`;
+}
+
+function transportComparisonResults(dashboard) {
+  const container = element('div', {className: 'transport-results'});
+  for (const {environment, run} of currentTransportCohort(dashboard)) {
+    const measured = new Map((run.transports ?? []).map(transport => [transport.id, transport]));
+    const rows = TRANSPORT_ORDER.map(id => {
+      const transport = measured.get(id);
+      const state = transportState(transport);
+      const legacy = transport?.status === 'measured'
+        ? benchmarkMilliseconds(transport.legacy?.millisecondsPerMillion) ?? 'Pending'
+        : state;
+      const current = transport?.status === 'measured'
+        ? benchmarkMilliseconds(transport.current?.millisecondsPerMillion) ?? 'Pending'
+        : state;
+      const reduction = transport?.status === 'measured'
+        ? reductionLabel(transport.paired?.reductionPercent) ?? 'Pending'
+        : state;
+      const speedup = transport?.status === 'measured'
+        ? speedupLabel(transport.paired?.speedup) ?? 'Pending'
+        : state;
+      const samples = transport?.status === 'measured'
+        ? formatNumber(transport.paired?.samples ?? Math.min(transport.legacy?.samples ?? 0, transport.current?.samples ?? 0))
+        : state;
+      return [transportName(id, environment.platform), legacy, current, reduction, speedup, samples];
+    });
+    const block = element('section', {className: 'transport-environment', 'aria-label': transportEnvironmentName(environment)});
+    const detail = transportRawDetailLink(run);
+    const note = element('p', {className: 'mini-note'});
+    note.append(
+      document.createTextNode(`Paired on ${formatDate(run.generatedAt)} · ${shortCommit(run.provenance?.commit)} · `),
+      detail
+    );
+    block.append(
+      element('h3', {textContent: transportEnvironmentName(environment)}),
+      note,
+      benchmarkTable(
+        ['Transport', 'v12 median / 1M', 'Current median / 1M', 'Time change', 'Speedup', 'Pairs'],
+        rows
+      )
+    );
+    container.append(block);
+  }
+  return container;
 }
 
 function profileResults(dashboard) {
@@ -390,14 +535,50 @@ function renderBenchmark(panel, payload) {
   status(panel, 'live', `Compact dashboard and manifest verified · ${formatNumber(runs.length)} tracked run${runs.length === 1 ? '' : 's'}`);
 }
 
+function renderTransportBenchmark(panel, payload) {
+  const output = panel.querySelector('[data-live-output]');
+  const {dashboard, manifest} = payload;
+  const runs = transportDashboardRuns(dashboard);
+  output.replaceChildren();
+
+  if (!runs.length) {
+    output.append(element('div', {className: 'callout warning'}, [
+      element('strong', {textContent: 'No accepted transport comparison records'}),
+      element('p', {textContent: 'Expected lanes remain pending. No missing value is converted into zero.'})
+    ]));
+    status(panel, 'live', 'Transport dashboard and manifest verified; paired results are pending');
+  } else {
+    output.append(transportComparisonResults(dashboard));
+    status(panel, 'live', `Transport dashboard and manifest verified · ${formatNumber(runs.length)} tracked run${runs.length === 1 ? '' : 's'}`);
+  }
+
+  output.append(
+    dataList([
+      ['Comparison state', dashboard.source.comparisonState],
+      ['Tracked runs', formatNumber(dashboard.source.resultCount)],
+      ['Manifest updated', formatDate(manifest.updatedAt)],
+      ['Rankings', 'Disabled']
+    ]),
+    element('div', {className: 'button-row'}, [
+      element('a', {className: 'button', href: new URL(dashboard.source.manifest, SITE_ROOT).href, textContent: 'Raw manifest'}),
+      element('a', {className: 'button', href: new URL('benchmarks/methodology/#transport-comparison', SITE_ROOT).href, textContent: 'Methodology'})
+    ])
+  );
+}
+
 async function initLivePanels() {
   for (const panel of document.querySelectorAll('[data-live-panel]')) {
     status(panel, 'loading', 'Loading generated workflow data…');
     try {
-      const payload = panel.dataset.kind === 'benchmarks' ? await benchmarkPayload(panel) : await fetchJSON(panel);
+      const payload = panel.dataset.kind === 'benchmarks'
+        ? await benchmarkPayload(panel)
+        : panel.dataset.kind === 'transport-benchmarks'
+          ? await transportBenchmarkPayload(panel)
+          : await fetchJSON(panel);
       if (panel.dataset.kind === 'tests') renderTestResults(panel, payload);
       else if (panel.dataset.kind === 'coverage') renderCoverage(panel, payload);
       else if (panel.dataset.kind === 'benchmarks') renderBenchmark(panel, payload);
+      else if (panel.dataset.kind === 'transport-benchmarks') renderTransportBenchmark(panel, payload);
     } catch (error) {
       status(panel, 'error', 'Generated data is unavailable; showing the documented static fallback');
       const output = panel.querySelector('[data-live-output]');

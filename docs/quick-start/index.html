@@ -23,13 +23,12 @@
 </div></header>
 <main id="content" class="shell page-shell">
   <nav aria-label="Breadcrumb"><ol class="crumbs"><li><a href="../">Home</a></li><li aria-current="page">Quick start</li></ol></nav>
-  <header class="page-hero compact"><p class="eyebrow">Main / upcoming major</p><h1>Send the first local message</h1><p class="lead">Create a server and client on one machine using the main-branch API. The same event model carries into TCP and TLS.</p></header>
+  <header class="page-hero compact"><p class="eyebrow">13.x · Node.js 22.13+</p><h1>Send the first local message</h1><p class="lead">Create a server and client on one machine using the released API. The same event model carries into TCP and TLS.</p></header>
   <div class="content-grid">
     <div>
-      <section class="section" id="requirements"><h2>1. Choose the documentation lane</h2><div class="callout warning"><strong>Published and main are different lanes.</strong><p>Published 12.0.0 supports Node.js 14+. This site follows <code>main</code> and the upcoming major, which requires Node.js 22.12+ and uses native ESM.</p></div><p>For the main/upcoming examples below, confirm the newer runtime:</p><pre><code>node --version
-# v22.12.0 or newer</code></pre></section>
-      <section class="section" id="install"><h2>2. Pin the intended code</h2><pre><code># Published lane (Node.js 14+)
-npm install --save-exact node-ipc@12.0.0</code></pre><p class="mini-note">The examples below describe <code>main</code>. When testing the upcoming major before publication, pin the reviewed commit rather than assuming the published 12.0.0 package contains main-only behavior.</p></section>
+      <section class="section" id="requirements"><h2>1. Confirm the runtime</h2><div class="callout"><strong>Version 13 uses native ES modules.</strong><p>Use Node.js 22.13 or newer. Version 12 remains a separate legacy line for older runtimes.</p></div><pre><code>node --version
+# v22.13.0 or newer</code></pre></section>
+      <section class="section" id="install"><h2>2. Pin the release</h2><pre><code>npm install --save-exact node-ipc@13.0.0</code></pre><p class="mini-note">These examples describe 13.x. Pin the exact numeric release rather than a mutable tag or version range.</p></section>
       <section class="section" id="server"><h2>3. Create <code>server.js</code></h2><pre><code>import ipc from 'node-ipc';
 
 ipc.config.id = 'world';
@@ -63,12 +62,12 @@ ipc.connectTo('world', () =&gt; {
   });
 });</code></pre></section>
       <section class="section" id="run"><h2>5. Run both processes</h2><div class="card-grid two"><article class="card"><h3>Terminal one</h3><pre><code>node server.js</code></pre></article><article class="card"><h3>Terminal two</h3><pre><code>node client.js</code></pre></article></div><div class="callout success"><strong>Expected output</strong><p>The client prints <code>hello world!</code>, disconnects, and leaves the server ready for the next client.</p></div></section>
-      <section class="section" id="loader"><h2>Main-branch CommonJS loading</h2><p>On Node.js 22.12+, main's native ESM entry point can also be loaded synchronously. Main does not generate a separate transpiled CommonJS bundle.</p><pre><code>const ipc = require('node-ipc').default;</code></pre><p class="mini-note">Node 22.12 may print its experimental <code>require(esm)</code> warning; 22.13 and newer do not print it by default.</p></section>
+      <section class="section" id="loader"><h2>13.x CommonJS loading</h2><p>On Node.js 22.13+, the native ESM entry point can also be loaded synchronously. Version 13 does not generate a separate transpiled CommonJS bundle.</p><pre><code>const ipc = require('node-ipc').default;</code></pre></section>
       <section class="section" id="profile"><h2>Choose controls before production</h2><p>This trusted local example uses the default Fast profile. Use Guarded for bounded framing and event-name controls, or Assured with mutually authenticated TLS and an event allow-list on a hostile network.</p><div class="button-row"><a class="button primary" href="../profiles/">Compare profiles</a><a class="button" href="../parsers/">Parser contract</a><a class="button" href="../security/">Security checklist</a></div></section>
       <div class="next-links"><a href="../">← Documentation home</a><a href="../config/">Main configuration →</a></div>
     </div>
     <aside class="page-nav" aria-label="On this page"><strong>On this page</strong><a href="#requirements">Runtime</a><a href="#install">Install</a><a href="#server">Server</a><a href="#client">Client</a><a href="#run">Run</a><a href="#loader">CommonJS</a><a href="#profile">Profiles</a></aside>
   </div>
 </main>
-<footer class="site-footer"><div class="shell footer-inner"><div><h2>node-ipc</h2><p class="footer-note">Local and remote process communication. Match examples to the published or main lane.</p></div><div><h2>Next</h2><div class="footer-links"><a href="../config/">Configuration</a><a href="../api/">API reference</a><a href="../examples/">Examples</a></div></div><div><h2>Project</h2><div class="footer-links"><a href="https://github.com/RIAEvangelist/node-ipc">GitHub</a><a href="https://www.npmjs.com/package/node-ipc">npm</a><a href="../security/">Security</a></div></div></div></footer>
+<footer class="site-footer"><div class="shell footer-inner"><div><h2>node-ipc</h2><p class="footer-note">Local and remote process communication for Node.js 22.13 and newer.</p></div><div><h2>Next</h2><div class="footer-links"><a href="../config/">Configuration</a><a href="../api/">API reference</a><a href="../examples/">Examples</a></div></div><div><h2>Project</h2><div class="footer-links"><a href="https://github.com/RIAEvangelist/node-ipc">GitHub</a><a href="https://www.npmjs.com/package/node-ipc">npm</a><a href="../security/">Security</a></div></div></div></footer>
 </body></html>

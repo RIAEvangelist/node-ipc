@@ -4,25 +4,25 @@
 
 [![Sponsor RIAEvangelist to help development of node-ipc](https://img.shields.io/static/v1?label=Sponsor%20Me%20On%20Github&message=%E2%9D%A4&logo=GitHub&link=https://github.com/sponsors/RIAEvangelist)](https://github.com/sponsors/RIAEvangelist)
 
-**Current official build: [node-ipc v12.0.0](https://www.npmjs.com/package/node-ipc/v/12.0.0)**
+**Current official build: [node-ipc 13.0.0](https://www.npmjs.com/package/node-ipc/v/13.0.0)**
 
 *a nodejs module for local and remote Inter Process Communication* with full support for Linux, Mac and Windows. It also supports all forms of socket communication from low level unix and windows sockets to UDP and secure TLS and TCP sockets.
 
 A great solution for complex multiprocess **Neural Networking** in Node.JS
 
-`npm install --save-exact node-ipc@12.0.0`
+`npm install --save-exact node-ipc@13.0.0`
 
-Use an exact, reviewed version or the commit pinned above. Do not use a mutable tag or version range for security-sensitive deployments.
+Use an exact, reviewed version. Do not use a mutable tag or version range for security-sensitive deployments.
 
 #### Runtime
 
-The next major requires Node.js 22.12.0 or newer. Version 12 remains the legacy Node release line.
+Version 13 requires Node.js 22.13.0 or newer. Version 12 remains the legacy Node release line.
 
 `node-ipc` ships native ES modules only. Node.js loads the same entry point through `import` or synchronous `require()`; no transpiled CommonJS bundle is generated.
 
 #### Runtime profiles
 
-The upcoming major selects its parser and hot-path handlers once, when each client or server is created. It does not poll a security flag for every message. Set the profile before calling `connect*()` or `serve*()`.
+Version 13 selects its parser and hot-path handlers once, when each client or server is created. It does not poll a security flag for every message. Set the profile before calling `connect*()` or `serve*()`.
 
 | Profile | Work on every message | Intended boundary |
 |---------|-----------------------|-------------------|
@@ -45,8 +45,7 @@ ESM: `import ipc from 'node-ipc';`
 
 CommonJS: `const ipc = require('node-ipc').default;`
 
-CommonJS loading uses Node.js 22.12+'s native [`require(esm)` support](https://nodejs.org/api/modules.html#loading-ecmascript-modules-using-require).
-Node.js 22.12 may print its experimental feature warning; 22.13 and newer do not print it by default.
+CommonJS loading uses Node.js 22.13+'s native [`require(esm)` support](https://nodejs.org/api/modules.html#loading-ecmascript-modules-using-require).
 
 #### NPM Stats
 
@@ -76,9 +75,15 @@ This work is licenced via the MIT Licence.
 
 #### Performance evidence
 
-![Tracked node-ipc profile benchmark chart](./docs/assets/node-ipc-benchmark.svg)
+![Tracked node-ipc profile benchmark chart](https://riaevangelist.github.io/node-ipc/assets/node-ipc-benchmark.svg)
 
 The chart is generated from tracked, clean profile runs. Results stay separated by operating system, architecture, Node version, compiler, and commit; Assured remains pending until comparable mTLS evidence passes the same gates. See the [benchmark overview](https://riaevangelist.github.io/node-ipc/benchmarks/), [profile results](https://riaevangelist.github.io/node-ipc/benchmarks/profiles/), [resource results](https://riaevangelist.github.io/node-ipc/benchmarks/resources/), [methodology](https://riaevangelist.github.io/node-ipc/benchmarks/methodology/), and [run records](https://riaevangelist.github.io/node-ipc/benchmarks/runs/).
+
+##### Version 12 versus current transport time
+
+![Paired node-ipc v12.0.0 and current million-message transport timings on Linux, macOS, and Windows](https://riaevangelist.github.io/node-ipc/assets/node-ipc-transport-comparison.svg)
+
+The paired CI snapshot reports median time for 1,000,000 completed messages through the native local transport, TCP, TLS, UDP4, and UDP6. TLS is an encryption-only throughput lane with peer verification disabled and its handshake outside timing. Results remain grouped by operating system and transport; they are not a cross-platform or cross-transport ranking. See the [transport comparison](https://riaevangelist.github.io/node-ipc/benchmarks/transports/) for exact timings, pending lanes, raw samples, and methodology.
 
 ----
 #### Contents

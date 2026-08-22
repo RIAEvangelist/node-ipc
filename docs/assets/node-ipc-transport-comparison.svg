@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600" role="img" aria-labelledby="title description">
+  <title id="title">node-ipc v12.0.0 versus current transport benchmark</title>
+  <desc id="description">No complete six-environment paired transport cohort is tracked. Missing evidence remains pending.</desc>
+  <rect width="1200" height="600" rx="18" fill="#050812"/>
+  <rect x="1" y="1" width="1198" height="598" rx="17" fill="none" stroke="#21304a" stroke-width="2"/>
+  <text x="38" y="42" fill="#f2f7ff" font-family="system-ui, sans-serif" font-size="25" font-weight="700">v12.0.0 vs current · transport comparison</text>
+  <text x="38" y="67" fill="#9fb1c8" font-family="system-ui, sans-serif" font-size="14">Paired median milliseconds per one million completed messages · exact environment only</text>
+  <text x="1162" y="42" fill="#72839b" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="13" text-anchor="end">no cohort</text>
+  <g class="environment" transform="translate(38 87)">
+    <rect width="552" height="140" rx="10" fill="#0c1322" stroke="#21304a"/>
+    <text x="16" y="31" fill="#f2f7ff" font-family="system-ui, sans-serif" font-size="15" font-weight="700">Environment pending</text>
+    <text x="16" y="61" fill="#72839b" font-family="system-ui, sans-serif" font-size="13">No accepted paired transport record</text>
+  </g>
+  <g class="environment" transform="translate(610 87)">
+    <rect width="552" height="140" rx="10" fill="#0c1322" stroke="#21304a"/>
+    <text x="16" y="31" fill="#f2f7ff" font-family="system-ui, sans-serif" font-size="15" font-weight="700">Environment pending</text>
+    <text x="16" y="61" fill="#72839b" font-family="system-ui, sans-serif" font-size="13">No accepted paired transport record</text>
+  </g>
+  <g class="environment" transform="translate(38 240)">
+    <rect width="552" height="140" rx="10" fill="#0c1322" stroke="#21304a"/>
+    <text x="16" y="31" fill="#f2f7ff" font-family="system-ui, sans-serif" font-size="15" font-weight="700">Environment pending</text>
+    <text x="16" y="61" fill="#72839b" font-family="system-ui, sans-serif" font-size="13">No accepted paired transport record</text>
+  </g>
+  <g class="environment" transform="translate(610 240)">
+    <rect width="552" height="140" rx="10" fill="#0c1322" stroke="#21304a"/>
+    <text x="16" y="31" fill="#f2f7ff" font-family="system-ui, sans-serif" font-size="15" font-weight="700">Environment pending</text>
+    <text x="16" y="61" fill="#72839b" font-family="system-ui, sans-serif" font-size="13">No accepted paired transport record</text>
+  </g>
+  <g class="environment" transform="translate(38 393)">
+    <rect width="552" height="140" rx="10" fill="#0c1322" stroke="#21304a"/>
+    <text x="16" y="31" fill="#f2f7ff" font-family="system-ui, sans-serif" font-size="15" font-weight="700">Environment pending</text>
+    <text x="16" y="61" fill="#72839b" font-family="system-ui, sans-serif" font-size="13">No accepted paired transport record</text>
+  </g>
+  <g class="environment" transform="translate(610 393)">
+    <rect width="552" height="140" rx="10" fill="#0c1322" stroke="#21304a"/>
+    <text x="16" y="31" fill="#f2f7ff" font-family="system-ui, sans-serif" font-size="15" font-weight="700">Environment pending</text>
+    <text x="16" y="61" fill="#72839b" font-family="system-ui, sans-serif" font-size="13">No accepted paired transport record</text>
+  </g>
+  <text x="38" y="578" fill="#72839b" font-family="system-ui, sans-serif" font-size="13">Local means Unix-domain socket on Linux/macOS and named pipe on Windows. Hosted snapshots are noisy; rankings and certification are disabled.</text>
+</svg>

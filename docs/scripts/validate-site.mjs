@@ -13,12 +13,16 @@ const generatedOutputs=buildOutputs(inventory);
 const stagedPaths=new Set([
     'assets/node-ipc-header.png',
     'assets/node-ipc-performance-tiers.png',
+    'assets/node-ipc-transport-comparison.svg',
     'coverage/report/index.html',
     'data/test-results.json',
     'data/coverage-summary.json',
     'data/benchmarks/dashboard.json',
     'data/benchmarks/index.json',
-    'data/benchmarks/result-schema.json'
+    'data/benchmarks/result-schema.json',
+    'data/transport-benchmarks/dashboard.json',
+    'data/transport-benchmarks/index.json',
+    'data/transport-benchmarks/result-schema.json'
 ]);
 const errors=[];
 const titles=new Set();
@@ -106,12 +110,31 @@ for(const file of htmlFiles){
 
 const siteScript=readFileSync(path.join(docs,'assets','site.js'),'utf8');
 check((siteScript.match(/\bfetch\s*\(/gu) ?? []).length === 2,'assets/site.js must fetch only the selected data source and linked benchmark manifest');
+check(
+    siteScript.includes("const TRANSPORT_ORDER = ['local', 'tcp', 'tls', 'udp4', 'udp6'];"),
+    'assets/site.js must preserve fixed local, TCP, TLS, UDP4, UDP6 transport order'
+);
+check(
+    siteScript.includes("new Map([['linux', 0], ['darwin', 1], ['win32', 2]])"),
+    'assets/site.js must preserve fixed Linux, macOS, Windows platform order'
+);
 for(const file of htmlFiles){
     const relative=path.relative(docs,file).replaceAll(path.sep,'/');
     const source=readFileSync(file,'utf8');
-    if(!/data-kind="benchmarks"/u.test(source)) continue;
-    check(/data-source="data\/benchmarks\/dashboard[.]json"/u.test(source),`${relative}: benchmark panel must load the compact dashboard`);
-    check(/data-view="(?:profiles|resources|runs)"/u.test(source),`${relative}: benchmark panel has no supported view`);
+    if(/data-kind="benchmarks"/u.test(source)){
+        check(/data-source="data\/benchmarks\/dashboard[.]json"/u.test(source),`${relative}: benchmark panel must load the compact dashboard`);
+        check(/data-view="(?:profiles|resources|runs)"/u.test(source),`${relative}: benchmark panel has no supported view`);
+    }
+    if(/data-kind="transport-benchmarks"/u.test(source)){
+        check(/data-source="data\/transport-benchmarks\/dashboard[.]json"/u.test(source),`${relative}: transport panel must load the compact transport dashboard`);
+        check(/data-view="transports"/u.test(source),`${relative}: transport benchmark panel has no supported view`);
+        const platforms=['>Linux<','>macOS<','>Windows<'].map(label => source.indexOf(label));
+        check(platforms.every(position => position >= 0),`${relative}: static fallback must name all three platforms`);
+        check(platforms[0] < platforms[1] && platforms[1] < platforms[2],`${relative}: static fallback platform order must be Linux, macOS, Windows`);
+        check(source.includes('Unix domain socket'),`${relative}: static fallback must identify Unix domain sockets`);
+        check(source.includes('Windows named pipe'),`${relative}: static fallback must identify Windows named pipes`);
+        check(source.includes('Pending'),`${relative}: static fallback must preserve pending lanes`);
+    }
 }
 
 const trackedInventoryFile=path.join(docs,'data','test-inventory.json');

@@ -4,13 +4,14 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
+| 13.x    | :white_check_mark: |
 | 12.x    | :white_check_mark: |
 | 10.1.x  | :white_check_mark: |
 | Other versions | :x: |
 
-The `main` branch is the upcoming 13.x line and requires Node.js 22.12 or newer. Main-branch tests describe development code; they do not extend support to an unpublished release.
+Version 13.x requires Node.js 22.13 or newer and ships as native ES modules. Main tracks the released 13.x contract between numeric releases.
 
-## Upcoming 13.x security profiles
+## 13.x security profiles
 
 Security and performance are selected once when a client or server is created. Changing `ipc.config.parser` or a related limit after `connect*()` or `serve*()` does not reconfigure an existing endpoint.
 

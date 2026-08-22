@@ -42,6 +42,21 @@ npm run benchmark:quick
 npm run benchmark:test
 ```
 
+The v12/current transport comparison is a separate `snapshot-noisy` lane. It uses a Node reflector consistently for both subjects and never becomes profile, ranking, or certification evidence. TLS disables peer verification and excludes the handshake; that lane measures encrypted bulk transfer, not authenticated TLS. Its byte fields count the 101-byte node-ipc frame at the reflector boundary, before TLS encryption.
+
+Prepare the exact v12 tag in an empty directory outside the repository, then run the paired harness:
+
+```sh
+npm run benchmark:transport:prepare -- <empty-v12-directory>
+npm run benchmark:transport -- --legacy-root=<empty-v12-directory>
+```
+
+Recording requires a clean committed tree, the canonical full configuration, and an output directory outside the repository:
+
+```sh
+npm run benchmark:transport:record -- --legacy-root=<empty-v12-directory> --current-root=. --output-directory=<output-directory>
+```
+
 ## Tracked evidence
 
 Every accepted run is written as versioned, sanitized raw JSON under `benchmark/results/` and indexed by `benchmark/results/index.json`. Git state is captured before and after execution. Each append-only run ID has a manifest SHA-256. The record retains a privacy-preserving machine fingerprint and specifications, OS, architecture, Node version, Git commit and clean-state proof, oracle source and binary hashes, fixed compiler flags and target, the canonical configuration, every performance sample, cleanup proof, memory checkpoints, GC observations, and package footprint. It excludes usernames, absolute temporary paths, ephemeral ports, and process IDs.
@@ -65,7 +80,7 @@ The recorder uses exactly three passes with seven samples per pass, a 64-byte pa
 
 ### Official snapshots
 
-Run the manual **Record benchmark snapshots** workflow from a clean `main` commit. It records the same C-oracle baseline on Ubuntu, macOS, and Windows with Node 22.12.0 and 24.18.1. The workflow has read-only repository permissions and uploads sanitized JSON for review; it never commits results.
+Run the manual **Record benchmark snapshots** workflow from a clean `main` commit. It records the same C-oracle baseline on Ubuntu, macOS, and Windows with Node 22.13.0 and 24.18.1. The workflow has read-only repository permissions and uploads sanitized JSON for review; it never commits results.
 
 After every matrix job passes, download the six artifacts outside the repository, merge them, validate the append-only manifest, and commit only the accepted JSON:
 
@@ -76,6 +91,18 @@ npm run benchmark:validate
 ```
 
 The merger rejects partial matrices, conflicting duplicates, nonpublishable evidence, rankings, incomplete profile sets, and results measured from a commit other than the current `HEAD`.
+
+Run the manual **Record transport comparison snapshots** workflow from the same clean `main` commit. After all six Windows/Linux/macOS × Node jobs pass, download and merge the complete batch outside the repository, then regenerate the tracked chart:
+
+```sh
+gh run download <run-id> --dir <temporary-directory>
+npm run benchmark:transport:merge -- <temporary-directory>
+npm run benchmark:transport:validate
+npm run benchmark:transport:chart
+npm run benchmark:transport:chart:check
+```
+
+The transport merger requires exactly six artifacts from one workflow attempt and never accepts a partial matrix.
 
 ## Clean baseline
 

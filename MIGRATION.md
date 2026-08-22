@@ -1,6 +1,6 @@
 # Migrating to 13.0.0
 
-Node-ipc 13 is native ESM and requires Node.js 22.12 or newer. CommonJS on
+Node-ipc 13 is native ESM and requires Node.js 22.13 or newer. CommonJS on
 supported Node releases can continue to use:
 
 ```js

@@ -143,11 +143,11 @@ async function readCandidate(sourceFile){
 
 function validateBatch(candidates){
     const expectedMatrix=[
-        'darwin:v22.12.0',
+        'darwin:v22.13.0',
         'darwin:v24.18.1',
-        'linux:v22.12.0',
+        'linux:v22.13.0',
         'linux:v24.18.1',
-        'win32:v22.12.0',
+        'win32:v22.13.0',
         'win32:v24.18.1'
     ];
     assert.deepEqual(

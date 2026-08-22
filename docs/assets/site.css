@@ -131,6 +131,16 @@ table {
   font-size: 0.93rem;
 }
 
+.table-scroll {
+  overflow-x: auto;
+}
+
+.transport-environment + .transport-environment {
+  margin-top: 1.4rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--line);
+}
+
 th,
 td {
   padding: 0.72rem 0.85rem;

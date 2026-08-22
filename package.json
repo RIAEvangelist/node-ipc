@@ -21,16 +21,16 @@
   ],
   "sideEffects": false,
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=22.13.0"
   },
   "dependencies": {
     "event-pubsub": "6.1.0",
-    "js-message": "3.0.0",
-    "js-queue": "2.0.2"
+    "js-message": "3.1.0",
+    "js-queue": "3.1.0"
   },
   "devDependencies": {
     "node-http-server": "9.1.0",
-    "vanilla-test": "2.1.1"
+    "vanilla-test": "2.1.2"
   },
   "scripts": {
     "benchmark": "node ./benchmark/run.js",
@@ -41,9 +41,19 @@
     "benchmark:quick": "node ./benchmark/run.js --quick",
     "benchmark:record": "node ./benchmark/record-result.js --full --oracle=c --footprint",
     "benchmark:test": "node ./benchmark/test.js",
+    "benchmark:transport": "node ./benchmark/transport/run.js",
+    "benchmark:transport:chart": "node ./benchmark/render-transport-chart.js",
+    "benchmark:transport:chart:check": "node ./benchmark/render-transport-chart.js --check",
+    "benchmark:transport:dashboard": "node ./benchmark/transport-dashboard.js",
+    "benchmark:transport:evidence:test": "node ./benchmark/transport-evidence.test.js",
+    "benchmark:transport:merge": "node ./benchmark/merge-transport-results.js",
+    "benchmark:transport:prepare": "node ./benchmark/transport/prepare-v12.js",
+    "benchmark:transport:record": "node ./benchmark/record-transport-result.js --full",
+    "benchmark:transport:test": "node ./benchmark/transport/test.js",
+    "benchmark:transport:validate": "node ./benchmark/validate-transport-results.js",
     "benchmark:validate": "node ./benchmark/validate-results.js",
     "coverage": "echo 'See your coverage report at http://127.0.0.1:8080' && node-http-server host=127.0.0.1 domain=127.0.0.1 port=8080 root=./coverage/node/",
-    "test": "npm run test:correctness && npm run test:smoke && npm run benchmark:test && npm run benchmark:validate && npm run benchmark:chart:check",
+    "test": "npm run test:correctness && npm run test:smoke && npm run benchmark:test && npm run benchmark:validate && npm run benchmark:chart:check && npm run benchmark:transport:test && npm run benchmark:transport:evidence:test && npm run benchmark:transport:validate && npm run benchmark:transport:chart:check",
     "test:correctness": "npm run test:inventory && vanilla-test coverage node",
     "test:inventory": "node ./test/inventory.js",
     "test:smoke": "npm run test:smoke:runtime && npm run test:smoke:transport && npm run test:smoke:package",

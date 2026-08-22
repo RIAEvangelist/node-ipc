@@ -1,4 +1,4 @@
-name: Record benchmark snapshots
+name: Record transport comparison snapshots
 
 on:
   workflow_dispatch:
@@ -7,7 +7,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: benchmark-snapshot
+  group: transport-benchmark-snapshot
   cancel-in-progress: false
 
 jobs:
@@ -27,7 +27,7 @@ jobs:
           SOURCE_REF: ${{ github.ref }}
         run: node -e "if(process.env.SOURCE_REF !== 'refs/heads/main') process.exit(1)"
 
-      - name: Check out the measured commit
+      - name: Check out the measured commit and exact v12 tag
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
@@ -38,20 +38,23 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
-      - name: Install exact production dependencies
+      - name: Install exact current dependencies
         run: npm ci --omit=dev --ignore-scripts --no-audit --no-fund
 
-      - name: Record canonical C-oracle profile comparison
+      - name: Prepare exact node-ipc 12.0.0 tag fixture
+        run: node benchmark/transport/prepare-v12.js "${{ runner.temp }}/node-ipc-v12"
+
+      - name: Record paired million-message transport comparison
         env:
           NODE_IPC_BENCHMARK_NODE_LANE: ${{ matrix.node }}
           NODE_IPC_BENCHMARK_OS_LANE: ${{ matrix.os }}
-          NODE_IPC_BENCHMARK_OUTPUT_DIRECTORY: ${{ runner.temp }}/node-ipc-benchmark-snapshot
-        run: npm run benchmark:record
+          NODE_IPC_TRANSPORT_OUTPUT_DIRECTORY: ${{ runner.temp }}/node-ipc-transport-snapshot
+        run: node benchmark/record-transport-result.js --full "--legacy-root=${{ runner.temp }}/node-ipc-v12" "--current-root=${{ github.workspace }}"
 
-      - name: Upload sanitized result
+      - name: Upload sanitized paired result
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: benchmark-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.os }}-node-${{ matrix.node }}
-          path: ${{ runner.temp }}/node-ipc-benchmark-snapshot/run-*.json
+          name: transport-benchmark-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.os }}-node-${{ matrix.node }}
+          path: ${{ runner.temp }}/node-ipc-transport-snapshot/run-*.json
           if-no-files-found: error
           retention-days: 90
