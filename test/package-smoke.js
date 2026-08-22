@@ -83,11 +83,14 @@ try{
     await writeFile(
         path.join(consumer,'smoke.cjs'),
         `const assert=require('node:assert/strict');
+const path=require('node:path');
+const {pathToFileURL}=require('node:url');
 const required=require('node-ipc');
 const requiredParsers=require('node-ipc/parsers');
 const requiredMessageParser=require('node-ipc/parsers/message');
 const EventPubSub=require('event-pubsub');
 const IndexEventPubSub=require('event-pubsub/index.js');
+const packageRoot=path.dirname(require.resolve('node-ipc'));
 
 assert.equal(typeof required.IPCModule,'function');
 assert.equal(typeof required.FastParser,'function');
@@ -115,8 +118,10 @@ Promise.all([
     import('node-ipc/parsers'),
     import('node-ipc/parsers/message'),
     import('event-pubsub'),
-    import('event-pubsub/index.js')
-]).then(([imported,parsers,messageParser,eventPubSub,indexEventPubSub]) => {
+    import('event-pubsub/index.js'),
+    import(pathToFileURL(path.join(packageRoot,'dao/client.js')).href),
+    import(pathToFileURL(path.join(packageRoot,'entities/Defaults.js')).href)
+]).then(([imported,parsers,messageParser,eventPubSub,indexEventPubSub,clientModule,defaultsModule]) => {
     assert.strictEqual(required.default,imported.default);
     assert.strictEqual(required.IPCModule,imported.IPCModule);
     assert.strictEqual(imported.FastParser,parsers.FastParser);
@@ -126,6 +131,27 @@ Promise.all([
     assert.strictEqual(EventPubSub,eventPubSub.EventPubSub);
     assert.strictEqual(EventPubSub,indexEventPubSub.default);
     assert.strictEqual(EventPubSub,indexEventPubSub.EventPubSub);
+
+    const syncConfig=new defaultsModule.Defaults;
+    syncConfig.sync=true;
+    const syncClient=new clientModule.Client(syncConfig,() => {});
+    const writes=[];
+    syncClient.socket={
+        writableLength:0,
+        write(value){
+            writes.push(value);
+            return true;
+        }
+    };
+    assert.equal(typeof syncClient.queue.add,'function');
+    assert.equal(typeof syncClient.queue.next,'function');
+    syncClient.emit('packed.first',1);
+    syncClient.emit('packed.second',2);
+    assert.equal(writes.length,1);
+    assert.equal(syncClient.queue.contents.length,1);
+    syncClient.queue.next();
+    assert.equal(writes.length,2);
+    assert.equal(JSON.parse(writes[1].slice(0,-syncConfig.delimiter.length)).type,'packed.second');
 }).catch((err) => {
     console.error(err);
     process.exitCode=1;
@@ -137,6 +163,7 @@ Promise.all([
     const installedRoot=path.join(consumer,'node_modules');
     const nodeIpcManifest=await readJson(path.join(installedRoot,'node-ipc','package.json'));
     const eventPubSubManifest=await readJson(path.join(installedRoot,'event-pubsub','package.json'));
+    const jsQueueManifest=await readJson(path.join(installedRoot,'js-queue','package.json'));
     const strongTypeManifest=await readJson(path.join(installedRoot,'strong-type','package.json'));
 
     assert.equal(nodeIpcManifest.version,'13.0.0');
@@ -151,6 +178,7 @@ Promise.all([
     assert.equal(eventPubSubManifest.engines?.node,'>=22.12.0');
     assert.equal(Object.hasOwn(eventPubSubManifest,'exports'),false);
     assert.deepEqual(eventPubSubManifest.dependencies,{'strong-type':'2.0.0'});
+    assert.equal(jsQueueManifest.version,'2.0.2');
     assert.equal(strongTypeManifest.version,'2.0.0');
     for(const absent of ['copyfiles','vanilla-test','node-http-server']){
         await assert.rejects(readFile(path.join(installedRoot,absent,'package.json'),'utf8'));
@@ -175,6 +203,7 @@ Promise.all([
     assert.equal(installedNodeIpc?.version,'13.0.0');
     assert.equal(installedNodeIpc?.dependencies?.['event-pubsub']?.version,'6.1.0');
     assert.equal(installedNodeIpc?.dependencies?.['event-pubsub']?.dependencies?.['strong-type']?.version,'2.0.0');
+    assert.equal(installedNodeIpc?.dependencies?.['js-queue']?.version,'2.0.2');
     assert.equal(installedNodeIpc?.dependencies?.['strong-type'],undefined);
     execFileSync(process.execPath,['smoke.cjs'],{cwd:consumer,stdio:'inherit'});
     console.log('node-ipc installed package smoke passed');

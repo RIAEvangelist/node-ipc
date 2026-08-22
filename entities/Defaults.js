@@ -1,13 +1,7 @@
-import os from 'os';
-import path from 'path';
+import os from 'node:os';
+import path from 'node:path';
 
 class Defaults{
-
-    constructor(){
-
-    }
-
-
     appspace='app.';
     socketRoot=getSocketRoot();
     id=os.hostname();

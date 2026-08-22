@@ -2,7 +2,7 @@
 import Defaults from '../entities/Defaults.js';
 import Client from '../dao/client.js';
 import Server from '../dao/socketServer.js';
-import util from 'util';
+import util from 'node:util';
 
 class IPC{
     //public members
@@ -82,6 +82,8 @@ function disconnect(id){
     }
 
     this.of[id].explicitlyDisconnected=true;
+    clearTimeout(this.of[id].retryTimer);
+    this.of[id].retryTimer=false;
 
     this.of[id].reset();
     if(this.of[id].socket){

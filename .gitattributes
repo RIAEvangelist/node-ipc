@@ -1,6 +1,7 @@
 coverage/**/* linguist-generated=true
 /benchmark/results/*.json text eol=lf
 /docs/data/*.json text eol=lf
+/docs/assets/node-ipc-benchmark.svg text eol=lf
 /docs/index.html text eol=lf
 /docs/sitemap.xml text eol=lf
 /docs/testing/**/index.html text eol=lf

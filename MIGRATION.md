@@ -68,7 +68,9 @@ TLS servers no longer fall back to repository fixtures. Configure
 Clients publish `connect` only after the TLS handshake succeeds.
 
 On Unix, the default local-socket directory is user-specific. Secure root
-ownership and mode checks happen once when a local server starts.
+ownership and mode checks happen once when a local server starts. Assured local
+server endpoints must be direct children of that root; clients must verify the
+endpoint they connect to.
 Assured local service is limited to Unix sockets because node-ipc cannot prove
 a Windows named-pipe ACL. Use Assured mutual TLS or an application-owned pipe
 and policy on Windows.

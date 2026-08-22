@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from 'node:fs';
 
 function createClientTLSOptions(config,connectionOptions,assured=false){
     const options=loadTLSOptions(config);

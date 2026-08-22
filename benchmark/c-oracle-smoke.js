@@ -36,7 +36,20 @@ const result=JSON.parse(stdout);
 assert.equal(result.oracle.implementation,'standard-c');
 assert.equal(result.config.oracle,'c');
 assert.equal(result.config.quick,true);
-assert.equal(result.samples.length,3);
+assert.equal(
+    result.samples.length,
+    result.config.passes.length
+        * result.config.samplesPerPass
+        * result.config.adapters.length
+);
+for(const pass of result.config.passes){
+    for(const adapter of result.config.adapters){
+        assert.equal(
+            result.samples.filter(sample => sample.pass === pass && sample.adapter === adapter).length,
+            result.config.samplesPerPass
+        );
+    }
+}
 assert.equal(result.cleanup.clean,true);
 assert.equal(result.cleanup.endpointLeaks,0);
 assert.equal(result.cleanup.endpointReuseFailures,0);

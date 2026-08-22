@@ -19,7 +19,9 @@ class Server extends Events{
         this.raw=this.parser.raw;
         this.encoding=this.parser.encoding || 'utf8';
         this.encode=this.parser.encode.bind(this.parser);
-        const boundedWrites=Number.isFinite(this.parser.maxPendingBytes);
+        const maxPendingBytes=this.parser.maxPendingBytes;
+        const boundedWrites=Number.isFinite(maxPendingBytes) &&
+            maxPendingBytes>0;
         this.writeStream=boundedWrites
             ? this.writeStreamGuarded
             : this.writeStreamDirect;
@@ -47,7 +49,6 @@ class Server extends Events{
         this.emit=config.logPayloads ? this.emitLogged : this.emitDirect;
         this.broadcast=config.logPayloads ? this.broadcastLogged : this.broadcastDirect;
         this.selectTransport();
-        this.on('close',(socket) => this.removeSocket(socket));
     }
 
     _udp4=false;
@@ -109,7 +110,7 @@ class Server extends Events{
         if(!this.port && this.parser.profile === 'assured' && !socketPathInRoot(this)){
             throw new IPCProtocolError(
                 'ERR_IPC_ASSURED_TRANSPORT',
-                'The assured parser requires a local endpoint inside socketRoot.'
+                'The assured parser requires a local endpoint directly inside socketRoot.'
             );
         }
 
@@ -286,7 +287,10 @@ class Server extends Events{
         if(!this.raw){
             socket.setEncoding(this.encoding);
         }
-        socket.on('close',() => this.publish('close',socket));
+        socket.on('close',() => {
+            this.removeSocket(socket);
+            this.publish('close',socket);
+        });
         socket.on('error',(error) => {
             this.log('server socket error',error);
             this.publish('error',error);
@@ -429,7 +433,7 @@ class Server extends Events{
 function prepareSocketRoot(server){
     const root=path.resolve(server.config.socketRoot);
     const relative=path.relative(root,path.resolve(server.path));
-    if(relative.startsWith('..') || path.isAbsolute(relative)){
+    if(pathOutsideRoot(relative)){
         return;
     }
 
@@ -453,7 +457,15 @@ function prepareSocketRoot(server){
 function socketPathInRoot(server){
     const root=path.resolve(server.config.socketRoot);
     const relative=path.relative(root,path.resolve(server.path));
-    return !relative.startsWith('..') && !path.isAbsolute(relative);
+    return Boolean(relative) &&
+        !pathOutsideRoot(relative) &&
+        path.dirname(relative) === '.';
+}
+
+function pathOutsideRoot(relative){
+    return relative === '..' ||
+        relative.startsWith(`..${path.sep}`) ||
+        path.isAbsolute(relative);
 }
 
 function unlinkSocket(socketPath){

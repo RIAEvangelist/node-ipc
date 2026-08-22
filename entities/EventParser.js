@@ -11,6 +11,7 @@ const reservedEventTypes=new Set([
     'data'
 ]);
 const unsafeEventTypes=new Set(Object.getOwnPropertyNames(Object.prototype));
+const emptyPayload={};
 
 class IPCProtocolError extends Error{
     constructor(code,message){
@@ -62,7 +63,7 @@ class Parser{
     raw=false;
     encoding='utf8';
 
-    encode(type,data={}){
+    encode(type,data=emptyPayload){
         return JSON.stringify({type,data})+this.delimiter;
     }
 
@@ -212,7 +213,7 @@ class GuardedParser extends Parser{
     }
 
     assertFrameSize(characters,bytes){
-        if(characters <= this.maxMessageSize && bytes <= this.maxMessageSize){
+        if(bytes <= this.maxMessageSize){
             return;
         }
         throw new IPCProtocolError('ERR_IPC_FRAME_TOO_LARGE','message exceeds maxMessageSize');
@@ -235,7 +236,7 @@ class AssuredParser extends GuardedParser{
     validateType(type){
         super.validateType(type);
         if(!this.allowedEvents.has(type)){
-            throw new IPCProtocolError('ERR_IPC_EVENT_NOT_ALLOWED',`event type "${type}" is not in allowedEvents`);
+            throw new IPCProtocolError('ERR_IPC_EVENT_NOT_ALLOWED','event type is not in allowedEvents');
         }
     }
 }

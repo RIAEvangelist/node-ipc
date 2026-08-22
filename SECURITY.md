@@ -17,9 +17,9 @@ Security and performance are selected once when a client or server is created. C
 | Profile | Built-in protocol controls | Appropriate use |
 |---------|----------------------------|-----------------|
 | Raw | None. Buffers pass through unchanged. | Fully trusted peers with a caller-owned protocol and validation. |
-| Fast | Delimiter framing, JSON event envelopes, and malformed-JSON connection closure. | Trusted local peers. It does not enforce Guarded limits or event-name rules. |
-| Guarded | Frame and pending-write limits, object-envelope checks, event-name length, reserved and prototype-name rejection, and incomplete-frame timeout. | Mixed-trust local services or authenticated network services. |
-| Assured | Guarded plus a required event allow-list; network clients require a key, certificate, trusted CA, and verification; servers require verified client certificates; Unix local servers require the secure socket root. Built-in Assured local service rejects Windows because node-ipc cannot prove a named-pipe ACL. | A building block for hostile networks when combined with authorization, payload validation, rate limits, key operations, and deployment controls. |
+| Fast | Delimiter framing and JSON event envelopes. Malformed JSON closes a stream connection or resets UDP peer frame state. | Trusted local peers. It does not enforce Guarded limits or event-name rules. |
+| Guarded | Frame and stream pending-write limits, object-envelope checks, event-name length, reserved and prototype-name rejection, and incomplete-frame timeout. | Mixed-trust local services or authenticated network services. |
+| Assured | Guarded plus a required event allow-list; network clients require a key, certificate, trusted CA, and verification; servers require verified client certificates; each Unix local server endpoint must be a direct child of the secure socket root. Clients must verify local endpoint ownership. Built-in Assured local service rejects Windows because node-ipc cannot prove a named-pipe ACL. | A building block for hostile networks when combined with authorization, payload validation, rate limits, key operations, and deployment controls. |
 
 These names describe node-ipc runtime profiles. They are not government, military, industry, or compliance certifications. No parser authenticates a user, authorizes a command, validates application payload schemas, prevents replay, manages certificates, or establishes a complete security program.
 

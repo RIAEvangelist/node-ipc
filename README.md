@@ -27,9 +27,9 @@ The upcoming major selects its parser and hot-path handlers once, when each clie
 | Profile | Work on every message | Intended boundary |
 |---------|-----------------------|-------------------|
 | `raw` | No node-ipc framing, JSON parsing, or message checks. Buffers pass through the `data` event. | Trusted peers using a caller-owned binary or text protocol. |
-| `fast` | JSON event-envelope encoding/decoding and delimiter framing. Malformed JSON closes the connection. | Default for trusted local peers where the application owns payload validity. |
-| `guarded` | Fast framing plus frame-size, pending-write, event-name, reserved/prototype-name, envelope, and incomplete-message-time controls. | Mixed-trust local services and authenticated network applications. |
-| `assured` | Guarded controls plus a required event allow-list. Network use requires mutually authenticated TLS; local servers require the secure socket root. | Hostile-network building block with verified peer certificates and application authorization; not a certification. |
+| `fast` | JSON event-envelope encoding/decoding and delimiter framing. Malformed JSON becomes a protocol error; stream connections close. | Default for trusted local peers where the application owns payload validity. |
+| `guarded` | Fast framing plus frame-size, stream pending-write, event-name, reserved/prototype-name, envelope, and incomplete-message-time controls. | Mixed-trust local services and authenticated network applications. |
+| `assured` | Guarded controls plus a required event allow-list. Network use requires mutually authenticated TLS; each Unix local server endpoint must be a direct child of the secure socket root. Built-in Windows local service is rejected because node-ipc cannot prove its named-pipe ACL. | Hostile-network building block with verified peer certificates and application authorization; not a certification. |
 
 ```javascript
 ipc.config.parser = 'guarded';
@@ -41,11 +41,9 @@ See [Profiles](https://riaevangelist.github.io/node-ipc/profiles/), [Parsers](ht
 
 #### Use
 
-```js
-import ipc from 'node-ipc';
+ESM: `import ipc from 'node-ipc';`
 
-const ipc = require('node-ipc').default;
-```
+CommonJS: `const ipc = require('node-ipc').default;`
 
 CommonJS loading uses Node.js 22.12+'s native [`require(esm)` support](https://nodejs.org/api/modules.html#loading-ecmascript-modules-using-require).
 Node.js 22.12 may print its experimental feature warning; 22.13 and newer do not print it by default.
@@ -61,13 +59,13 @@ GitHub info :
 ![node-ipc GitHub Release](https://img.shields.io/github/release/RIAEvangelist/node-ipc.svg) ![GitHub license node-ipc license](https://img.shields.io/github/license/RIAEvangelist/node-ipc.svg) ![open issues for node-ipc on GitHub](https://img.shields.io/github/issues/RIAEvangelist/node-ipc.svg)
 
 Code Coverage Info :  
-Run `npm run coverage` to host a local version of the coverage report on [localhost:8080](http://localhost:8080).
+Run `npm run coverage` to host a local version of the coverage report on [127.0.0.1:8080](http://127.0.0.1:8080).
 
 Testing done with [vanilla-test](https://github.com/RIAEvangelist/vanilla-test)  
 `vanilla-test` provides native V8 coverage for the ESM test suite without transpilation or bundling.
 
 Package details websites :
-* [GitHub.io site](http://riaevangelist.github.io/node-ipc/ "node-ipc documentation"). A prettier version of this site.
+* [GitHub.io site](https://riaevangelist.github.io/node-ipc/ "node-ipc documentation"). Engineer documentation and tracked evidence.
 * [NPM Module](https://www.npmjs.org/package/node-ipc "node-ipc npm module"). The npm page for the node-ipc module.
 
 This work is licenced via the MIT Licence.
@@ -111,10 +109,10 @@ The chart is generated from tracked benchmark records. Until comparable clean pr
 
 | Type      | Stability |Definition |
 |-----------|-----------|-----------|
-|Unix Socket or Windows Socket| Stable    | Gives Linux, Mac, and Windows lightning fast communication and avoids the network card to reduce overhead and latency. [Local Unix and Windows Socket examples ](https://github.com/RIAEvangelist/node-ipc/tree/main/example/unixWindowsSocket/ "Unix and Windows Socket Node IPC examples")  |
-|TCP Socket | Stable    | Gives the most reliable communication across the network. Can be used for local IPC as well, but is slower than #1's Unix Socket Implementation because TCP sockets go through the network card while Unix Sockets and Windows Sockets do not. [Local or remote network TCP Socket examples ](https://github.com/RIAEvangelist/node-ipc/tree/main/example/TCPSocket/ "TCP Socket Node IPC examples") |
+|Unix socket or Windows named pipe| Stable    | Local IPC without the TCP/IP stack. Measure it against TCP on the target system rather than assuming a fixed latency difference. [Local Unix socket and Windows named-pipe examples](https://github.com/RIAEvangelist/node-ipc/tree/main/example/unixWindowsSocket/ "Unix socket and Windows named-pipe examples") |
+|TCP Socket | Stable    | Reliable ordered byte streams for local loopback or remote networks. [Local or remote TCP examples](https://github.com/RIAEvangelist/node-ipc/tree/main/example/TCPSocket/ "TCP examples") |
 |TLS Socket | Stable    | Encrypted network socket. It is secure only when certificate identities are verified; use mTLS or application authentication when clients must be identified. [TLS documentation](https://github.com/RIAEvangelist/node-ipc/tree/main/example/TLSSocket) |
-|UDP Sockets| Stable    | Gives the **fastest network communication**. UDP is less reliable but much faster than TCP. It is best used for streaming non critical data like sound, video, or multiplayer game data as it can drop packets depending on network connectivity and other factors. UDP can be used for local IPC as well, but is slower than #1's Unix Socket or Windows Socket Implementation because UDP sockets go through the network card while Unix and Windows Sockets do not. [Local or remote network UDP Socket examples ](https://github.com/RIAEvangelist/node-ipc/tree/main/example/UDPSocket/ "UDP Socket Node IPC examples") |
+|UDP Sockets| Stable    | Unordered datagrams for workloads that can own loss, duplication, reordering, and authentication. Compare measured latency and throughput on the target network before choosing it over TCP or local IPC. [Local or remote UDP examples](https://github.com/RIAEvangelist/node-ipc/tree/main/example/UDPSocket/ "UDP examples") |
 
 | OS  | Supported Sockets  |
 |-----|--------------------|
@@ -185,7 +183,7 @@ Set these variables in the `ipc.config` scope to overwrite or set default values
 | networkPort| the default port on which TCP, TLS, or UDP sockets should connect |
 | readableAll| makes the pipe readable for all users including windows services |
 | writableAll| makes the pipe writable for all users including windows services |
-| secureSocketRoot | create and verify an owner-only Unix socket root. Defaults to `true`; disabling it transfers directory ownership and permission checks to the application. Assured local service is Unix-only; on Windows use Assured mutual TLS or an application-owned named-pipe ACL outside the built-in profile. |
+| secureSocketRoot | create and verify an owner-only Unix socket root. Defaults to `true` and is required by Assured. For other profiles, disabling it transfers directory ownership and permission checks to the application. An Assured local server must bind directly inside that root and is Unix-only; clients must verify endpoint ownership. On Windows use Assured mutual TLS or an application-owned named-pipe ACL outside the built-in profile. |
 | encoding | encoding for non-Buffer Raw writes. Built-in framed profiles use UTF-8 so both wire directions remain symmetric. Custom parsers should return a `Buffer` when they own another wire encoding. |
 | rawBuffer| compatibility switch for the `raw` profile. When `true`, node-ipc performs no framing, JSON parsing, or message validation; incoming `Buffer` values are delivered through `data`. The caller owns the complete wire protocol and its security. |
 | parser | parser profile or custom parser. Defaults to `fast`; accepts `raw`, `fast`, `guarded`, `assured`, a parser class, or a parser object. Selection happens once for each new client or server. |
@@ -206,7 +204,7 @@ Set these variables in the `ipc.config` scope to overwrite or set default values
 | allowedEvents | required non-empty `Array` or `Set` of event names for `assured`. The allow-list applies to sent and received events. Defaults to `false` for the other profiles. |
 | retry    | this is the time in milliseconds a client will wait before trying to reconnect to a server if the connection is lost. This does not effect UDP sockets since they do not have a client server relationship like Unix Sockets and TCP Sockets. |
 | maxRetries    | if set, it represents the maximum number of retries after each disconnect before giving up and completely killing a specific connection |
-| stopRetrying| Defaults to false meaning clients will continue to retry to connect to servers indefinitely at the retry interval. If set to any number the client will stop retrying when that number is exceeded after each disconnect. If set to true in real time it will immediately stop trying to connect regardless of maxRetries. If set to 0, the client will ***NOT*** try to reconnect. |
+| stopRetrying| Boolean switch. `true` stops scheduled and future reconnect attempts; `false` permits retries up to `maxRetries`. Set `maxRetries` to `0` to disable reconnects. |
 | unlink| Defaults to true meaning that the module will take care of deleting the IPC socket prior to startup.  If you use `node-ipc` in a clustered environment where there will be multiple listeners on the same socket, you must set this to `false` and then take care of deleting the socket in your own code. |
 | interface| primarily used when specifying which interface a client should connect through. see the [socket.connect documentation in the node.js api](https://nodejs.org/api/net.html#net_socket_connect_options_connectlistener) |
 | IPType | detected IP family used to choose the initial loopback host. |
@@ -252,7 +250,7 @@ The log also uses util.inspect You can control if it should log in color, the lo
 
 `ipc.connectTo(id,path,callback);`  
 
-Used for connecting as a client to local Unix Sockets and Windows Sockets. ***This is the fastest way for processes on the same machine to communicate*** because it bypasses the network card which TCP and UDP must both use.
+Used for connecting as a client to local Unix sockets and Windows named pipes. This avoids IP framing and routing, but the fastest same-machine transport depends on the operating system, workload, and message shape, so compare it with loopback TCP on the target system.
 
 | variable | required | definition |
 |----------|----------|------------|
@@ -317,7 +315,7 @@ or explicitly setting the path with callback
 
 `ipc.connectToNet(id,host,port,callback)`  
 
-Used to connect as a client to a TCP or [TLS socket](https://github.com/RIAEvangelist/node-ipc/tree/main/example/TLSSocket) via the network card. This can be local or remote, if local, it is recommended that you use the Unix and Windows Socket Implementaion of `connectTo` instead as it is much faster since it avoids the network card altogether.
+Used to connect as a client to a TCP or [TLS socket](https://github.com/RIAEvangelist/node-ipc/tree/main/example/TLSSocket) over loopback or a remote IP network. For same-machine peers, compare this path with `connectTo`; the better choice depends on the target system and workload.
 
 For TLS and SSL Sockets see the [node-ipc TLS and SSL docs](https://github.com/RIAEvangelist/node-ipc/tree/main/example/TLSSocket). They have a few additional requirements, and things to know about and so have their own doc.
 

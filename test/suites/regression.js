@@ -339,11 +339,13 @@ const groups=[
             },
             {
                 name:'marks, clears, destroys, and removes a disconnected peer',
-                run(){
+                async run(){
                     const instance=quietIPC();
                     const peer=new EventPubSub;
                     let destroyed=false;
+                    let retried=false;
                     peer.explicitlyDisconnected=false;
+                    peer.retryTimer=setTimeout(() => retried=true,0);
                     peer.socket={destroy:() => {
                         destroyed=true;
                     }};
@@ -351,9 +353,12 @@ const groups=[
                     instance.of.peer=peer;
                     instance.disconnect('peer');
                     assert.equal(peer.explicitlyDisconnected,true);
+                    assert.equal(peer.retryTimer,false);
                     assert.deepEqual(Reflect.ownKeys(peer.list),[]);
                     assert.equal(destroyed,true);
                     assert.equal(Object.hasOwn(instance.of,'peer'),false);
+                    await new Promise(resolve => setTimeout(resolve,10));
+                    assert.equal(retried,false);
                 }
             }
         ]

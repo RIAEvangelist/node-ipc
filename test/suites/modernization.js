@@ -178,10 +178,35 @@ const groups=[
                 }
             },
             {
-                name:'uses a supplied parser object without wrapping it',
+                name:'uses a supplied parser object without false write limits',
                 run(){
-                    const custom={encode:() => 'custom',read:() => ''};
+                    let limitReads=0;
+                    const custom={
+                        encode:() => 'custom',
+                        get maxPendingBytes(){
+                            limitReads++;
+                            return Symbol('unbounded');
+                        },
+                        read:() => ''
+                    };
                     assert.strictEqual(createParser(config({parser:custom})),custom);
+                    const client=new Client(config({parser:custom}),() => {});
+                    const server=new Server('custom',config({parser:custom}),() => {});
+                    assert.strictEqual(client.writeSocket,client.writeDirect);
+                    assert.strictEqual(server.writeStream,server.writeStreamDirect);
+                    assert.equal(limitReads,2);
+
+                    const zero={
+                        encode:() => 'zero',
+                        maxPendingBytes:0,
+                        read:() => ''
+                    };
+                    const zeroClient=new Client(config({parser:zero}),() => {});
+                    const zeroServer=new Server('zero',config({parser:zero}),() => {});
+                    assert.strictEqual(zeroClient.writeSocket,zeroClient.writeDirect);
+                    assert.strictEqual(zeroServer.writeStream,zeroServer.writeStreamDirect);
+                    assert.strictEqual(zeroServer.sendDatagram,zeroServer.sendDatagramDirect);
+                    assert.equal(zeroServer.datagramCallback,null);
                 }
             },
             {
@@ -279,9 +304,17 @@ const groups=[
             {
                 name:'rejects complete frames over the byte limit',
                 run(){
-                    const parser=createParser(config({parser:'guarded',maxMessageSize:16}));
+                    const frame=JSON.stringify({type:'large',data:'é'});
+                    const bytes=Buffer.byteLength(frame);
+                    const exact=createParser(config({parser:'guarded',maxMessageSize:bytes}));
+                    assert.equal(exact.decode(frame).data,'é');
+
+                    const parser=createParser(config({
+                        parser:'guarded',
+                        maxMessageSize:bytes-1
+                    }));
                     assertProtocolError(
-                        () => parser.read('',JSON.stringify({type:'large',data:'éééééééé'})+'\f',() => {}),
+                        () => parser.decode(frame),
                         'ERR_IPC_FRAME_TOO_LARGE'
                     );
                 }
@@ -344,19 +377,25 @@ const groups=[
                 }
             },
             {
-                name:'rejects unlisted outbound and inbound messages',
+                name:'rejects unlisted messages without reflecting their names',
                 run(){
+                    const allowedEvents=new Set(['assured.allowed']);
                     const parser=createParser(config({
                         parser:'assured',
-                        allowedEvents:['assured.allowed']
+                        allowedEvents
                     }));
+                    allowedEvents.add('assured.blocked');
                     assertProtocolError(
                         () => parser.encode('assured.blocked',{}),
                         'ERR_IPC_EVENT_NOT_ALLOWED'
                     );
-                    assertProtocolError(
-                        () => parser.decode('{"type":"assured.blocked","data":{}}'),
-                        'ERR_IPC_EVENT_NOT_ALLOWED'
+                    assert.throws(
+                        () => parser.decode(JSON.stringify({
+                            type:'\u001b[31mFORGED\nLINE',
+                            data:{}
+                        })),
+                        (error) => error.code === 'ERR_IPC_EVENT_NOT_ALLOWED' &&
+                            !error.message.includes('FORGED')
                     );
                 }
             },
@@ -887,7 +926,7 @@ const groups=[
                 }
             },
             {
-                name:'rejects a symlinked socket root on Unix',
+                name:'rejects symlinked roots and nested Assured endpoints on Unix',
                 async run(){
                     if(process.platform === 'win32'){
                         return;
@@ -898,11 +937,27 @@ const groups=[
                         await mkdir(target);
                         await symlink(target,socketRoot,'dir');
                         const server=new Server(
-                            path.join(socketRoot,'service.sock'),
+                            path.join(socketRoot,'..service'),
                             config({socketRoot}),
                             () => {}
                         );
                         assert.throws(() => server.start(),{code:'ERR_IPC_SOCKET_ROOT'});
+
+                        const secureRoot=path.join(directory,'secure-root');
+                        const attackerRoot=path.join(directory,'attacker-root');
+                        await mkdir(secureRoot);
+                        await mkdir(attackerRoot);
+                        await symlink(attackerRoot,path.join(secureRoot,'nested'),'dir');
+                        const assured=new Server(
+                            path.join(secureRoot,'nested','service.sock'),
+                            config({
+                                allowedEvents:['local.allowed'],
+                                parser:'assured',
+                                socketRoot:secureRoot
+                            }),
+                            () => {}
+                        );
+                        assert.throws(() => assured.start(),{code:'ERR_IPC_ASSURED_TRANSPORT'});
                     });
                 }
             },
@@ -1028,7 +1083,7 @@ const groups=[
                 }
             },
             {
-                name:'clears a pending retry before a manual connection attempt',
+                name:'clears or stops pending retries before another connection attempt',
                 async run(){
                     const client=new Client(config(),() => {});
                     const expected=new Error('connection options probe');
@@ -1044,6 +1099,27 @@ const groups=[
 
                     assert.equal(client.retryTimer,false);
                     assert.equal(retried,false);
+
+                    const stopped=new Client(config({
+                        maxRetries:1,
+                        retry:0,
+                        stopRetrying:false
+                    }),() => {});
+                    const closing=fakeSocket();
+                    let reconnects=0;
+                    stopped.socket=closing;
+                    stopped.retriesRemaining=1;
+                    stopped.connect=() => reconnects++;
+                    let destroys=0;
+                    stopped.on('destroy',() => destroys++);
+                    stopped.closed(closing);
+                    stopped.config.stopRetrying=true;
+                    await new Promise((resolve) => setTimeout(resolve,10));
+
+                    assert.equal(stopped.retryTimer,false);
+                    assert.equal(reconnects,0);
+                    assert.equal(closing.destroyed,true);
+                    assert.equal(destroys,1);
                 }
             },
             {

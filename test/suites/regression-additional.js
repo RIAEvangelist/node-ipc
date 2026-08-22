@@ -11,25 +11,38 @@ function assertMethodAssignmentIsIgnored(name){
     assert.strictEqual(instance[name],original);
 }
 
-function closeFixture({readable=false}={}){
+function closeFixture({readable=false,resetEvents=false}={}){
     const server=new Server('local',new Defaults,() => {});
+    const listeners={};
     const socket={
         id:'regression-peer',
         readable,
         destroyCalls:0,
+        on(type,listener){
+            listeners[type]=listener;
+        },
         destroy(){
             this.destroyCalls++;
-        }
+        },
+        setEncoding(){},
+        setNoDelay(){}
     };
+    let closed;
     let disconnected;
 
-    server.sockets.push(socket);
     server.on('socket.disconnected',(closedSocket,id) => {
         disconnected={closedSocket,id};
     });
-    server.publish('close',socket);
+    server.addSocket(socket);
+    if(resetEvents){
+        server.reset();
+    }
+    server.on('close',(closedSocket) => {
+        closed={closedSocket,sockets:[...server.sockets]};
+    });
+    listeners.close();
 
-    return {disconnected,server,socket};
+    return {closed,disconnected,server,socket};
 }
 
 const groups=[
@@ -74,10 +87,12 @@ const groups=[
         name:'Server socket cleanup invariants',
         cases:[
             {
-                name:'removes an unreadable closed socket from the registry',
+                name:'removes a closed socket before publishing close after reset',
                 run(){
-                    const {server}=closeFixture();
+                    const {closed,server,socket}=closeFixture({resetEvents:true});
                     assert.deepEqual(server.sockets,[]);
+                    assert.strictEqual(closed.closedSocket,socket);
+                    assert.deepEqual(closed.sockets,[]);
                 }
             },
             {

@@ -29,7 +29,7 @@
     "js-queue": "2.0.2"
   },
   "devDependencies": {
-    "node-http-server": "9.0.2",
+    "node-http-server": "9.1.0",
     "vanilla-test": "2.1.1"
   },
   "scripts": {

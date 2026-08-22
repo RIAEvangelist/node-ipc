@@ -375,7 +375,7 @@
       "slug": "server-socket-cleanup-invariants",
       "count": 5,
       "cases": [
-        "removes an unreadable closed socket from the registry",
+        "removes a closed socket before publishing close after reset",
         "destroys an unreadable closed socket exactly once",
         "publishes the disconnected socket and its peer id",
         "retains a socket that remains readable",
@@ -391,7 +391,7 @@
         "selects the direct Fast parser by default",
         "selects the Guarded parser explicitly",
         "maps the Assured profile to its guarded implementation",
-        "uses a supplied parser object without wrapping it",
+        "uses a supplied parser object without false write limits",
         "constructs a supplied parser class with the live config"
       ]
     },
@@ -429,7 +429,7 @@
       "cases": [
         "requires a non-empty event allowlist",
         "accepts allowlisted messages in both directions",
-        "rejects unlisted outbound and inbound messages",
+        "rejects unlisted messages without reflecting their names",
         "requires verified mutual TLS before an Assured client opens a socket",
         "requires a trusted client CA before an Assured server starts"
       ]
@@ -507,7 +507,7 @@
       "cases": [
         "creates a private Unix root and rejects Windows Assured local service",
         "tightens an existing socket root on Unix",
-        "rejects a symlinked socket root on Unix",
+        "rejects symlinked roots and nested Assured endpoints on Unix",
         "refuses to unlink a regular file on Unix",
         "destroys tracked peers and closes the native server"
       ]
@@ -521,7 +521,7 @@
         "ignores connect from a replaced socket",
         "ignores data and errors from a replaced socket",
         "clears a stale socket timer without lifecycle events or retry",
-        "clears a pending retry before a manual connection attempt",
+        "clears or stops pending retries before another connection attempt",
         "retires destroyed local and network clients before replacement"
       ]
     }

@@ -1,9 +1,11 @@
 import net from 'node:net';
 import tls from 'node:tls';
+import {createRequire} from 'node:module';
 import Events from 'event-pubsub';
-import Queue from 'js-queue';
 import {createParser,IPCProtocolError} from '../entities/EventParser.js';
 import {createClientTLSOptions} from '../entities/TLS.js';
+
+const require=createRequire(import.meta.url);
 
 class Client extends Events{
     constructor(config,log){
@@ -17,11 +19,13 @@ class Client extends Events{
         this.raw=this.parser.raw;
         this.encoding=this.parser.encoding || 'utf8';
         this.encode=this.parser.encode.bind(this.parser);
-        this.writeSocket=Number.isFinite(this.parser.maxPendingBytes)
+        const maxPendingBytes=this.parser.maxPendingBytes;
+        this.writeSocket=Number.isFinite(maxPendingBytes) &&
+            maxPendingBytes>0
             ? this.writeGuarded
             : this.writeDirect;
         this.send=config.sync ? this.sendQueued : this.writeSocket;
-        this.queue=config.sync ? new Queue : null;
+        this.queue=config.sync ? new (require('js-queue')) : null;
         this.receive=this.raw
             ? (config.sync ? this.receiveRawSync : this.receiveRaw)
             : (this.parser.messageTimeout ? this.receiveGuarded : this.receiveFramed);
@@ -203,6 +207,11 @@ class Client extends Events{
         this.retryTimer=setTimeout(() => {
             this.retryTimer=false;
             if(this.explicitlyDisconnected){
+                return;
+            }
+            if(this.config.stopRetrying){
+                socket.destroy();
+                this.publish('destroy');
                 return;
             }
             this.retriesRemaining--;
