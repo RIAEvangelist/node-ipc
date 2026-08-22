@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "updatedAt": "2026-08-21T22:23:51.349Z",
-  "comparisonState": "baseline-only",
+  "updatedAt": "2026-08-22T05:20:29.226Z",
+  "comparisonState": "profile-comparison",
   "results": [
     {
       "architecture": "arm64",
@@ -122,6 +122,126 @@
       "publishable": true,
       "rankingEligible": false,
       "sha256": "0a25888bdfb5d964ce1a77667016ea267243bb61e153b8f05fb1b0fb584125d7"
+    },
+    {
+      "architecture": "arm64",
+      "classification": "clean-c-oracle-snapshot",
+      "cleanupClean": true,
+      "commit": "3fb0cca307b18e4b07287d22710ff714c125ec15",
+      "dirty": false,
+      "file": "run-20260822T052029154Z-7634953b-782c-4452-a22e-b273e88c9534.json",
+      "generatedAt": "2026-08-22T05:20:29.154Z",
+      "id": "run-20260822T052029154Z-7634953b-782c-4452-a22e-b273e88c9534",
+      "machine": {
+        "id": "e9755a48fb236424"
+      },
+      "node": "v22.12.0",
+      "oracle": "standard-c",
+      "packageFootprintStatus": "measured",
+      "platform": "darwin",
+      "publishable": true,
+      "rankingEligible": false,
+      "sha256": "4a8949b79cce7e5385bc15b6cbad54b1120bdbb76727c059a68d4e25692d739a"
+    },
+    {
+      "architecture": "arm64",
+      "classification": "clean-c-oracle-snapshot",
+      "cleanupClean": true,
+      "commit": "3fb0cca307b18e4b07287d22710ff714c125ec15",
+      "dirty": false,
+      "file": "run-20260822T051304844Z-7df8191b-a822-4ae9-b14c-bc1d6819bd46.json",
+      "generatedAt": "2026-08-22T05:13:04.844Z",
+      "id": "run-20260822T051304844Z-7df8191b-a822-4ae9-b14c-bc1d6819bd46",
+      "machine": {
+        "id": "1c3a2502289f6c60"
+      },
+      "node": "v24.18.1",
+      "oracle": "standard-c",
+      "packageFootprintStatus": "measured",
+      "platform": "darwin",
+      "publishable": true,
+      "rankingEligible": false,
+      "sha256": "5b160eff9f145032e0a6e49d0ba0acdb88b34f40bd28b6ed7e3d03c931da8e5a"
+    },
+    {
+      "architecture": "x64",
+      "classification": "clean-c-oracle-snapshot",
+      "cleanupClean": true,
+      "commit": "3fb0cca307b18e4b07287d22710ff714c125ec15",
+      "dirty": false,
+      "file": "run-20260822T051556366Z-0a0ee41b-0897-4754-bcba-a69e83edcf34.json",
+      "generatedAt": "2026-08-22T05:15:56.366Z",
+      "id": "run-20260822T051556366Z-0a0ee41b-0897-4754-bcba-a69e83edcf34",
+      "machine": {
+        "id": "76ff957c14853103"
+      },
+      "node": "v22.12.0",
+      "oracle": "standard-c",
+      "packageFootprintStatus": "measured",
+      "platform": "linux",
+      "publishable": true,
+      "rankingEligible": false,
+      "sha256": "749511a55bd621ae4509401ab6f1445a12dbedfa4e9516703a73b34586dfdaed"
+    },
+    {
+      "architecture": "x64",
+      "classification": "clean-c-oracle-snapshot",
+      "cleanupClean": true,
+      "commit": "3fb0cca307b18e4b07287d22710ff714c125ec15",
+      "dirty": false,
+      "file": "run-20260822T051015926Z-7401e75c-e075-4fba-8d56-3f25f8bc55ed.json",
+      "generatedAt": "2026-08-22T05:10:15.926Z",
+      "id": "run-20260822T051015926Z-7401e75c-e075-4fba-8d56-3f25f8bc55ed",
+      "machine": {
+        "id": "7d96db942b948a06"
+      },
+      "node": "v24.18.1",
+      "oracle": "standard-c",
+      "packageFootprintStatus": "measured",
+      "platform": "linux",
+      "publishable": true,
+      "rankingEligible": false,
+      "sha256": "f200cd518af7734913c6628ec71e46372449448a5617f2bd1ebaec85f97f8679"
+    },
+    {
+      "architecture": "x64",
+      "classification": "clean-c-oracle-snapshot",
+      "cleanupClean": true,
+      "commit": "3fb0cca307b18e4b07287d22710ff714c125ec15",
+      "dirty": false,
+      "file": "run-20260822T050825224Z-7cea8249-ecbe-4130-a41a-b4113c2ec7a1.json",
+      "generatedAt": "2026-08-22T05:08:25.224Z",
+      "id": "run-20260822T050825224Z-7cea8249-ecbe-4130-a41a-b4113c2ec7a1",
+      "machine": {
+        "id": "2524b79edef03ad7"
+      },
+      "node": "v22.12.0",
+      "oracle": "standard-c",
+      "packageFootprintStatus": "measured",
+      "platform": "win32",
+      "publishable": true,
+      "rankingEligible": false,
+      "sha256": "55515e5e67037a2864b4c18e2b04cc657b6818b5ceabd7ffc30e99ca8df579ad"
+    },
+    {
+      "architecture": "x64",
+      "classification": "clean-c-oracle-snapshot",
+      "cleanupClean": true,
+      "commit": "3fb0cca307b18e4b07287d22710ff714c125ec15",
+      "dirty": false,
+      "file": "run-20260822T050754706Z-c33cd3ff-7400-4cd1-9200-16c3eeffe5c5.json",
+      "generatedAt": "2026-08-22T05:07:54.706Z",
+      "id": "run-20260822T050754706Z-c33cd3ff-7400-4cd1-9200-16c3eeffe5c5",
+      "machine": {
+        "id": "0b9671793823cff1"
+      },
+      "node": "v24.18.1",
+      "oracle": "standard-c",
+      "packageFootprintStatus": "measured",
+      "platform": "win32",
+      "publishable": true,
+      "rankingEligible": false,
+      "sha256": "fe244b854227687f89ea288f1244425de7a26bb4fa47e22f790eba89ef9572d0"
     }
   ]
 }

@@ -78,7 +78,7 @@ This work is licenced via the MIT Licence.
 
 ![Tracked node-ipc profile benchmark chart](./docs/assets/node-ipc-benchmark.svg)
 
-The chart is generated from tracked benchmark records. Until comparable clean profile runs exist, it says that evidence is pending instead of inventing a result. See the [benchmark overview](https://riaevangelist.github.io/node-ipc/benchmarks/), [profile results](https://riaevangelist.github.io/node-ipc/benchmarks/profiles/), [resource results](https://riaevangelist.github.io/node-ipc/benchmarks/resources/), [methodology](https://riaevangelist.github.io/node-ipc/benchmarks/methodology/), and [run records](https://riaevangelist.github.io/node-ipc/benchmarks/runs/).
+The chart is generated from tracked, clean profile runs. Results stay separated by operating system, architecture, Node version, compiler, and commit; Assured remains pending until comparable mTLS evidence passes the same gates. See the [benchmark overview](https://riaevangelist.github.io/node-ipc/benchmarks/), [profile results](https://riaevangelist.github.io/node-ipc/benchmarks/profiles/), [resource results](https://riaevangelist.github.io/node-ipc/benchmarks/resources/), [methodology](https://riaevangelist.github.io/node-ipc/benchmarks/methodology/), and [run records](https://riaevangelist.github.io/node-ipc/benchmarks/runs/).
 
 ----
 #### Contents

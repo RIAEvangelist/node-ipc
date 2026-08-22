@@ -159,9 +159,14 @@ async function run() {
     await check(test,'benchmark dashboard preserves schema-v2 history in exact environments',() => {
         assert.equal(dashboard.schemaVersion,1);
         assert.equal(dashboard.source.schemaVersion,2);
-        assert.equal(dashboard.source.resultCount,6);
-        assert.equal(dashboard.environments.length,6);
-        assert.equal(new Set(dashboard.environments.map(environment => environment.key)).size,6);
+        assert.equal(
+            dashboard.source.resultCount,
+            dashboard.environments.reduce((total,environment) => total+environment.runs.length,0)
+        );
+        assert.equal(
+            new Set(dashboard.environments.map(environment => environment.key)).size,
+            dashboard.environments.length
+        );
         for(const environment of dashboard.environments){
             assert.equal(environment.key,[
                 environment.platform,
@@ -169,8 +174,10 @@ async function run() {
                 environment.node,
                 environment.commit
             ].join('/'));
-            assert.deepEqual(environment.runs[0].adapters.map(adapter => adapter.id),adapterOrder);
-            assert.equal(environment.runs[0].comparisonState,'baseline-only');
+            for(const run of environment.runs){
+                assert.deepEqual(run.adapters.map(adapter => adapter.id),adapterOrder);
+                assert.ok(['baseline-only','profile-comparison'].includes(run.comparisonState));
+            }
         }
     });
     await check(test,'benchmark dashboard verifies every tracked detail hash',async() => {
@@ -210,7 +217,12 @@ async function run() {
         assert.equal((chart.match(/<g class="environment"/gu) || []).length,6);
         assert.match(chart,/<title id="title">/u);
         assert.match(chart,/<desc id="description">/u);
-        assert.match(chart,/BASELINE ONLY · PROFILES PENDING/u);
+        assert.ok(chart.includes(
+            dashboard.source.comparisonState === 'profile-comparison'
+                ? 'PLAINTEXT PROFILES'
+                : 'BASELINE ONLY · PROFILES PENDING'
+        ));
+        assert.match(chart,/Assured.*pending.*mTLS|Assured.*mTLS.*pending/u);
         assert.doesNotMatch(chart,/<script\b/iu);
         assert.equal(await readFile(path.join(directory,'../docs/assets/node-ipc-benchmark.svg'),'utf8'),chart);
     });
