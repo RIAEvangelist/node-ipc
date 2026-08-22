@@ -1,6 +1,115 @@
 {
   "schemaVersion": 1,
-  "updatedAt": null,
-  "comparisonState": "no-verified-runs",
-  "results": []
+  "updatedAt": "2026-08-22T22:49:36.759Z",
+  "comparisonState": "version-comparison",
+  "results": [
+    {
+      "architecture": "arm64",
+      "classification": "clean-end-to-end-transport-comparison",
+      "cleanupClean": true,
+      "commit": "7f53d86bf73e8143bc2f4cb4b6e8e67c5dd8a833",
+      "dirty": false,
+      "file": "run-20260822T222845832Z-8fb6d2f0-bad4-40bb-8238-38cf8968d6b7.json",
+      "generatedAt": "2026-08-22T22:28:45.832Z",
+      "id": "run-20260822T222845832Z-8fb6d2f0-bad4-40bb-8238-38cf8968d6b7",
+      "machine": {
+        "id": "6d4049c8f619d186"
+      },
+      "node": "v22.13.0",
+      "platform": "darwin",
+      "publishable": true,
+      "rankingEligible": false,
+      "sha256": "93cef0be748121395f22839eb0136853ded447f21292637f126d26b2e413c2ed"
+    },
+    {
+      "architecture": "arm64",
+      "classification": "clean-end-to-end-transport-comparison",
+      "cleanupClean": true,
+      "commit": "7f53d86bf73e8143bc2f4cb4b6e8e67c5dd8a833",
+      "dirty": false,
+      "file": "run-20260822T222803322Z-3ce087ac-86a0-436c-a15a-7429d59c74c6.json",
+      "generatedAt": "2026-08-22T22:28:03.322Z",
+      "id": "run-20260822T222803322Z-3ce087ac-86a0-436c-a15a-7429d59c74c6",
+      "machine": {
+        "id": "196f9e7325811181"
+      },
+      "node": "v24.18.1",
+      "platform": "darwin",
+      "publishable": true,
+      "rankingEligible": false,
+      "sha256": "98c613aea0f72d9d699cf91777bb365f6ada728501f156123fe032aaed3b3201"
+    },
+    {
+      "architecture": "x64",
+      "classification": "clean-end-to-end-transport-comparison",
+      "cleanupClean": true,
+      "commit": "7f53d86bf73e8143bc2f4cb4b6e8e67c5dd8a833",
+      "dirty": false,
+      "file": "run-20260822T223751796Z-4645129d-a6bf-45b4-aa16-3db73f84d45b.json",
+      "generatedAt": "2026-08-22T22:37:51.796Z",
+      "id": "run-20260822T223751796Z-4645129d-a6bf-45b4-aa16-3db73f84d45b",
+      "machine": {
+        "id": "76ff957c14853103"
+      },
+      "node": "v22.13.0",
+      "platform": "linux",
+      "publishable": true,
+      "rankingEligible": false,
+      "sha256": "23f1df4c3b0dd6d0f3d561ef4e83eed1603bbd30062148f969ad1e13cde6e97f"
+    },
+    {
+      "architecture": "x64",
+      "classification": "clean-end-to-end-transport-comparison",
+      "cleanupClean": true,
+      "commit": "7f53d86bf73e8143bc2f4cb4b6e8e67c5dd8a833",
+      "dirty": false,
+      "file": "run-20260822T223815432Z-75e9c2b6-12b1-40a5-ae0d-1ac74b5f73a5.json",
+      "generatedAt": "2026-08-22T22:38:15.432Z",
+      "id": "run-20260822T223815432Z-75e9c2b6-12b1-40a5-ae0d-1ac74b5f73a5",
+      "machine": {
+        "id": "76ff957c14853103"
+      },
+      "node": "v24.18.1",
+      "platform": "linux",
+      "publishable": true,
+      "rankingEligible": false,
+      "sha256": "9f91deffefce74e35c076cf6b743b0406f8c9dcc2d8a5bff8c67ea47aeb6b107"
+    },
+    {
+      "architecture": "x64",
+      "classification": "clean-end-to-end-transport-comparison",
+      "cleanupClean": true,
+      "commit": "7f53d86bf73e8143bc2f4cb4b6e8e67c5dd8a833",
+      "dirty": false,
+      "file": "run-20260822T223842123Z-83102e83-28a9-40b3-96a4-de836f8197a2.json",
+      "generatedAt": "2026-08-22T22:38:42.123Z",
+      "id": "run-20260822T223842123Z-83102e83-28a9-40b3-96a4-de836f8197a2",
+      "machine": {
+        "id": "6e0ddcb244a86c5f"
+      },
+      "node": "v22.13.0",
+      "platform": "win32",
+      "publishable": true,
+      "rankingEligible": false,
+      "sha256": "11d0a689d80ec5498718257c9e2461cfbc19604fb3619b9359f24c549b15920e"
+    },
+    {
+      "architecture": "x64",
+      "classification": "clean-end-to-end-transport-comparison",
+      "cleanupClean": true,
+      "commit": "7f53d86bf73e8143bc2f4cb4b6e8e67c5dd8a833",
+      "dirty": false,
+      "file": "run-20260822T224936476Z-0f612201-8b43-40ca-a701-ebc1975175da.json",
+      "generatedAt": "2026-08-22T22:49:36.476Z",
+      "id": "run-20260822T224936476Z-0f612201-8b43-40ca-a701-ebc1975175da",
+      "machine": {
+        "id": "2524b79edef03ad7"
+      },
+      "node": "v24.18.1",
+      "platform": "win32",
+      "publishable": true,
+      "rankingEligible": false,
+      "sha256": "a042fdb35b8319ce41217bfcaefd3fc5fa26a85f5043d2988fab858de7e740d1"
+    }
+  ]
 }

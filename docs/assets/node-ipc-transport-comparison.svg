@@ -1,40 +1,100 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600" role="img" aria-labelledby="title description">
   <title id="title">node-ipc v12.0.0 versus current transport benchmark</title>
-  <desc id="description">No complete six-environment paired transport cohort is tracked. Missing evidence remains pending.</desc>
+  <desc id="description">Six exact-environment panels from commit 7f53d86bf73e8143bc2f4cb4b6e8e67c5dd8a833. Each transport shows paired v12.0.0 and current medians. Rankings and certification are disabled.</desc>
   <rect width="1200" height="600" rx="18" fill="#050812"/>
   <rect x="1" y="1" width="1198" height="598" rx="17" fill="none" stroke="#21304a" stroke-width="2"/>
   <text x="38" y="42" fill="#f2f7ff" font-family="system-ui, sans-serif" font-size="25" font-weight="700">v12.0.0 vs current · transport comparison</text>
   <text x="38" y="67" fill="#9fb1c8" font-family="system-ui, sans-serif" font-size="14">Paired median milliseconds per one million completed messages · exact environment only</text>
-  <text x="1162" y="42" fill="#72839b" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="13" text-anchor="end">no cohort</text>
+  <text x="1162" y="42" fill="#72839b" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="13" text-anchor="end">7f53d86bf73e</text>
   <g class="environment" transform="translate(38 87)">
     <rect width="552" height="140" rx="10" fill="#0c1322" stroke="#21304a"/>
-    <text x="16" y="31" fill="#f2f7ff" font-family="system-ui, sans-serif" font-size="15" font-weight="700">Environment pending</text>
-    <text x="16" y="61" fill="#72839b" font-family="system-ui, sans-serif" font-size="13">No accepted paired transport record</text>
+    <text x="16" y="24" fill="#f2f7ff" font-family="system-ui, sans-serif" font-size="15" font-weight="700">Linux · x64 · v22.13.0</text>
+    <text x="536" y="24" fill="#62f28c" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="10" text-anchor="end">PAIRED · SNAPSHOT</text>
+    <text x="16" y="48" fill="#48d8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">LOCAL</text>
+    <text x="96" y="48" fill="#f2f7ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11">7453 ms → 2710 ms · 2.74×</text>
+    <text x="16" y="66" fill="#48d8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">TCP</text>
+    <text x="96" y="66" fill="#f2f7ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11">8673 ms → 2746 ms · 3.17×</text>
+    <text x="16" y="84" fill="#48d8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">TLS</text>
+    <text x="96" y="84" fill="#f2f7ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11">5793 ms → 1429 ms · 4.05×</text>
+    <text x="16" y="102" fill="#48d8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">UDP4</text>
+    <text x="96" y="102" fill="#f2f7ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11">41,605 ms → 25,147 ms · 1.64×</text>
+    <text x="16" y="120" fill="#48d8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">UDP6</text>
+    <text x="96" y="120" fill="#f2f7ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11">40,588 ms → 25,601 ms · 1.53×</text>
   </g>
   <g class="environment" transform="translate(610 87)">
     <rect width="552" height="140" rx="10" fill="#0c1322" stroke="#21304a"/>
-    <text x="16" y="31" fill="#f2f7ff" font-family="system-ui, sans-serif" font-size="15" font-weight="700">Environment pending</text>
-    <text x="16" y="61" fill="#72839b" font-family="system-ui, sans-serif" font-size="13">No accepted paired transport record</text>
+    <text x="16" y="24" fill="#f2f7ff" font-family="system-ui, sans-serif" font-size="15" font-weight="700">Linux · x64 · v24.18.1</text>
+    <text x="536" y="24" fill="#62f28c" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="10" text-anchor="end">PAIRED · SNAPSHOT</text>
+    <text x="16" y="48" fill="#48d8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">LOCAL</text>
+    <text x="96" y="48" fill="#f2f7ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11">7043 ms → 2749 ms · 2.56×</text>
+    <text x="16" y="66" fill="#48d8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">TCP</text>
+    <text x="96" y="66" fill="#f2f7ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11">8469 ms → 2734 ms · 3.11×</text>
+    <text x="16" y="84" fill="#48d8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">TLS</text>
+    <text x="96" y="84" fill="#f2f7ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11">5457 ms → 1392 ms · 3.89×</text>
+    <text x="16" y="102" fill="#48d8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">UDP4</text>
+    <text x="96" y="102" fill="#f2f7ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11">43,918 ms → 25,273 ms · 1.72×</text>
+    <text x="16" y="120" fill="#48d8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">UDP6</text>
+    <text x="96" y="120" fill="#f2f7ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11">42,487 ms → 25,127 ms · 1.68×</text>
   </g>
   <g class="environment" transform="translate(38 240)">
     <rect width="552" height="140" rx="10" fill="#0c1322" stroke="#21304a"/>
-    <text x="16" y="31" fill="#f2f7ff" font-family="system-ui, sans-serif" font-size="15" font-weight="700">Environment pending</text>
-    <text x="16" y="61" fill="#72839b" font-family="system-ui, sans-serif" font-size="13">No accepted paired transport record</text>
+    <text x="16" y="24" fill="#f2f7ff" font-family="system-ui, sans-serif" font-size="15" font-weight="700">macOS · arm64 · v22.13.0</text>
+    <text x="536" y="24" fill="#62f28c" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="10" text-anchor="end">PAIRED · SNAPSHOT</text>
+    <text x="16" y="48" fill="#48d8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">LOCAL</text>
+    <text x="96" y="48" fill="#f2f7ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11">4572 ms → 1337 ms · 3.57×</text>
+    <text x="16" y="66" fill="#48d8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">TCP</text>
+    <text x="96" y="66" fill="#f2f7ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11">4854 ms → 3804 ms · 1.26×</text>
+    <text x="16" y="84" fill="#48d8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">TLS</text>
+    <text x="96" y="84" fill="#f2f7ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11">3916 ms → 891.4 ms · 4.23×</text>
+    <text x="16" y="102" fill="#48d8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">UDP4</text>
+    <text x="96" y="102" fill="#f2f7ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11">20,488 ms → 15,277 ms · 1.34×</text>
+    <text x="16" y="120" fill="#48d8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">UDP6</text>
+    <text x="96" y="120" fill="#f2f7ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11">20,358 ms → 15,593 ms · 1.30×</text>
   </g>
   <g class="environment" transform="translate(610 240)">
     <rect width="552" height="140" rx="10" fill="#0c1322" stroke="#21304a"/>
-    <text x="16" y="31" fill="#f2f7ff" font-family="system-ui, sans-serif" font-size="15" font-weight="700">Environment pending</text>
-    <text x="16" y="61" fill="#72839b" font-family="system-ui, sans-serif" font-size="13">No accepted paired transport record</text>
+    <text x="16" y="24" fill="#f2f7ff" font-family="system-ui, sans-serif" font-size="15" font-weight="700">macOS · arm64 · v24.18.1</text>
+    <text x="536" y="24" fill="#62f28c" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="10" text-anchor="end">PAIRED · SNAPSHOT</text>
+    <text x="16" y="48" fill="#48d8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">LOCAL</text>
+    <text x="96" y="48" fill="#f2f7ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11">3794 ms → 1161 ms · 3.26×</text>
+    <text x="16" y="66" fill="#48d8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">TCP</text>
+    <text x="96" y="66" fill="#f2f7ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11">4329 ms → 3715 ms · 1.14×</text>
+    <text x="16" y="84" fill="#48d8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">TLS</text>
+    <text x="96" y="84" fill="#f2f7ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11">3727 ms → 902.7 ms · 4.16×</text>
+    <text x="16" y="102" fill="#48d8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">UDP4</text>
+    <text x="96" y="102" fill="#f2f7ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11">19,150 ms → 16,027 ms · 1.19×</text>
+    <text x="16" y="120" fill="#48d8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">UDP6</text>
+    <text x="96" y="120" fill="#f2f7ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11">19,574 ms → 15,055 ms · 1.30×</text>
   </g>
   <g class="environment" transform="translate(38 393)">
     <rect width="552" height="140" rx="10" fill="#0c1322" stroke="#21304a"/>
-    <text x="16" y="31" fill="#f2f7ff" font-family="system-ui, sans-serif" font-size="15" font-weight="700">Environment pending</text>
-    <text x="16" y="61" fill="#72839b" font-family="system-ui, sans-serif" font-size="13">No accepted paired transport record</text>
+    <text x="16" y="24" fill="#f2f7ff" font-family="system-ui, sans-serif" font-size="15" font-weight="700">Windows · x64 · v22.13.0</text>
+    <text x="536" y="24" fill="#62f28c" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="10" text-anchor="end">PAIRED · SNAPSHOT</text>
+    <text x="16" y="48" fill="#48d8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">LOCAL</text>
+    <text x="96" y="48" fill="#f2f7ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11">9702 ms → 2473 ms · 3.95×</text>
+    <text x="16" y="66" fill="#48d8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">TCP</text>
+    <text x="96" y="66" fill="#f2f7ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11">8337 ms → 2044 ms · 4.08×</text>
+    <text x="16" y="84" fill="#48d8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">TLS</text>
+    <text x="96" y="84" fill="#f2f7ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11">8513 ms → 2198 ms · 3.87×</text>
+    <text x="16" y="102" fill="#48d8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">UDP4</text>
+    <text x="96" y="102" fill="#f2f7ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11">40,120 ms → 25,699 ms · 1.55×</text>
+    <text x="16" y="120" fill="#48d8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">UDP6</text>
+    <text x="96" y="120" fill="#f2f7ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11">40,102 ms → 25,438 ms · 1.58×</text>
   </g>
   <g class="environment" transform="translate(610 393)">
     <rect width="552" height="140" rx="10" fill="#0c1322" stroke="#21304a"/>
-    <text x="16" y="31" fill="#f2f7ff" font-family="system-ui, sans-serif" font-size="15" font-weight="700">Environment pending</text>
-    <text x="16" y="61" fill="#72839b" font-family="system-ui, sans-serif" font-size="13">No accepted paired transport record</text>
+    <text x="16" y="24" fill="#f2f7ff" font-family="system-ui, sans-serif" font-size="15" font-weight="700">Windows · x64 · v24.18.1</text>
+    <text x="536" y="24" fill="#62f28c" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="10" text-anchor="end">PAIRED · SNAPSHOT</text>
+    <text x="16" y="48" fill="#48d8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">LOCAL</text>
+    <text x="96" y="48" fill="#f2f7ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11">7518 ms → 2264 ms · 3.49×</text>
+    <text x="16" y="66" fill="#48d8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">TCP</text>
+    <text x="96" y="66" fill="#f2f7ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11">6679 ms → 1892 ms · 3.54×</text>
+    <text x="16" y="84" fill="#48d8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">TLS</text>
+    <text x="96" y="84" fill="#f2f7ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11">7236 ms → 2183 ms · 3.33×</text>
+    <text x="16" y="102" fill="#48d8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">UDP4</text>
+    <text x="96" y="102" fill="#f2f7ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11">76,488 ms → 43,246 ms · 1.44×</text>
+    <text x="16" y="120" fill="#48d8ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" font-weight="700">UDP6</text>
+    <text x="96" y="120" fill="#f2f7ff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11">58,955 ms → 40,794 ms · 1.45×</text>
   </g>
   <text x="38" y="578" fill="#72839b" font-family="system-ui, sans-serif" font-size="13">Local means Unix-domain socket on Linux/macOS and named pipe on Windows. Hosted snapshots are noisy; rankings and certification are disabled.</text>
 </svg>

@@ -1,0 +1,5418 @@
+{
+  "schemaVersion": 1,
+  "id": "run-20260822T222845832Z-8fb6d2f0-bad4-40bb-8238-38cf8968d6b7",
+  "generatedAt": "2026-08-22T22:28:45.832Z",
+  "record": {
+    "file": "run-20260822T222845832Z-8fb6d2f0-bad4-40bb-8238-38cf8968d6b7.json",
+    "recordedAt": "2026-08-22T22:28:45.895Z"
+  },
+  "repository": {
+    "capture": "pre-and-post-execution",
+    "changedDuringRun": false,
+    "commit": "7f53d86bf73e8143bc2f4cb4b6e8e67c5dd8a833",
+    "dirty": false,
+    "preExecution": {
+      "capturedAt": "2026-08-22T22:16:45.988Z",
+      "commit": "7f53d86bf73e8143bc2f4cb4b6e8e67c5dd8a833",
+      "dirty": false,
+      "statusSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "postExecution": {
+      "capturedAt": "2026-08-22T22:28:45.870Z",
+      "commit": "7f53d86bf73e8143bc2f4cb4b6e8e67c5dd8a833",
+      "dirty": false,
+      "statusSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "system": {
+    "architecture": "arm64",
+    "cpu": {
+      "count": 3,
+      "model": "Apple M1 (Virtual)"
+    },
+    "environment": {
+      "githubRepository": "RIAEvangelist/node-ipc",
+      "imageOS": "macos26",
+      "imageVersion": "20260728.0273.1",
+      "nodeLane": "22.13.0",
+      "npm": null,
+      "osLane": "macos-latest",
+      "provider": "github-actions",
+      "runAttempt": "1",
+      "runId": "32601966766",
+      "runnerArchitecture": "ARM64",
+      "runnerEnvironment": "github-hosted",
+      "sourceRef": "refs/heads/main",
+      "sourceSha": "7f53d86bf73e8143bc2f4cb4b6e8e67c5dd8a833",
+      "workflow": "Record transport comparison snapshots",
+      "workflowRef": "RIAEvangelist/node-ipc/.github/workflows/transport-benchmark.yml@refs/heads/main",
+      "workflowSha": "7f53d86bf73e8143bc2f4cb4b6e8e67c5dd8a833"
+    },
+    "machine": {
+      "id": "6d4049c8f619d186"
+    },
+    "node": "v22.13.0",
+    "platform": "darwin",
+    "release": "25.5.0",
+    "totalMemoryBytes": 7516192768
+  },
+  "evidence": {
+    "authority": "snapshot-noisy",
+    "certification": false,
+    "classification": "clean-end-to-end-transport-comparison",
+    "comparison": {
+      "paired": true,
+      "state": "version-comparison",
+      "subjects": [
+        "legacy-v12",
+        "current"
+      ],
+      "transports": [
+        "local",
+        "tcp",
+        "tls",
+        "udp4",
+        "udp6"
+      ]
+    },
+    "privacy": {
+      "excluded": [
+        "absolute-paths",
+        "ephemeral-endpoints",
+        "process-ids"
+      ],
+      "sanitized": true
+    },
+    "publishable": true,
+    "rankingEligible": false,
+    "reasons": []
+  },
+  "oracles": {
+    "node-byte-reflector": {
+      "implementation": "node-byte-reflector",
+      "runtime": "v22.13.0"
+    },
+    "standard-c-datagram-reflector": {
+      "implementation": "standard-c-datagram-reflector",
+      "build": {
+        "binarySha256": "d76c129dafe5613f0d61220a2ba33d10ea8dcb4076e6edc448507ac7b466fe54",
+        "compiler": "cc",
+        "flags": [
+          "-O3",
+          "-std=c11"
+        ],
+        "sourceSha256": "335804ab92c86075b845bb5cf909407e0d3d3d85bcb1ce509e9e4a172b8e0ce4",
+        "target": {
+          "architecture": "arm64",
+          "name": "raw-echo",
+          "platform": "darwin"
+        },
+        "version": "Apple clang version 21.0.0 (clang-2100.1.1.101)"
+      }
+    }
+  },
+  "config": {
+    "currentVersion": "13.0.0",
+    "messages": 1000000,
+    "oracleByTransport": {
+      "local": "node-byte-reflector",
+      "tcp": "node-byte-reflector",
+      "tls": "node-byte-reflector",
+      "udp4": "standard-c-datagram-reflector",
+      "udp6": "standard-c-datagram-reflector"
+    },
+    "pairsPerTransport": 7,
+    "payloadBytes": 64,
+    "probeFrames": 64,
+    "transports": [
+      "local",
+      "tcp",
+      "tls",
+      "udp4",
+      "udp6"
+    ],
+    "udpWindow": 64,
+    "versions": [
+      "legacy-v12",
+      "current"
+    ],
+    "warmupFrames": 100000
+  },
+  "subjects": {
+    "legacy-v12": {
+      "id": "legacy-v12",
+      "version": "12.0.0",
+      "source": {
+        "kind": "git-tag-archive",
+        "tag": "12.0.0",
+        "commit": "a98efaedbf090d7bf4d6bdf07761301c531608af",
+        "packageJsonSha256": "4e591003172ecae08e6c048f0645c796736d01e555802b5bcf854494927e3c2d",
+        "packageLockSha256": "419dcb3d51a4bcca35542b16cc5b1704a42134083e925125bb8787f4ce75174f"
+      }
+    },
+    "current": {
+      "id": "current",
+      "version": "13.0.0",
+      "source": {
+        "kind": "clean-repository",
+        "commit": "7f53d86bf73e8143bc2f4cb4b6e8e67c5dd8a833",
+        "packageJsonSha256": "074c86c201bbe840960a606279f2d16909dbf854869bd0b952fdfb38f2571b68",
+        "packageLockSha256": "6327760a9b5057f37b43349710e8b2b48a9837695ae03b77d9222702e1674c71"
+      }
+    }
+  },
+  "samples": [
+    {
+      "transport": "local",
+      "oracle": "node-byte-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 0,
+      "orderIndex": 0,
+      "version": "legacy-v12",
+      "rootVersion": "12.0.0",
+      "metrics": {
+        "elapsedNs": "5256646625",
+        "framesPerSecond": 190235.34799621423,
+        "millisecondsPerMillion": 5256.646625,
+        "oracleCpuMicroseconds": 1107147,
+        "oracleCpuToWallRatio": 0.21061849482796458,
+        "oracleSaturated": false,
+        "oracleWallNs": "5271974167"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54837248,
+          "heapTotal": 9748480,
+          "heapUsed": 5106536,
+          "external": 2144820,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46153728,
+          "heapTotal": 6864896,
+          "heapUsed": 4023192,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "local",
+      "oracle": "node-byte-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 0,
+      "orderIndex": 1,
+      "version": "current",
+      "rootVersion": "13.0.0",
+      "metrics": {
+        "elapsedNs": "1305780375",
+        "framesPerSecond": 765825.5700159377,
+        "millisecondsPerMillion": 1305.780375,
+        "oracleCpuMicroseconds": 461800,
+        "oracleCpuToWallRatio": 0.35365824823336006,
+        "oracleSaturated": false,
+        "oracleWallNs": "1317850083"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54476800,
+          "heapTotal": 10010624,
+          "heapUsed": 5137856,
+          "external": 2106506,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46317568,
+          "heapTotal": 6864896,
+          "heapUsed": 4023152,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "local",
+      "oracle": "node-byte-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 1,
+      "orderIndex": 0,
+      "version": "current",
+      "rootVersion": "13.0.0",
+      "metrics": {
+        "elapsedNs": "1388045583",
+        "framesPerSecond": 720437.435374916,
+        "millisecondsPerMillion": 1388.045583,
+        "oracleCpuMicroseconds": 614552,
+        "oracleCpuToWallRatio": 0.4427462667845253,
+        "oracleSaturated": false,
+        "oracleWallNs": "1402624958"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54018048,
+          "heapTotal": 10010624,
+          "heapUsed": 5134464,
+          "external": 2106506,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46252032,
+          "heapTotal": 6864896,
+          "heapUsed": 4023152,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "local",
+      "oracle": "node-byte-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 1,
+      "orderIndex": 1,
+      "version": "legacy-v12",
+      "rootVersion": "12.0.0",
+      "metrics": {
+        "elapsedNs": "4463827708",
+        "framesPerSecond": 224022.98328132514,
+        "millisecondsPerMillion": 4463.827708,
+        "oracleCpuMicroseconds": 1020314,
+        "oracleCpuToWallRatio": 0.22857378616370203,
+        "oracleSaturated": false,
+        "oracleWallNs": "4478360167"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54706176,
+          "heapTotal": 9748480,
+          "heapUsed": 5106536,
+          "external": 2144820,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46088192,
+          "heapTotal": 6864896,
+          "heapUsed": 4023192,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "local",
+      "oracle": "node-byte-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 2,
+      "orderIndex": 0,
+      "version": "legacy-v12",
+      "rootVersion": "12.0.0",
+      "metrics": {
+        "elapsedNs": "4531933750",
+        "framesPerSecond": 220656.35888874147,
+        "millisecondsPerMillion": 4531.93375,
+        "oracleCpuMicroseconds": 1092052,
+        "oracleCpuToWallRatio": 0.24096821803716792,
+        "oracleSaturated": false,
+        "oracleWallNs": "4549764166"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54591488,
+          "heapTotal": 9748480,
+          "heapUsed": 5106536,
+          "external": 2144820,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 45973504,
+          "heapTotal": 6864896,
+          "heapUsed": 4023192,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "local",
+      "oracle": "node-byte-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 2,
+      "orderIndex": 1,
+      "version": "current",
+      "rootVersion": "13.0.0",
+      "metrics": {
+        "elapsedNs": "1607947583",
+        "framesPerSecond": 621910.8200867267,
+        "millisecondsPerMillion": 1607.947583,
+        "oracleCpuMicroseconds": 805991,
+        "oracleCpuToWallRatio": 0.5012545237925209,
+        "oracleSaturated": false,
+        "oracleWallNs": "1621531042"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 53837824,
+          "heapTotal": 10010624,
+          "heapUsed": 5134464,
+          "external": 2106506,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46071808,
+          "heapTotal": 6864896,
+          "heapUsed": 4023152,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "local",
+      "oracle": "node-byte-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 3,
+      "orderIndex": 0,
+      "version": "current",
+      "rootVersion": "13.0.0",
+      "metrics": {
+        "elapsedNs": "1858133333",
+        "framesPerSecond": 538174.512151653,
+        "millisecondsPerMillion": 1858.133333,
+        "oracleCpuMicroseconds": 748856,
+        "oracleCpuToWallRatio": 0.40301521247183825,
+        "oracleSaturated": false,
+        "oracleWallNs": "1874424084"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 53886976,
+          "heapTotal": 10010624,
+          "heapUsed": 5134400,
+          "external": 2106506,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 45989888,
+          "heapTotal": 6864896,
+          "heapUsed": 4023152,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "local",
+      "oracle": "node-byte-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 3,
+      "orderIndex": 1,
+      "version": "legacy-v12",
+      "rootVersion": "12.0.0",
+      "metrics": {
+        "elapsedNs": "4702597917",
+        "framesPerSecond": 212648.41639660002,
+        "millisecondsPerMillion": 4702.597917,
+        "oracleCpuMicroseconds": 1046394,
+        "oracleCpuToWallRatio": 0.2225140270269039,
+        "oracleSaturated": false,
+        "oracleWallNs": "4722052917"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54558720,
+          "heapTotal": 9748480,
+          "heapUsed": 5106536,
+          "external": 2144820,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46088192,
+          "heapTotal": 6864896,
+          "heapUsed": 4023192,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "local",
+      "oracle": "node-byte-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 4,
+      "orderIndex": 0,
+      "version": "legacy-v12",
+      "rootVersion": "12.0.0",
+      "metrics": {
+        "elapsedNs": "4778531500",
+        "framesPerSecond": 209269.3121307247,
+        "millisecondsPerMillion": 4778.5315,
+        "oracleCpuMicroseconds": 978182,
+        "oracleCpuToWallRatio": 0.20470347427865654,
+        "oracleSaturated": false,
+        "oracleWallNs": "4793156791"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54624256,
+          "heapTotal": 9748480,
+          "heapUsed": 5106392,
+          "external": 2144820,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46022656,
+          "heapTotal": 6864896,
+          "heapUsed": 4023192,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "local",
+      "oracle": "node-byte-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 4,
+      "orderIndex": 1,
+      "version": "current",
+      "rootVersion": "13.0.0",
+      "metrics": {
+        "elapsedNs": "1336964917",
+        "framesPerSecond": 747962.7829306758,
+        "millisecondsPerMillion": 1336.964917,
+        "oracleCpuMicroseconds": 463015,
+        "oracleCpuToWallRatio": 0.3463179879386469,
+        "oracleSaturated": false,
+        "oracleWallNs": "1350809458"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 53837824,
+          "heapTotal": 10010624,
+          "heapUsed": 5134400,
+          "external": 2106506,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46022656,
+          "heapTotal": 6864896,
+          "heapUsed": 4023152,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "local",
+      "oracle": "node-byte-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 5,
+      "orderIndex": 0,
+      "version": "current",
+      "rootVersion": "13.0.0",
+      "metrics": {
+        "elapsedNs": "1275041791",
+        "framesPerSecond": 784288.0186818911,
+        "millisecondsPerMillion": 1275.041791,
+        "oracleCpuMicroseconds": 441573,
+        "oracleCpuToWallRatio": 0.3463204132734187,
+        "oracleSaturated": false,
+        "oracleWallNs": "1287295209"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 53936128,
+          "heapTotal": 10010624,
+          "heapUsed": 5134400,
+          "external": 2106506,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46284800,
+          "heapTotal": 6864896,
+          "heapUsed": 4023152,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "local",
+      "oracle": "node-byte-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 5,
+      "orderIndex": 1,
+      "version": "legacy-v12",
+      "rootVersion": "12.0.0",
+      "metrics": {
+        "elapsedNs": "4571678708",
+        "framesPerSecond": 218738.03122911847,
+        "millisecondsPerMillion": 4571.678708,
+        "oracleCpuMicroseconds": 1159346,
+        "oracleCpuToWallRatio": 0.2535930615533536,
+        "oracleSaturated": false,
+        "oracleWallNs": "4585266166"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54657024,
+          "heapTotal": 9748480,
+          "heapUsed": 5106536,
+          "external": 2144820,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46039040,
+          "heapTotal": 6864896,
+          "heapUsed": 4023192,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "local",
+      "oracle": "node-byte-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 6,
+      "orderIndex": 0,
+      "version": "legacy-v12",
+      "rootVersion": "12.0.0",
+      "metrics": {
+        "elapsedNs": "4178152042",
+        "framesPerSecond": 239340.2609449606,
+        "millisecondsPerMillion": 4178.152042,
+        "oracleCpuMicroseconds": 1040097,
+        "oracleCpuToWallRatio": 0.2489370873880707,
+        "oracleSaturated": false,
+        "oracleWallNs": "4190515042"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54738944,
+          "heapTotal": 9748480,
+          "heapUsed": 5106536,
+          "external": 2144820,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46268416,
+          "heapTotal": 6864896,
+          "heapUsed": 4023192,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "local",
+      "oracle": "node-byte-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 6,
+      "orderIndex": 1,
+      "version": "current",
+      "rootVersion": "13.0.0",
+      "metrics": {
+        "elapsedNs": "1153292000",
+        "framesPerSecond": 867083.0977757585,
+        "millisecondsPerMillion": 1153.292,
+        "oracleCpuMicroseconds": 388641,
+        "oracleCpuToWallRatio": 0.33698404220266853,
+        "oracleSaturated": false,
+        "oracleWallNs": "1164096125"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 53739520,
+          "heapTotal": 10010624,
+          "heapUsed": 5134400,
+          "external": 2106506,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46120960,
+          "heapTotal": 6864896,
+          "heapUsed": 4023152,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "tcp",
+      "oracle": "node-byte-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 0,
+      "orderIndex": 0,
+      "version": "legacy-v12",
+      "rootVersion": "12.0.0",
+      "metrics": {
+        "elapsedNs": "4836263208",
+        "framesPerSecond": 206771.21095184196,
+        "millisecondsPerMillion": 4836.263208,
+        "oracleCpuMicroseconds": 1125886,
+        "oracleCpuToWallRatio": 0.23280081161372557,
+        "oracleSaturated": false,
+        "oracleWallNs": "4850625791"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54722560,
+          "heapTotal": 9748480,
+          "heapUsed": 5106400,
+          "external": 2144820,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46186496,
+          "heapTotal": 6864896,
+          "heapUsed": 4023152,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "tcp",
+      "oracle": "node-byte-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 0,
+      "orderIndex": 1,
+      "version": "current",
+      "rootVersion": "13.0.0",
+      "metrics": {
+        "elapsedNs": "3990277875",
+        "framesPerSecond": 250609.11328136516,
+        "millisecondsPerMillion": 3990.277875,
+        "oracleCpuMicroseconds": 1070506,
+        "oracleCpuToWallRatio": 0.2682785594223811,
+        "oracleSaturated": false,
+        "oracleWallNs": "4002512583"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 53821440,
+          "heapTotal": 10010624,
+          "heapUsed": 5134400,
+          "external": 2106506,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46088192,
+          "heapTotal": 6864896,
+          "heapUsed": 4023120,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "tcp",
+      "oracle": "node-byte-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 1,
+      "orderIndex": 0,
+      "version": "current",
+      "rootVersion": "13.0.0",
+      "metrics": {
+        "elapsedNs": "3759508291",
+        "framesPerSecond": 265992.2315888836,
+        "millisecondsPerMillion": 3759.508291,
+        "oracleCpuMicroseconds": 1276069,
+        "oracleCpuToWallRatio": 0.33942444097139507,
+        "oracleSaturated": false,
+        "oracleWallNs": "3770058042"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 53903360,
+          "heapTotal": 10010624,
+          "heapUsed": 5134336,
+          "external": 2106506,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46235648,
+          "heapTotal": 6864896,
+          "heapUsed": 4023120,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "tcp",
+      "oracle": "node-byte-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 1,
+      "orderIndex": 1,
+      "version": "legacy-v12",
+      "rootVersion": "12.0.0",
+      "metrics": {
+        "elapsedNs": "4929393125",
+        "framesPerSecond": 202864.7289112288,
+        "millisecondsPerMillion": 4929.393125,
+        "oracleCpuMicroseconds": 958913,
+        "oracleCpuToWallRatio": 0.19452962579445315,
+        "oracleSaturated": false,
+        "oracleWallNs": "4946170833"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54542336,
+          "heapTotal": 9748480,
+          "heapUsed": 5106256,
+          "external": 2144820,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46104576,
+          "heapTotal": 6864896,
+          "heapUsed": 4023152,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "tcp",
+      "oracle": "node-byte-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 2,
+      "orderIndex": 0,
+      "version": "legacy-v12",
+      "rootVersion": "12.0.0",
+      "metrics": {
+        "elapsedNs": "4721294125",
+        "framesPerSecond": 211806.33392544676,
+        "millisecondsPerMillion": 4721.294125,
+        "oracleCpuMicroseconds": 911870,
+        "oracleCpuToWallRatio": 0.19313984171659715,
+        "oracleSaturated": false,
+        "oracleWallNs": "4734627708"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54706176,
+          "heapTotal": 9748480,
+          "heapUsed": 5106320,
+          "external": 2144820,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46284800,
+          "heapTotal": 6864896,
+          "heapUsed": 4023152,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "tcp",
+      "oracle": "node-byte-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 2,
+      "orderIndex": 1,
+      "version": "current",
+      "rootVersion": "13.0.0",
+      "metrics": {
+        "elapsedNs": "3733926750",
+        "framesPerSecond": 267814.57349156623,
+        "millisecondsPerMillion": 3733.92675,
+        "oracleCpuMicroseconds": 1254748,
+        "oracleCpuToWallRatio": 0.33603980045939574,
+        "oracleSaturated": false,
+        "oracleWallNs": "3746907583"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 53968896,
+          "heapTotal": 10010624,
+          "heapUsed": 5134336,
+          "external": 2106506,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46186496,
+          "heapTotal": 6864896,
+          "heapUsed": 4023120,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "tcp",
+      "oracle": "node-byte-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 3,
+      "orderIndex": 0,
+      "version": "current",
+      "rootVersion": "13.0.0",
+      "metrics": {
+        "elapsedNs": "4032447833",
+        "framesPerSecond": 247988.3290284341,
+        "millisecondsPerMillion": 4032.447833,
+        "oracleCpuMicroseconds": 1167609,
+        "oracleCpuToWallRatio": 0.2895534048685609,
+        "oracleSaturated": false,
+        "oracleWallNs": "4045636125"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 53854208,
+          "heapTotal": 10010624,
+          "heapUsed": 5134336,
+          "external": 2106506,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46202880,
+          "heapTotal": 6864896,
+          "heapUsed": 4023120,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "tcp",
+      "oracle": "node-byte-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 3,
+      "orderIndex": 1,
+      "version": "legacy-v12",
+      "rootVersion": "12.0.0",
+      "metrics": {
+        "elapsedNs": "4803722333",
+        "framesPerSecond": 208171.89893144477,
+        "millisecondsPerMillion": 4803.722333,
+        "oracleCpuMicroseconds": 1152519,
+        "oracleCpuToWallRatio": 0.2399220687845698,
+        "oracleSaturated": false,
+        "oracleWallNs": "4817951625"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54804480,
+          "heapTotal": 9748480,
+          "heapUsed": 5106320,
+          "external": 2144820,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46317568,
+          "heapTotal": 6864896,
+          "heapUsed": 4023152,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "tcp",
+      "oracle": "node-byte-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 4,
+      "orderIndex": 0,
+      "version": "legacy-v12",
+      "rootVersion": "12.0.0",
+      "metrics": {
+        "elapsedNs": "4921595625",
+        "framesPerSecond": 203186.13640672682,
+        "millisecondsPerMillion": 4921.595625,
+        "oracleCpuMicroseconds": 1055465,
+        "oracleCpuToWallRatio": 0.21445585546252594,
+        "oracleSaturated": false,
+        "oracleWallNs": "4934876625"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54788096,
+          "heapTotal": 9748480,
+          "heapUsed": 5106464,
+          "external": 2144820,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46137344,
+          "heapTotal": 6864896,
+          "heapUsed": 4023152,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "tcp",
+      "oracle": "node-byte-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 4,
+      "orderIndex": 1,
+      "version": "current",
+      "rootVersion": "13.0.0",
+      "metrics": {
+        "elapsedNs": "3674341375",
+        "framesPerSecond": 272157.6189964113,
+        "millisecondsPerMillion": 3674.341375,
+        "oracleCpuMicroseconds": 1288568,
+        "oracleCpuToWallRatio": 0.3506935987949677,
+        "oracleSaturated": false,
+        "oracleWallNs": "3685353375"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 53919744,
+          "heapTotal": 10010624,
+          "heapUsed": 5134336,
+          "external": 2106506,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46104576,
+          "heapTotal": 6864896,
+          "heapUsed": 4023120,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "tcp",
+      "oracle": "node-byte-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 5,
+      "orderIndex": 0,
+      "version": "current",
+      "rootVersion": "13.0.0",
+      "metrics": {
+        "elapsedNs": "4126663958",
+        "framesPerSecond": 242326.49185339845,
+        "millisecondsPerMillion": 4126.663958,
+        "oracleCpuMicroseconds": 1084327,
+        "oracleCpuToWallRatio": 0.26276115793191995,
+        "oracleSaturated": false,
+        "oracleWallNs": "4137390500"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 53772288,
+          "heapTotal": 10010624,
+          "heapUsed": 5134336,
+          "external": 2106506,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46022656,
+          "heapTotal": 6864896,
+          "heapUsed": 4023120,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "tcp",
+      "oracle": "node-byte-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 5,
+      "orderIndex": 1,
+      "version": "legacy-v12",
+      "rootVersion": "12.0.0",
+      "metrics": {
+        "elapsedNs": "4988378875",
+        "framesPerSecond": 200465.92792132293,
+        "millisecondsPerMillion": 4988.378875,
+        "oracleCpuMicroseconds": 1075762,
+        "oracleCpuToWallRatio": 0.2156536275524982,
+        "oracleSaturated": false,
+        "oracleWallNs": "5002563375"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54591488,
+          "heapTotal": 9748480,
+          "heapUsed": 5106464,
+          "external": 2144820,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46071808,
+          "heapTotal": 6864896,
+          "heapUsed": 4023152,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "tcp",
+      "oracle": "node-byte-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 6,
+      "orderIndex": 0,
+      "version": "legacy-v12",
+      "rootVersion": "12.0.0",
+      "metrics": {
+        "elapsedNs": "4853875416",
+        "framesPerSecond": 206020.9449759804,
+        "millisecondsPerMillion": 4853.875416,
+        "oracleCpuMicroseconds": 869893,
+        "oracleCpuToWallRatio": 0.17921617788799052,
+        "oracleSaturated": false,
+        "oracleWallNs": "4871031166"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54509568,
+          "heapTotal": 9748480,
+          "heapUsed": 5106320,
+          "external": 2144820,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46170112,
+          "heapTotal": 6864896,
+          "heapUsed": 4023152,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "tcp",
+      "oracle": "node-byte-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 6,
+      "orderIndex": 1,
+      "version": "current",
+      "rootVersion": "13.0.0",
+      "metrics": {
+        "elapsedNs": "3804128292",
+        "framesPerSecond": 262872.3121938286,
+        "millisecondsPerMillion": 3804.128292,
+        "oracleCpuMicroseconds": 1174426,
+        "oracleCpuToWallRatio": 0.30872407812054936,
+        "oracleSaturated": false,
+        "oracleWallNs": "3816057833"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 53985280,
+          "heapTotal": 10010624,
+          "heapUsed": 5134400,
+          "external": 2106506,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46055424,
+          "heapTotal": 6864896,
+          "heapUsed": 4023120,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "tls",
+      "oracle": "node-byte-reflector",
+      "securityMode": "encryption-only",
+      "pairIndex": 0,
+      "orderIndex": 0,
+      "version": "legacy-v12",
+      "rootVersion": "12.0.0",
+      "metrics": {
+        "elapsedNs": "4966988750",
+        "framesPerSecond": 201329.22588157665,
+        "millisecondsPerMillion": 4966.98875,
+        "oracleCpuMicroseconds": 402563,
+        "oracleCpuToWallRatio": 0.08104769715856514,
+        "oracleSaturated": false,
+        "oracleWallNs": "4992191375"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54624256,
+          "heapTotal": 9748480,
+          "heapUsed": 5106440,
+          "external": 2144820,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46022656,
+          "heapTotal": 6864896,
+          "heapUsed": 4023128,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "tls",
+      "oracle": "node-byte-reflector",
+      "securityMode": "encryption-only",
+      "pairIndex": 0,
+      "orderIndex": 1,
+      "version": "current",
+      "rootVersion": "13.0.0",
+      "metrics": {
+        "elapsedNs": "1134748792",
+        "framesPerSecond": 881252.3150938945,
+        "millisecondsPerMillion": 1134.748792,
+        "oracleCpuMicroseconds": 358115,
+        "oracleCpuToWallRatio": 0.31558967281985,
+        "oracleSaturated": false,
+        "oracleWallNs": "1159959291"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 53968896,
+          "heapTotal": 10010624,
+          "heapUsed": 5134312,
+          "external": 2106506,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46186496,
+          "heapTotal": 6864896,
+          "heapUsed": 4023096,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "tls",
+      "oracle": "node-byte-reflector",
+      "securityMode": "encryption-only",
+      "pairIndex": 1,
+      "orderIndex": 0,
+      "version": "current",
+      "rootVersion": "13.0.0",
+      "metrics": {
+        "elapsedNs": "1096309834",
+        "framesPerSecond": 912150.8983928353,
+        "millisecondsPerMillion": 1096.309834,
+        "oracleCpuMicroseconds": 318732,
+        "oracleCpuToWallRatio": 0.29073168014654516,
+        "oracleSaturated": false,
+        "oracleWallNs": "1113822583"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 53870592,
+          "heapTotal": 10010624,
+          "heapUsed": 5134312,
+          "external": 2106506,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46022656,
+          "heapTotal": 6864896,
+          "heapUsed": 4023096,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "tls",
+      "oracle": "node-byte-reflector",
+      "securityMode": "encryption-only",
+      "pairIndex": 1,
+      "orderIndex": 1,
+      "version": "legacy-v12",
+      "rootVersion": "12.0.0",
+      "metrics": {
+        "elapsedNs": "4632044125",
+        "framesPerSecond": 215887.4080242057,
+        "millisecondsPerMillion": 4632.044125,
+        "oracleCpuMicroseconds": 360532,
+        "oracleCpuToWallRatio": 0.07783431898978294,
+        "oracleSaturated": false,
+        "oracleWallNs": "4656124042"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54607872,
+          "heapTotal": 9748480,
+          "heapUsed": 5106440,
+          "external": 2144820,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46120960,
+          "heapTotal": 6864896,
+          "heapUsed": 4023128,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "tls",
+      "oracle": "node-byte-reflector",
+      "securityMode": "encryption-only",
+      "pairIndex": 2,
+      "orderIndex": 0,
+      "version": "legacy-v12",
+      "rootVersion": "12.0.0",
+      "metrics": {
+        "elapsedNs": "3915806458",
+        "framesPerSecond": 255375.23642339322,
+        "millisecondsPerMillion": 3915.806458,
+        "oracleCpuMicroseconds": 267529,
+        "oracleCpuToWallRatio": 0.06832028162511396,
+        "oracleSaturated": false,
+        "oracleWallNs": "3931817125"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54558720,
+          "heapTotal": 9748480,
+          "heapUsed": 5106440,
+          "external": 2144820,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46055424,
+          "heapTotal": 6864896,
+          "heapUsed": 4023128,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "tls",
+      "oracle": "node-byte-reflector",
+      "securityMode": "encryption-only",
+      "pairIndex": 2,
+      "orderIndex": 1,
+      "version": "current",
+      "rootVersion": "13.0.0",
+      "metrics": {
+        "elapsedNs": "885973166",
+        "framesPerSecond": 1128702.356206576,
+        "millisecondsPerMillion": 885.973166,
+        "oracleCpuMicroseconds": 199824,
+        "oracleCpuToWallRatio": 0.22554181962662287,
+        "oracleSaturated": false,
+        "oracleWallNs": "898106792"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 53919744,
+          "heapTotal": 10010624,
+          "heapUsed": 5134312,
+          "external": 2106506,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46301184,
+          "heapTotal": 6864896,
+          "heapUsed": 4023096,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "tls",
+      "oracle": "node-byte-reflector",
+      "securityMode": "encryption-only",
+      "pairIndex": 3,
+      "orderIndex": 0,
+      "version": "current",
+      "rootVersion": "13.0.0",
+      "metrics": {
+        "elapsedNs": "883699666",
+        "framesPerSecond": 1131606.1762549088,
+        "millisecondsPerMillion": 883.699666,
+        "oracleCpuMicroseconds": 197211,
+        "oracleCpuToWallRatio": 0.22316518562540683,
+        "oracleSaturated": false,
+        "oracleWallNs": "894818625"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 53919744,
+          "heapTotal": 10010624,
+          "heapUsed": 5134312,
+          "external": 2106506,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46104576,
+          "heapTotal": 6864896,
+          "heapUsed": 4023096,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "tls",
+      "oracle": "node-byte-reflector",
+      "securityMode": "encryption-only",
+      "pairIndex": 3,
+      "orderIndex": 1,
+      "version": "legacy-v12",
+      "rootVersion": "12.0.0",
+      "metrics": {
+        "elapsedNs": "3932645584",
+        "framesPerSecond": 254281.74968741348,
+        "millisecondsPerMillion": 3932.645584,
+        "oracleCpuMicroseconds": 242652,
+        "oracleCpuToWallRatio": 0.06170197512515026,
+        "oracleSaturated": false,
+        "oracleWallNs": "3947199125"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54476800,
+          "heapTotal": 9748480,
+          "heapUsed": 5106440,
+          "external": 2144820,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46088192,
+          "heapTotal": 6864896,
+          "heapUsed": 4023128,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "tls",
+      "oracle": "node-byte-reflector",
+      "securityMode": "encryption-only",
+      "pairIndex": 4,
+      "orderIndex": 0,
+      "version": "legacy-v12",
+      "rootVersion": "12.0.0",
+      "metrics": {
+        "elapsedNs": "3617313833",
+        "framesPerSecond": 276448.2282065793,
+        "millisecondsPerMillion": 3617.313833,
+        "oracleCpuMicroseconds": 236713,
+        "oracleCpuToWallRatio": 0.065438889443464,
+        "oracleSaturated": false,
+        "oracleWallNs": "3630926667"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54755328,
+          "heapTotal": 9748480,
+          "heapUsed": 5106296,
+          "external": 2144820,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46088192,
+          "heapTotal": 6864896,
+          "heapUsed": 4023128,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "tls",
+      "oracle": "node-byte-reflector",
+      "securityMode": "encryption-only",
+      "pairIndex": 4,
+      "orderIndex": 1,
+      "version": "current",
+      "rootVersion": "13.0.0",
+      "metrics": {
+        "elapsedNs": "895163208",
+        "framesPerSecond": 1117114.7239554555,
+        "millisecondsPerMillion": 895.163208,
+        "oracleCpuMicroseconds": 198646,
+        "oracleCpuToWallRatio": 0.22191037145485543,
+        "oracleSaturated": false,
+        "oracleWallNs": "907077917"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 53968896,
+          "heapTotal": 10010624,
+          "heapUsed": 5134312,
+          "external": 2106506,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46284800,
+          "heapTotal": 6864896,
+          "heapUsed": 4023096,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "tls",
+      "oracle": "node-byte-reflector",
+      "securityMode": "encryption-only",
+      "pairIndex": 5,
+      "orderIndex": 0,
+      "version": "current",
+      "rootVersion": "13.0.0",
+      "metrics": {
+        "elapsedNs": "882570334",
+        "framesPerSecond": 1133054.1731079759,
+        "millisecondsPerMillion": 882.570334,
+        "oracleCpuMicroseconds": 189742,
+        "oracleCpuToWallRatio": 0.21498796491385352,
+        "oracleSaturated": false,
+        "oracleWallNs": "894509334"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 53837824,
+          "heapTotal": 10010624,
+          "heapUsed": 5134312,
+          "external": 2106506,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46137344,
+          "heapTotal": 6864896,
+          "heapUsed": 4023096,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "tls",
+      "oracle": "node-byte-reflector",
+      "securityMode": "encryption-only",
+      "pairIndex": 5,
+      "orderIndex": 1,
+      "version": "legacy-v12",
+      "rootVersion": "12.0.0",
+      "metrics": {
+        "elapsedNs": "3666028500",
+        "framesPerSecond": 272774.7479322651,
+        "millisecondsPerMillion": 3666.0285,
+        "oracleCpuMicroseconds": 230761,
+        "oracleCpuToWallRatio": 0.06294577360759743,
+        "oracleSaturated": false,
+        "oracleWallNs": "3679524875"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54657024,
+          "heapTotal": 9748480,
+          "heapUsed": 5106232,
+          "external": 2144820,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46219264,
+          "heapTotal": 6864896,
+          "heapUsed": 4023128,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "tls",
+      "oracle": "node-byte-reflector",
+      "securityMode": "encryption-only",
+      "pairIndex": 6,
+      "orderIndex": 0,
+      "version": "legacy-v12",
+      "rootVersion": "12.0.0",
+      "metrics": {
+        "elapsedNs": "3424601500",
+        "framesPerSecond": 292004.77778217406,
+        "millisecondsPerMillion": 3424.6015,
+        "oracleCpuMicroseconds": 246548,
+        "oracleCpuToWallRatio": 0.07199319395263945,
+        "oracleSaturated": false,
+        "oracleWallNs": "3439108916"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54771712,
+          "heapTotal": 9748480,
+          "heapUsed": 5106440,
+          "external": 2144820,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46202880,
+          "heapTotal": 6864896,
+          "heapUsed": 4023128,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "tls",
+      "oracle": "node-byte-reflector",
+      "securityMode": "encryption-only",
+      "pairIndex": 6,
+      "orderIndex": 1,
+      "version": "current",
+      "rootVersion": "13.0.0",
+      "metrics": {
+        "elapsedNs": "891379209",
+        "framesPerSecond": 1121856.994086565,
+        "millisecondsPerMillion": 891.379209,
+        "oracleCpuMicroseconds": 194230,
+        "oracleCpuToWallRatio": 0.21789828396143351,
+        "oracleSaturated": false,
+        "oracleWallNs": "903566583"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 53985280,
+          "heapTotal": 10010624,
+          "heapUsed": 5134312,
+          "external": 2106506,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46252032,
+          "heapTotal": 6864896,
+          "heapUsed": 4023096,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [
+          "PipeWrap"
+        ],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "udp4",
+      "oracle": "standard-c-datagram-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 0,
+      "orderIndex": 0,
+      "version": "legacy-v12",
+      "rootVersion": "12.0.0",
+      "metrics": {
+        "elapsedNs": "20158405291",
+        "framesPerSecond": 49607.09865509371,
+        "millisecondsPerMillion": 20158.405291,
+        "oracleCpuMicroseconds": 10927159,
+        "oracleCpuToWallRatio": 0.5420646545328951,
+        "oracleSaturated": false,
+        "oracleWallNs": "20157172000"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54558720,
+          "heapTotal": 9748480,
+          "heapUsed": 5106368,
+          "external": 2144820,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46088192,
+          "heapTotal": 6864896,
+          "heapUsed": 4023200,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "udp4",
+      "oracle": "standard-c-datagram-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 0,
+      "orderIndex": 1,
+      "version": "current",
+      "rootVersion": "13.0.0",
+      "metrics": {
+        "elapsedNs": "15277151708",
+        "framesPerSecond": 65457.22783366367,
+        "millisecondsPerMillion": 15277.151708,
+        "oracleCpuMicroseconds": 9947230,
+        "oracleCpuToWallRatio": 0.6511181004238542,
+        "oracleSaturated": false,
+        "oracleWallNs": "15276366000"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 53936128,
+          "heapTotal": 10010624,
+          "heapUsed": 5134312,
+          "external": 2106506,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46219264,
+          "heapTotal": 6864896,
+          "heapUsed": 4023096,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "udp4",
+      "oracle": "standard-c-datagram-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 1,
+      "orderIndex": 0,
+      "version": "current",
+      "rootVersion": "13.0.0",
+      "metrics": {
+        "elapsedNs": "15277276292",
+        "framesPerSecond": 65456.694039346105,
+        "millisecondsPerMillion": 15277.276292,
+        "oracleCpuMicroseconds": 9894949,
+        "oracleCpuToWallRatio": 0.6476906492279337,
+        "oracleSaturated": false,
+        "oracleWallNs": "15276532000"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 53952512,
+          "heapTotal": 10010624,
+          "heapUsed": 5134312,
+          "external": 2106506,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46153728,
+          "heapTotal": 6864896,
+          "heapUsed": 4023096,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "udp4",
+      "oracle": "standard-c-datagram-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 1,
+      "orderIndex": 1,
+      "version": "legacy-v12",
+      "rootVersion": "12.0.0",
+      "metrics": {
+        "elapsedNs": "20430059792",
+        "framesPerSecond": 48947.48278669159,
+        "millisecondsPerMillion": 20430.059792,
+        "oracleCpuMicroseconds": 10878415,
+        "oracleCpuToWallRatio": 0.5324710309589876,
+        "oracleSaturated": false,
+        "oracleWallNs": "20428692000"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54706176,
+          "heapTotal": 9748480,
+          "heapUsed": 5106440,
+          "external": 2144820,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46137344,
+          "heapTotal": 6864896,
+          "heapUsed": 4023128,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "udp4",
+      "oracle": "standard-c-datagram-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 2,
+      "orderIndex": 0,
+      "version": "legacy-v12",
+      "rootVersion": "12.0.0",
+      "metrics": {
+        "elapsedNs": "20897677792",
+        "framesPerSecond": 47852.20683146037,
+        "millisecondsPerMillion": 20897.677792,
+        "oracleCpuMicroseconds": 11367415,
+        "oracleCpuToWallRatio": 0.5439558937190451,
+        "oracleSaturated": false,
+        "oracleWallNs": "20895674000"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54689792,
+          "heapTotal": 9748480,
+          "heapUsed": 5106440,
+          "external": 2144820,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46186496,
+          "heapTotal": 6864896,
+          "heapUsed": 4023128,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "udp4",
+      "oracle": "standard-c-datagram-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 2,
+      "orderIndex": 1,
+      "version": "current",
+      "rootVersion": "13.0.0",
+      "metrics": {
+        "elapsedNs": "15795139834",
+        "framesPerSecond": 63310.61392995326,
+        "millisecondsPerMillion": 15795.139834,
+        "oracleCpuMicroseconds": 10376851,
+        "oracleCpuToWallRatio": 0.6569648074696494,
+        "oracleSaturated": false,
+        "oracleWallNs": "15794284000"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54001664,
+          "heapTotal": 10010624,
+          "heapUsed": 5134312,
+          "external": 2106506,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46137344,
+          "heapTotal": 6864896,
+          "heapUsed": 4023096,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "udp4",
+      "oracle": "standard-c-datagram-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 3,
+      "orderIndex": 0,
+      "version": "current",
+      "rootVersion": "13.0.0",
+      "metrics": {
+        "elapsedNs": "15674937125",
+        "framesPerSecond": 63796.10916621141,
+        "millisecondsPerMillion": 15674.937125,
+        "oracleCpuMicroseconds": 10174597,
+        "oracleCpuToWallRatio": 0.6490997009342071,
+        "oracleSaturated": false,
+        "oracleWallNs": "15674267000"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 53919744,
+          "heapTotal": 10010624,
+          "heapUsed": 5134312,
+          "external": 2106506,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46104576,
+          "heapTotal": 6864896,
+          "heapUsed": 4023096,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "udp4",
+      "oracle": "standard-c-datagram-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 3,
+      "orderIndex": 1,
+      "version": "legacy-v12",
+      "rootVersion": "12.0.0",
+      "metrics": {
+        "elapsedNs": "20488340583",
+        "framesPerSecond": 48808.24759569549,
+        "millisecondsPerMillion": 20488.340583,
+        "oracleCpuMicroseconds": 11040327,
+        "oracleCpuToWallRatio": 0.5388590137534419,
+        "oracleSaturated": false,
+        "oracleWallNs": "20487204000"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54788096,
+          "heapTotal": 9748480,
+          "heapUsed": 5106440,
+          "external": 2144820,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46235648,
+          "heapTotal": 6864896,
+          "heapUsed": 4023128,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "udp4",
+      "oracle": "standard-c-datagram-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 4,
+      "orderIndex": 0,
+      "version": "legacy-v12",
+      "rootVersion": "12.0.0",
+      "metrics": {
+        "elapsedNs": "22637399042",
+        "framesPerSecond": 44174.68624132407,
+        "millisecondsPerMillion": 22637.399042,
+        "oracleCpuMicroseconds": 12265058,
+        "oracleCpuToWallRatio": 0.5418050888816417,
+        "oracleSaturated": false,
+        "oracleWallNs": "22634676000"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54657024,
+          "heapTotal": 9748480,
+          "heapUsed": 5106296,
+          "external": 2144820,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46153728,
+          "heapTotal": 6864896,
+          "heapUsed": 4023128,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "udp4",
+      "oracle": "standard-c-datagram-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 4,
+      "orderIndex": 1,
+      "version": "current",
+      "rootVersion": "13.0.0",
+      "metrics": {
+        "elapsedNs": "15727898375",
+        "framesPerSecond": 63581.28569736514,
+        "millisecondsPerMillion": 15727.898375,
+        "oracleCpuMicroseconds": 10240334,
+        "oracleCpuToWallRatio": 0.651093601690442,
+        "oracleSaturated": false,
+        "oracleWallNs": "15727226000"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54050816,
+          "heapTotal": 10010624,
+          "heapUsed": 5134312,
+          "external": 2106506,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46284800,
+          "heapTotal": 6864896,
+          "heapUsed": 4023096,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "udp4",
+      "oracle": "standard-c-datagram-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 5,
+      "orderIndex": 0,
+      "version": "current",
+      "rootVersion": "13.0.0",
+      "metrics": {
+        "elapsedNs": "15045611750",
+        "framesPerSecond": 66464.56233326637,
+        "millisecondsPerMillion": 15045.61175,
+        "oracleCpuMicroseconds": 9989502,
+        "oracleCpuToWallRatio": 0.6639478783572891,
+        "oracleSaturated": false,
+        "oracleWallNs": "15045085000"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54001664,
+          "heapTotal": 10010624,
+          "heapUsed": 5134376,
+          "external": 2106506,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46284800,
+          "heapTotal": 6864896,
+          "heapUsed": 4023096,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "udp4",
+      "oracle": "standard-c-datagram-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 5,
+      "orderIndex": 1,
+      "version": "legacy-v12",
+      "rootVersion": "12.0.0",
+      "metrics": {
+        "elapsedNs": "20385330167",
+        "framesPerSecond": 49054.883674084966,
+        "millisecondsPerMillion": 20385.330167,
+        "oracleCpuMicroseconds": 10876392,
+        "oracleCpuToWallRatio": 0.5335401443537483,
+        "oracleSaturated": false,
+        "oracleWallNs": "20384400000"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54722560,
+          "heapTotal": 9748480,
+          "heapUsed": 5106296,
+          "external": 2144820,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46120960,
+          "heapTotal": 6864896,
+          "heapUsed": 4023128,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "udp4",
+      "oracle": "standard-c-datagram-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 6,
+      "orderIndex": 0,
+      "version": "legacy-v12",
+      "rootVersion": "12.0.0",
+      "metrics": {
+        "elapsedNs": "20926196375",
+        "framesPerSecond": 47786.99301487368,
+        "millisecondsPerMillion": 20926.196375,
+        "oracleCpuMicroseconds": 11202201,
+        "oracleCpuToWallRatio": 0.535319500938211,
+        "oracleSaturated": false,
+        "oracleWallNs": "20925213000"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54591488,
+          "heapTotal": 9748480,
+          "heapUsed": 5106440,
+          "external": 2144820,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46055424,
+          "heapTotal": 6864896,
+          "heapUsed": 4023128,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "udp4",
+      "oracle": "standard-c-datagram-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 6,
+      "orderIndex": 1,
+      "version": "current",
+      "rootVersion": "13.0.0",
+      "metrics": {
+        "elapsedNs": "15083206459",
+        "framesPerSecond": 66298.90021848172,
+        "millisecondsPerMillion": 15083.206459,
+        "oracleCpuMicroseconds": 10142421,
+        "oracleCpuToWallRatio": 0.6724313578528336,
+        "oracleSaturated": false,
+        "oracleWallNs": "15082585000"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 53837824,
+          "heapTotal": 10010624,
+          "heapUsed": 5134312,
+          "external": 2106506,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46137344,
+          "heapTotal": 6864896,
+          "heapUsed": 4023096,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "udp6",
+      "oracle": "standard-c-datagram-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 0,
+      "orderIndex": 0,
+      "version": "legacy-v12",
+      "rootVersion": "12.0.0",
+      "metrics": {
+        "elapsedNs": "20465865417",
+        "framesPerSecond": 48861.84774621593,
+        "millisecondsPerMillion": 20465.865417,
+        "oracleCpuMicroseconds": 10521515,
+        "oracleCpuToWallRatio": 0.5141006639895271,
+        "oracleSaturated": false,
+        "oracleWallNs": "20465044000"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54689792,
+          "heapTotal": 9748480,
+          "heapUsed": 5106376,
+          "external": 2144820,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46022656,
+          "heapTotal": 6864896,
+          "heapUsed": 4023120,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "udp6",
+      "oracle": "standard-c-datagram-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 0,
+      "orderIndex": 1,
+      "version": "current",
+      "rootVersion": "13.0.0",
+      "metrics": {
+        "elapsedNs": "16417768792",
+        "framesPerSecond": 60909.616444792235,
+        "millisecondsPerMillion": 16417.768792,
+        "oracleCpuMicroseconds": 10779955,
+        "oracleCpuToWallRatio": 0.6566029243421203,
+        "oracleSaturated": false,
+        "oracleWallNs": "16416857000"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 53886976,
+          "heapTotal": 10010624,
+          "heapUsed": 5134368,
+          "external": 2106506,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46104576,
+          "heapTotal": 6864896,
+          "heapUsed": 4023080,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "udp6",
+      "oracle": "standard-c-datagram-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 1,
+      "orderIndex": 0,
+      "version": "current",
+      "rootVersion": "13.0.0",
+      "metrics": {
+        "elapsedNs": "15592825208",
+        "framesPerSecond": 64132.05988398712,
+        "millisecondsPerMillion": 15592.825208,
+        "oracleCpuMicroseconds": 10270377,
+        "oracleCpuToWallRatio": 0.658660432795124,
+        "oracleSaturated": false,
+        "oracleWallNs": "15592360000"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 53837824,
+          "heapTotal": 10010624,
+          "heapUsed": 5134304,
+          "external": 2106506,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46170112,
+          "heapTotal": 6864896,
+          "heapUsed": 4023080,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "udp6",
+      "oracle": "standard-c-datagram-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 1,
+      "orderIndex": 1,
+      "version": "legacy-v12",
+      "rootVersion": "12.0.0",
+      "metrics": {
+        "elapsedNs": "19853043083",
+        "framesPerSecond": 50370.11181707916,
+        "millisecondsPerMillion": 19853.043083,
+        "oracleCpuMicroseconds": 10373606,
+        "oracleCpuToWallRatio": 0.5225196941663233,
+        "oracleSaturated": false,
+        "oracleWallNs": "19852258000"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54607872,
+          "heapTotal": 9748480,
+          "heapUsed": 5106440,
+          "external": 2144820,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46071808,
+          "heapTotal": 6864896,
+          "heapUsed": 4023120,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "udp6",
+      "oracle": "standard-c-datagram-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 2,
+      "orderIndex": 0,
+      "version": "legacy-v12",
+      "rootVersion": "12.0.0",
+      "metrics": {
+        "elapsedNs": "20029790959",
+        "framesPerSecond": 49925.633375153586,
+        "millisecondsPerMillion": 20029.790959,
+        "oracleCpuMicroseconds": 10539094,
+        "oracleCpuToWallRatio": 0.526170943150281,
+        "oracleSaturated": false,
+        "oracleWallNs": "20029048000"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54657024,
+          "heapTotal": 9748480,
+          "heapUsed": 5106440,
+          "external": 2144820,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46170112,
+          "heapTotal": 6864896,
+          "heapUsed": 4023120,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "udp6",
+      "oracle": "standard-c-datagram-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 2,
+      "orderIndex": 1,
+      "version": "current",
+      "rootVersion": "13.0.0",
+      "metrics": {
+        "elapsedNs": "15494932167",
+        "framesPerSecond": 64537.2299292622,
+        "millisecondsPerMillion": 15494.932167,
+        "oracleCpuMicroseconds": 10239309,
+        "oracleCpuToWallRatio": 0.6608166392497639,
+        "oracleSaturated": false,
+        "oracleWallNs": "15493959000"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 53903360,
+          "heapTotal": 10010624,
+          "heapUsed": 5134304,
+          "external": 2106506,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46284800,
+          "heapTotal": 6864896,
+          "heapUsed": 4023080,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "udp6",
+      "oracle": "standard-c-datagram-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 3,
+      "orderIndex": 0,
+      "version": "current",
+      "rootVersion": "13.0.0",
+      "metrics": {
+        "elapsedNs": "15481603500",
+        "framesPerSecond": 64592.79234221442,
+        "millisecondsPerMillion": 15481.6035,
+        "oracleCpuMicroseconds": 10057213,
+        "oracleCpuToWallRatio": 0.6496234708504194,
+        "oracleSaturated": false,
+        "oracleWallNs": "15480980000"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 53854208,
+          "heapTotal": 10010624,
+          "heapUsed": 5134304,
+          "external": 2106506,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46137344,
+          "heapTotal": 6864896,
+          "heapUsed": 4023080,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "udp6",
+      "oracle": "standard-c-datagram-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 3,
+      "orderIndex": 1,
+      "version": "legacy-v12",
+      "rootVersion": "12.0.0",
+      "metrics": {
+        "elapsedNs": "20357573166",
+        "framesPerSecond": 49121.768682631584,
+        "millisecondsPerMillion": 20357.573166,
+        "oracleCpuMicroseconds": 10529256,
+        "oracleCpuToWallRatio": 0.5172156776322108,
+        "oracleSaturated": false,
+        "oracleWallNs": "20356508000"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54771712,
+          "heapTotal": 9748480,
+          "heapUsed": 5106296,
+          "external": 2144820,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46088192,
+          "heapTotal": 6864896,
+          "heapUsed": 4023120,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "udp6",
+      "oracle": "standard-c-datagram-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 4,
+      "orderIndex": 0,
+      "version": "legacy-v12",
+      "rootVersion": "12.0.0",
+      "metrics": {
+        "elapsedNs": "20229899000",
+        "framesPerSecond": 49431.78411320788,
+        "millisecondsPerMillion": 20229.899,
+        "oracleCpuMicroseconds": 10494790,
+        "oracleCpuToWallRatio": 0.518776193593453,
+        "oracleSaturated": false,
+        "oracleWallNs": "20228978000"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54558720,
+          "heapTotal": 9748480,
+          "heapUsed": 5106376,
+          "external": 2144820,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46022656,
+          "heapTotal": 6864896,
+          "heapUsed": 4023120,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "udp6",
+      "oracle": "standard-c-datagram-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 4,
+      "orderIndex": 1,
+      "version": "current",
+      "rootVersion": "13.0.0",
+      "metrics": {
+        "elapsedNs": "15592677250",
+        "framesPerSecond": 64132.668429342375,
+        "millisecondsPerMillion": 15592.67725,
+        "oracleCpuMicroseconds": 10355473,
+        "oracleCpuToWallRatio": 0.6641241163380073,
+        "oracleSaturated": false,
+        "oracleWallNs": "15592232000"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 53772288,
+          "heapTotal": 10010624,
+          "heapUsed": 5134304,
+          "external": 2106506,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46071808,
+          "heapTotal": 6864896,
+          "heapUsed": 4023080,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "udp6",
+      "oracle": "standard-c-datagram-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 5,
+      "orderIndex": 0,
+      "version": "current",
+      "rootVersion": "13.0.0",
+      "metrics": {
+        "elapsedNs": "15573975958",
+        "framesPerSecond": 64209.679191544055,
+        "millisecondsPerMillion": 15573.975958,
+        "oracleCpuMicroseconds": 10342519,
+        "oracleCpuToWallRatio": 0.664089827022449,
+        "oracleSaturated": false,
+        "oracleWallNs": "15573274000"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 53755904,
+          "heapTotal": 10010624,
+          "heapUsed": 5134304,
+          "external": 2106506,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46137344,
+          "heapTotal": 6864896,
+          "heapUsed": 4023080,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "udp6",
+      "oracle": "standard-c-datagram-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 5,
+      "orderIndex": 1,
+      "version": "legacy-v12",
+      "rootVersion": "12.0.0",
+      "metrics": {
+        "elapsedNs": "20577747292",
+        "framesPerSecond": 48596.184305789844,
+        "millisecondsPerMillion": 20577.747292,
+        "oracleCpuMicroseconds": 10540178,
+        "oracleCpuToWallRatio": 0.5122124327038314,
+        "oracleSaturated": false,
+        "oracleWallNs": "20576815000"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54722560,
+          "heapTotal": 9748480,
+          "heapUsed": 5106296,
+          "external": 2144820,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46252032,
+          "heapTotal": 6864896,
+          "heapUsed": 4023120,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "udp6",
+      "oracle": "standard-c-datagram-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 6,
+      "orderIndex": 0,
+      "version": "legacy-v12",
+      "rootVersion": "12.0.0",
+      "metrics": {
+        "elapsedNs": "20853494958",
+        "framesPerSecond": 47953.59252796958,
+        "millisecondsPerMillion": 20853.494958,
+        "oracleCpuMicroseconds": 10603943,
+        "oracleCpuToWallRatio": 0.5084971618118153,
+        "oracleSaturated": false,
+        "oracleWallNs": "20852655000"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 54476800,
+          "heapTotal": 9748480,
+          "heapUsed": 5106440,
+          "external": 2144820,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46104576,
+          "heapTotal": 6864896,
+          "heapUsed": 4023120,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    },
+    {
+      "transport": "udp6",
+      "oracle": "standard-c-datagram-reflector",
+      "securityMode": "plaintext",
+      "pairIndex": 6,
+      "orderIndex": 1,
+      "version": "current",
+      "rootVersion": "13.0.0",
+      "metrics": {
+        "elapsedNs": "15905319125",
+        "framesPerSecond": 62872.04878701231,
+        "millisecondsPerMillion": 15905.319125,
+        "oracleCpuMicroseconds": 10188344,
+        "oracleCpuToWallRatio": 0.6405620610268642,
+        "oracleSaturated": false,
+        "oracleWallNs": "15904861000"
+      },
+      "exact": {
+        "applicationBytes": 64000000,
+        "contentVerified": true,
+        "countVerified": true,
+        "measuredFrames": 1000000,
+        "probeFrames": 64,
+        "sequenceVerified": true,
+        "totalWireBytes": 111106464,
+        "warmupFrames": 100000,
+        "wireBytesPerFrame": 101,
+        "wireReceivedBytes": 101000000,
+        "wireSentBytes": 101000000,
+        "datagramCountsVerified": true,
+        "oracleBytesIn": 111106464,
+        "oracleBytesOut": 111106464,
+        "oracleBytesVerified": true
+      },
+      "memory": {
+        "afterImport": {
+          "rss": 53805056,
+          "heapTotal": 10010624,
+          "heapUsed": 5134368,
+          "external": 2106506,
+          "arrayBuffers": 16795
+        },
+        "beforeImport": {
+          "rss": 46153728,
+          "heapTotal": 6864896,
+          "heapUsed": 4023080,
+          "external": 1805087,
+          "arrayBuffers": 10651
+        }
+      },
+      "cleanup": {
+        "activeHandles": [],
+        "activeResourceDelta": [],
+        "clientClosed": true,
+        "clean": true,
+        "observedActiveResources": [],
+        "endpointRemoved": true,
+        "leftovers": {
+          "bytes": 0,
+          "entries": 0
+        },
+        "oracleActiveResourceDelta": [],
+        "oracleNaturalExit": true,
+        "reflectorClosed": true,
+        "workerNaturalExit": true
+      }
+    }
+  ],
+  "summary": {
+    "metric": "milliseconds-per-million-completed-messages",
+    "paired": true,
+    "platform": "darwin",
+    "groups": [
+      {
+        "transport": "local",
+        "implementation": "unix-domain-socket",
+        "pairs": 7,
+        "legacy": {
+          "id": "legacy-v12",
+          "version": "12.0.0",
+          "samples": 7,
+          "millisecondsPerMillion": {
+            "maximum": 5256.646625,
+            "median": 4571.678708,
+            "minimum": 4178.152042,
+            "p95": 5256.646625,
+            "values": [
+              4178.152042,
+              4463.827708,
+              4531.93375,
+              4571.678708,
+              4702.597917,
+              4778.5315,
+              5256.646625
+            ]
+          }
+        },
+        "current": {
+          "id": "current",
+          "version": "13.0.0",
+          "samples": 7,
+          "millisecondsPerMillion": {
+            "maximum": 1858.133333,
+            "median": 1336.964917,
+            "minimum": 1153.292,
+            "p95": 1858.133333,
+            "values": [
+              1153.292,
+              1275.041791,
+              1305.780375,
+              1336.964917,
+              1388.045583,
+              1607.947583,
+              1858.133333
+            ]
+          }
+        },
+        "paired": {
+          "samples": 7,
+          "deltaMillisecondsPerMillion": {
+            "maximum": -2844.4645840000003,
+            "median": -3075.7821249999997,
+            "minimum": -3950.86625,
+            "p95": -2844.4645840000003,
+            "values": [
+              -3950.86625,
+              -3441.566583,
+              -3296.6369170000003,
+              -3075.7821249999997,
+              -3024.860042,
+              -2923.986167,
+              -2844.4645840000003
+            ]
+          },
+          "speedup": {
+            "maximum": 4.02567439796298,
+            "median": 3.5741637190618967,
+            "minimum": 2.5308183398268547,
+            "p95": 4.02567439796298,
+            "values": [
+              2.5308183398268547,
+              2.818458635041215,
+              3.215908585907009,
+              3.5741637190618967,
+              3.585512835947508,
+              3.6228050155554707,
+              4.02567439796298
+            ]
+          },
+          "reductionPercent": {
+            "maximum": 75.15944159552478,
+            "median": 72.02142714764986,
+            "minimum": 60.48708892838137,
+            "p95": 75.15944159552478,
+            "values": [
+              60.48708892838137,
+              64.51961410512675,
+              68.90458875658737,
+              72.02142714764986,
+              72.10998689018109,
+              72.39707917742645,
+              75.15944159552478
+            ]
+          }
+        }
+      },
+      {
+        "transport": "tcp",
+        "implementation": "tcp-loopback",
+        "pairs": 7,
+        "legacy": {
+          "id": "legacy-v12",
+          "version": "12.0.0",
+          "samples": 7,
+          "millisecondsPerMillion": {
+            "maximum": 4988.378875,
+            "median": 4853.875416,
+            "minimum": 4721.294125,
+            "p95": 4988.378875,
+            "values": [
+              4721.294125,
+              4803.722333,
+              4836.263208,
+              4853.875416,
+              4921.595625,
+              4929.393125,
+              4988.378875
+            ]
+          }
+        },
+        "current": {
+          "id": "current",
+          "version": "13.0.0",
+          "samples": 7,
+          "millisecondsPerMillion": {
+            "maximum": 4126.663958,
+            "median": 3804.128292,
+            "minimum": 3674.341375,
+            "p95": 4126.663958,
+            "values": [
+              3674.341375,
+              3733.92675,
+              3759.508291,
+              3804.128292,
+              3990.277875,
+              4032.447833,
+              4126.663958
+            ]
+          }
+        },
+        "paired": {
+          "samples": 7,
+          "deltaMillisecondsPerMillion": {
+            "maximum": -771.2744999999995,
+            "median": -987.3673750000003,
+            "minimum": -1247.25425,
+            "p95": -771.2744999999995,
+            "values": [
+              -1247.25425,
+              -1169.8848339999995,
+              -1049.747124,
+              -987.3673750000003,
+              -861.7149170000002,
+              -845.9853330000001,
+              -771.2744999999995
+            ]
+          },
+          "speedup": {
+            "maximum": 1.3394497469631548,
+            "median": 1.2644313724151124,
+            "minimum": 1.191267074477241,
+            "p95": 1.3394497469631548,
+            "values": [
+              1.191267074477241,
+              1.2088163528143525,
+              1.2120116341521705,
+              1.2644313724151124,
+              1.2759494537047018,
+              1.3111802776976504,
+              1.3394497469631548
+            ]
+          },
+          "reductionPercent": {
+            "maximum": 25.342477217436976,
+            "median": 20.913066393634185,
+            "minimum": 16.05576772624005,
+            "p95": 25.342477217436976,
+            "values": [
+              16.05576772624005,
+              17.27444804400508,
+              17.49254117519073,
+              20.913066393634185,
+              21.626989447229768,
+              23.732836970676782,
+              25.342477217436976
+            ]
+          }
+        }
+      },
+      {
+        "transport": "tls",
+        "implementation": "tls-loopback",
+        "pairs": 7,
+        "legacy": {
+          "id": "legacy-v12",
+          "version": "12.0.0",
+          "samples": 7,
+          "millisecondsPerMillion": {
+            "maximum": 4966.98875,
+            "median": 3915.806458,
+            "minimum": 3424.6015,
+            "p95": 4966.98875,
+            "values": [
+              3424.6015,
+              3617.313833,
+              3666.0285,
+              3915.806458,
+              3932.645584,
+              4632.044125,
+              4966.98875
+            ]
+          }
+        },
+        "current": {
+          "id": "current",
+          "version": "13.0.0",
+          "samples": 7,
+          "millisecondsPerMillion": {
+            "maximum": 1134.748792,
+            "median": 891.379209,
+            "minimum": 882.570334,
+            "p95": 1134.748792,
+            "values": [
+              882.570334,
+              883.699666,
+              885.973166,
+              891.379209,
+              895.163208,
+              1096.309834,
+              1134.748792
+            ]
+          }
+        },
+        "paired": {
+          "samples": 7,
+          "deltaMillisecondsPerMillion": {
+            "maximum": -2533.222291,
+            "median": -3029.8332920000003,
+            "minimum": -3832.239958,
+            "p95": -2533.222291,
+            "values": [
+              -3832.239958,
+              -3535.7342910000007,
+              -3048.945918,
+              -3029.8332920000003,
+              -2783.458166,
+              -2722.150625,
+              -2533.222291
+            ]
+          },
+          "speedup": {
+            "maximum": 4.450206031875992,
+            "median": 4.225123210014004,
+            "minimum": 3.841913144734342,
+            "p95": 4.450206031875992,
+            "values": [
+              3.841913144734342,
+              4.040954544012045,
+              4.153808890657773,
+              4.225123210014004,
+              4.377170334982829,
+              4.419779975593527,
+              4.450206031875992
+            ]
+          },
+          "reductionPercent": {
+            "maximum": 77.5291302731337,
+            "median": 76.33205115462928,
+            "minimum": 73.97130121563049,
+            "p95": 77.5291302731337,
+            "values": [
+              73.97130121563049,
+              75.25337171926824,
+              75.9257099610655,
+              76.33205115462928,
+              77.15419041365857,
+              77.37443932679679,
+              77.5291302731337
+            ]
+          }
+        }
+      },
+      {
+        "transport": "udp4",
+        "implementation": "udp4-loopback",
+        "pairs": 7,
+        "legacy": {
+          "id": "legacy-v12",
+          "version": "12.0.0",
+          "samples": 7,
+          "millisecondsPerMillion": {
+            "maximum": 22637.399042,
+            "median": 20488.340583,
+            "minimum": 20158.405291,
+            "p95": 22637.399042,
+            "values": [
+              20158.405291,
+              20385.330167,
+              20430.059792,
+              20488.340583,
+              20897.677792,
+              20926.196375,
+              22637.399042
+            ]
+          }
+        },
+        "current": {
+          "id": "current",
+          "version": "13.0.0",
+          "samples": 7,
+          "millisecondsPerMillion": {
+            "maximum": 15795.139834,
+            "median": 15277.276292,
+            "minimum": 15045.61175,
+            "p95": 15795.139834,
+            "values": [
+              15045.61175,
+              15083.206459,
+              15277.151708,
+              15277.276292,
+              15674.937125,
+              15727.898375,
+              15795.139834
+            ]
+          }
+        },
+        "paired": {
+          "samples": 7,
+          "deltaMillisecondsPerMillion": {
+            "maximum": -4813.403458000001,
+            "median": -5152.7835,
+            "minimum": -6909.500667,
+            "p95": -4813.403458000001,
+            "values": [
+              -6909.500667,
+              -5842.989915999999,
+              -5339.718417,
+              -5152.7835,
+              -5102.537957999999,
+              -4881.253583,
+              -4813.403458000001
+            ]
+          },
+          "speedup": {
+            "maximum": 1.439314935934662,
+            "median": 1.337284173010491,
+            "minimum": 1.3070764124675875,
+            "p95": 1.439314935934662,
+            "values": [
+              1.3070764124675875,
+              1.319513327896318,
+              1.32304481072187,
+              1.337284173010491,
+              1.354902047568787,
+              1.3873838054184788,
+              1.439314935934662
+            ]
+          },
+          "reductionPercent": {
+            "maximum": 30.522502404894436,
+            "median": 25.221578166979842,
+            "minimum": 23.493378775604086,
+            "p95": 30.522502404894436,
+            "values": [
+              23.493378775604086,
+              24.214482805241065,
+              24.416770173159343,
+              25.221578166979842,
+              26.19392657983041,
+              27.92189183018693,
+              30.522502404894436
+            ]
+          }
+        }
+      },
+      {
+        "transport": "udp6",
+        "implementation": "udp6-loopback",
+        "pairs": 7,
+        "legacy": {
+          "id": "legacy-v12",
+          "version": "12.0.0",
+          "samples": 7,
+          "millisecondsPerMillion": {
+            "maximum": 20853.494958,
+            "median": 20357.573166,
+            "minimum": 19853.043083,
+            "p95": 20853.494958,
+            "values": [
+              19853.043083,
+              20029.790959,
+              20229.899,
+              20357.573166,
+              20465.865417,
+              20577.747292,
+              20853.494958
+            ]
+          }
+        },
+        "current": {
+          "id": "current",
+          "version": "13.0.0",
+          "samples": 7,
+          "millisecondsPerMillion": {
+            "maximum": 16417.768792,
+            "median": 15592.67725,
+            "minimum": 15481.6035,
+            "p95": 16417.768792,
+            "values": [
+              15481.6035,
+              15494.932167,
+              15573.975958,
+              15592.67725,
+              15592.825208,
+              15905.319125,
+              16417.768792
+            ]
+          }
+        },
+        "paired": {
+          "samples": 7,
+          "deltaMillisecondsPerMillion": {
+            "maximum": -4048.096625000002,
+            "median": -4637.221750000001,
+            "minimum": -5003.771333999999,
+            "p95": -4048.096625000002,
+            "values": [
+              -5003.771333999999,
+              -4948.175832999999,
+              -4875.969665999999,
+              -4637.221750000001,
+              -4534.858792000001,
+              -4260.217875,
+              -4048.096625000002
+            ]
+          },
+          "speedup": {
+            "maximum": 1.3212905521039844,
+            "median": 1.2973974049260848,
+            "minimum": 1.2465680127602081,
+            "p95": 1.3212905521039844,
+            "values": [
+              1.2465680127602081,
+              1.2732165478783324,
+              1.2926672245560402,
+              1.2973974049260848,
+              1.3111019523790912,
+              1.3149524961028747,
+              1.3212905521039844
+            ]
+          },
+          "reductionPercent": {
+            "maximum": 24.31641939710919,
+            "median": 22.922614443107207,
+            "minimum": 19.779748095272065,
+            "p95": 24.31641939710919,
+            "values": [
+              19.779748095272065,
+              21.458765072886937,
+              22.64056974574839,
+              22.922614443107207,
+              23.72828076524284,
+              23.951625403678037,
+              24.31641939710919
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "cleanup": {
+    "activeHandles": [],
+    "clean": true,
+    "pairs": 35,
+    "samples": 70
+  }
+}
