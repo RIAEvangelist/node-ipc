@@ -107,6 +107,7 @@ async function close(){
     const endpointRemoved=config.transport !== 'local' || process.platform === 'win32'
         ? true
         : await lstat(config.endpointPath).then(() => false,() => true);
+    await new Promise((resolve) => setImmediate(resolve));
     const observedActiveResources=difference(baselineResources,resources());
     const closedResources=new Set(['PipeWrap','TCPServerWrap','UDPWrap']);
     const activeResourceDelta=observedActiveResources.filter((resource) => !closedResources.has(resource));
