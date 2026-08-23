@@ -84,11 +84,8 @@ jobs:
       - name: Test the four-lane benchmark contract
         run: node benchmark/rust/test.js
 
-      - name: Smoke all four benchmark lanes
-        run: node benchmark/rust/run.js --quick > "${{ runner.temp }}/node-ipc-rust-benchmark-quick.json"
-
-      - name: Validate the four-lane smoke result
-        run: node benchmark/rust/validate.js "${{ runner.temp }}/node-ipc-rust-benchmark-quick.json"
+      - name: Smoke and validate all four benchmark lanes
+        run: node benchmark/rust/run.js --quick | node benchmark/rust/validate.js -
 
       - name: Verify the checkout stayed clean
         run: node -e "const {execFileSync}=require('node:child_process');const status=execFileSync('git',['status','--porcelain','--untracked-files=all'],{encoding:'utf8'});if(status){process.stderr.write(status);process.exit(1)}"
