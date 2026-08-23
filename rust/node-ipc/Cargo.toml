@@ -1,0 +1,45 @@
+[package]
+name = "node-ipc"
+version = "14.0.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Dependency-free Rust IPC compatible with node-ipc."
+license-file = "../../licence"
+repository = "https://github.com/RIAEvangelist/node-ipc"
+homepage = "https://riaevangelist.github.io/node-ipc/"
+documentation = "https://docs.rs/node-ipc"
+readme = "README.md"
+keywords = ["ipc", "socket", "node-ipc", "interprocess"]
+categories = ["network-programming"]
+publish = ["crates-io"]
+include = [
+    "/src/**/*.rs",
+    "/README.md",
+    "/tests/vanilla.rs",
+    "/examples/README.md",
+    "/examples/support/**/*.rs",
+    "/examples/TCPSocket/**",
+    "/examples/UDPSocket/**",
+    "/examples/unixWindowsSocket/**",
+    "/examples/clusterUnixSocket/**",
+    "/examples/TLSSocket/**",
+]
+
+[lib]
+path = "src/lib.rs"
+
+[[test]]
+name = "vanilla"
+path = "tests/vanilla.rs"
+harness = false
+
+[package.metadata.docs.rs]
+targets = ["x86_64-unknown-linux-gnu", "x86_64-pc-windows-msvc"]
+
+[dependencies]
+
+[dev-dependencies]
+vanilla-test = "=2.1.0"
+
+[lints.rust]
+unsafe_op_in_unsafe_fn = "deny"
