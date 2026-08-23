@@ -2,7 +2,7 @@
 
 TLS protects a connection only when certificate identities are verified. TCP and UDP do not provide authentication; services exposed beyond loopback must authenticate and authorize application messages, or use mutually authenticated TLS (mTLS).
 
-The upcoming Assured profile adds Guarded protocol controls and an explicit event allow-list. Its network contract requires mutually authenticated TLS: clients provide a key and certificate, trust the server CA, and keep verification enabled; servers trust a client CA, request a client certificate, and reject unauthorized clients. Local Assured servers require the owner-only Unix socket-root policy; built-in Assured local service rejects Windows because node-ipc cannot prove a named-pipe ACL.
+The Node.js Assured profile adds Guarded protocol controls and an explicit event allow-list. Its network contract requires mutually authenticated TLS: clients provide a key and certificate, trust the server CA, and keep verification enabled; servers trust a client CA, request a client certificate, and reject unauthorized clients. Local Assured servers require the owner-only Unix socket-root policy; built-in Assured local service rejects Windows because node-ipc cannot prove a named-pipe ACL.
 
 ```javascript
 ipc.config.parser = 'assured';

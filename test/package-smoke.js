@@ -66,6 +66,7 @@ try{
     assert.ok(![...files].some((file) => file.startsWith('assets/')));
     assert.ok(![...files].some((file) => file.startsWith('docs/')));
     assert.ok(![...files].some((file) => file.startsWith('benchmark/results/')));
+    assert.ok(![...files].some((file) => file.startsWith('rust/')));
     assert.ok(![...files].some((file) => file.startsWith('local-node-ipc-certs/')));
     assert.ok(![...files].some((file) => file.startsWith('.codex-')));
     assert.ok(![...files].some((file) => /(?:^|\/)(?:private\/|[^/]+\.(?:key|pem)$)/i.test(file)));
@@ -166,7 +167,7 @@ Promise.all([
     const jsQueueManifest=await readJson(path.join(installedRoot,'js-queue','package.json'));
     const strongTypeManifest=await readJson(path.join(installedRoot,'strong-type','package.json'));
 
-    assert.equal(nodeIpcManifest.version,'13.0.0');
+    assert.equal(nodeIpcManifest.version,'14.0.0');
     assert.equal(nodeIpcManifest.engines?.node,'>=22.13.0');
     assert.deepEqual(nodeIpcManifest.dependencies,{
         'event-pubsub':'6.1.0',
@@ -200,7 +201,7 @@ Promise.all([
     };
     inspectDependencies(productionTree.dependencies?.['node-ipc']?.dependencies);
     const installedNodeIpc=productionTree.dependencies?.['node-ipc'];
-    assert.equal(installedNodeIpc?.version,'13.0.0');
+    assert.equal(installedNodeIpc?.version,'14.0.0');
     assert.equal(installedNodeIpc?.dependencies?.['event-pubsub']?.version,'6.1.0');
     assert.equal(installedNodeIpc?.dependencies?.['event-pubsub']?.dependencies?.['strong-type']?.version,'2.0.0');
     assert.equal(installedNodeIpc?.dependencies?.['js-message']?.version,'3.1.0');

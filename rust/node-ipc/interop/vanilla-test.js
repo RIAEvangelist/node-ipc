@@ -22,6 +22,7 @@ const processTimeout=30e3;
 const buildTimeout=180e3;
 const cleanupTimeout=5e3;
 const reservationAttempts=3;
+const expectedCases=2;
 
 const interopRoot=fileURLToPath(new URL('./',import.meta.url));
 const crateRoot=path.resolve(interopRoot,'..');
@@ -145,7 +146,16 @@ async function stop(running){
     ]).finally(() => clearTimeout(timer));
     if(!stopped){
         running.child.kill('SIGKILL');
-        await running.exit;
+        let killTimer;
+        const killed=await Promise.race([
+            running.exit.then(() => true),
+            new Promise((resolve) => {
+                killTimer=setTimeout(() => resolve(false),cleanupTimeout);
+            })
+        ]).finally(() => clearTimeout(killTimer));
+        if(!killed){
+            throw new Error(`${running.label} did not close after forced termination.${formatOutput(running)}`);
+        }
     }
 }
 
@@ -394,7 +404,9 @@ async function run(){
         }
     }
 
-    return test.report();
+    const result=test.report();
+    assert.equal(result.total,expectedCases,`expected ${expectedCases} interoperability cases`);
+    return result;
 }
 
 const directInvocation=process.argv[1]

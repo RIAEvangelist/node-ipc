@@ -4,25 +4,29 @@
 
 [![Sponsor RIAEvangelist to help development of node-ipc](https://img.shields.io/static/v1?label=Sponsor%20Me%20On%20Github&message=%E2%9D%A4&logo=GitHub&link=https://github.com/sponsors/RIAEvangelist)](https://github.com/sponsors/RIAEvangelist)
 
-**Current official build: [node-ipc 13.0.0](https://www.npmjs.com/package/node-ipc/v/13.0.0)**
+**node-ipc 14.0.0 source for the paired [npm](https://www.npmjs.com/package/node-ipc) and [crates.io](https://crates.io/crates/node-ipc) release**
 
-*a nodejs module for local and remote Inter Process Communication* with full support for Linux, Mac and Windows. It also supports all forms of socket communication from low level unix and windows sockets to UDP and secure TLS and TCP sockets.
+Fast local and remote process communication for Node.js and Rust on Linux,
+macOS, and Windows. The paired implementations share the normal node-ipc event
+envelope and delimiter framing across local sockets, TCP, and UDP.
 
 A great solution for complex multiprocess **Neural Networking** in Node.JS
 
-`npm install --save-exact node-ipc@13.0.0`
+`npm install --save-exact node-ipc@14.0.0`
+
+Rust: `cargo add node-ipc@14.0.0 --exact`
 
 Use an exact, reviewed version. Do not use a mutable tag or version range for security-sensitive deployments.
 
 #### Runtime
 
-Version 13 requires Node.js 22.13.0 or newer. Version 12 remains the legacy Node release line.
+Version 14 requires Node.js 22.13.0 or newer. Version 12 remains the legacy Node release line; version 13 was never published.
 
 `node-ipc` ships native ES modules only. Node.js loads the same entry point through `import` or synchronous `require()`; no transpiled CommonJS bundle is generated.
 
-#### Runtime profiles
+#### Node.js runtime profiles
 
-Version 13 selects its parser and hot-path handlers once, when each client or server is created. It does not poll a security flag for every message. Set the profile before calling `connect*()` or `serve*()`.
+The Node.js implementation selects its parser and hot-path handlers once, when each client or server is created. It does not poll a security flag for every message. Set the profile before calling `connect*()` or `serve*()`.
 
 | Profile | Work on every message | Intended boundary |
 |---------|-----------------------|-------------------|
@@ -37,7 +41,31 @@ ipc.config.maxMessageSize = 1024 * 1024;
 ipc.config.maxPendingBytes = 8 * 1024 * 1024;
 ```
 
+These transport guarantees are Node.js-specific. Rust shares the four codec
+profiles but requires the caller to establish and verify the transport boundary.
 See [Profiles](https://riaevangelist.github.io/node-ipc/profiles/), [Parsers](https://riaevangelist.github.io/node-ipc/parsers/), and [Security](https://riaevangelist.github.io/node-ipc/security/) before choosing a network-facing configuration.
+
+#### Rust
+
+The paired Rust crate requires Rust 1.85 or newer and has no runtime or build
+dependencies. Its sole development dependency is exact `vanilla-test 2.1.0`.
+
+```rust
+use node_ipc::{tcp, CodecConfig, Connection, Event};
+
+fn main() -> node_ipc::Result<()> {
+    let stream = tcp::connect(("127.0.0.1", 9763))?;
+    let mut connection = Connection::new(stream, CodecConfig::fast())?;
+    connection.send(&Event::new("app.message", "hello"))?;
+    Ok(())
+}
+```
+
+Rust supplies TCP, UDP, Unix-domain sockets, Windows named pipes, raw bytes,
+and the Fast, Guarded, and Assured codecs. Applications supply their own
+verified TLS stream; the crate does not choose or reimplement cryptography.
+See the [Rust engineer guide](https://riaevangelist.github.io/node-ipc/rust/)
+and [native examples](https://github.com/RIAEvangelist/node-ipc/tree/main/rust/node-ipc/examples).
 
 #### Use
 
@@ -71,7 +99,13 @@ This work is licenced via the MIT Licence.
 
 #### Testing
 
-`npm test` runs the Vanilla Test suite, native V8 coverage, both module loaders, and an installed-package smoke test. Reports are written to `coverage/node/`.
+`npm test` runs 195 Node correctness cases, native V8 coverage, both module
+loaders, installed-package smoke, and benchmark validation. Reports are written
+to `coverage/node/`.
+
+`cargo test --manifest-path rust/node-ipc/Cargo.toml --all-targets` runs the 38
+Rust-native VanillaTest cases. `node rust/node-ipc/interop/vanilla-test.js` runs
+the separate two-direction Node/Rust interoperability gate.
 
 #### Performance evidence
 
@@ -79,11 +113,22 @@ This work is licenced via the MIT Licence.
 
 The chart is generated from tracked, clean profile runs. Results stay separated by operating system, architecture, Node version, compiler, and commit; Assured remains pending until comparable mTLS evidence passes the same gates. See the [benchmark overview](https://riaevangelist.github.io/node-ipc/benchmarks/), [profile results](https://riaevangelist.github.io/node-ipc/benchmarks/profiles/), [resource results](https://riaevangelist.github.io/node-ipc/benchmarks/resources/), [methodology](https://riaevangelist.github.io/node-ipc/benchmarks/methodology/), and [run records](https://riaevangelist.github.io/node-ipc/benchmarks/runs/).
 
-##### Version 12 versus current transport time
+##### Version 12 versus tracked transport cohorts
 
-![Paired node-ipc v12.0.0 and current million-message transport timings on Linux, macOS, and Windows](https://riaevangelist.github.io/node-ipc/assets/node-ipc-transport-comparison.svg)
+![Paired node-ipc v12.0.0 and exact recorded-version million-message transport timings on Linux, macOS, and Windows](https://riaevangelist.github.io/node-ipc/assets/node-ipc-transport-comparison.svg)
 
-The paired CI snapshot reports median time for 1,000,000 completed messages through the native local transport, TCP, TLS, UDP4, and UDP6. Local IPC, TCP, and TLS use the Node byte reflector; official UDP4 and UDP6 evidence uses the standard-C exact-count reflector. Both versions use the same oracle within every pair, and C-oracle source, binary, compiler, flags, and target provenance are retained. TLS is an encryption-only throughput lane with peer verification disabled and its handshake outside timing. Results remain grouped by operating system and transport; they are not a cross-platform or cross-transport ranking. The hosted view remains Pending until a complete valid matrix passes every provenance, count, and cleanup gate. See the [transport comparison](https://riaevangelist.github.io/node-ipc/benchmarks/transports/) for exact timings, pending lanes, raw samples, and methodology.
+The paired CI snapshot reports median time for 1,000,000 completed messages through the native local transport, TCP, TLS, UDP4, and UDP6. Each chart and record names its exact measured version; an internal candidate is never relabeled as the current release. Local IPC, TCP, and TLS use the Node byte reflector; official UDP4 and UDP6 evidence uses the standard-C exact-count reflector. Both versions use the same oracle within every pair, and C-oracle source, binary, compiler, flags, and target provenance are retained. TLS is an encryption-only throughput lane with peer verification disabled and its handshake outside timing. Results remain grouped by operating system and transport; they are not a cross-platform or cross-transport ranking. The hosted view remains Pending until a complete valid matrix passes every provenance, count, and cleanup gate. See the [transport comparison](https://riaevangelist.github.io/node-ipc/benchmarks/transports/) for exact timings, pending lanes, raw samples, and methodology.
+
+##### Node.js and Rust TCP
+
+The release benchmark measures the same validated framed round trip across
+Node.js → Node.js, Node.js → Rust, Rust → Node.js, and Rust → Rust. Each full
+sample uses 100,000 warm-up and 1,000,000 measured round trips, a 64-byte
+payload, 64 maximum requests in flight, release-built Rust, fresh peers, a
+fresh loopback port, and exact cleanup. Windows, Linux, and macOS evidence must
+arrive as one clean CI batch before it is tracked. See the
+[Rust and Node.js benchmark](https://riaevangelist.github.io/node-ipc/benchmarks/rust/)
+or run `npm run benchmark:rust:quick` for a non-publishable four-lane smoke.
 
 ----
 #### Contents

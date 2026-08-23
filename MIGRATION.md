@@ -1,6 +1,9 @@
-# Migrating to 13.0.0
+# Migrating from 12.0.0 to 14.0.0
 
-Node-ipc 13 is native ESM and requires Node.js 22.13 or newer. CommonJS on
+Version `13.0.0` was an internal modernization candidate and was never
+published. Upgrade directly from `12.0.0` to `14.0.0`.
+
+Node-ipc 14 is native ESM and requires Node.js 22.13 or newer. CommonJS on
 supported Node releases can continue to use:
 
 ```js
@@ -10,9 +13,29 @@ const ipc = require('node-ipc').default;
 The generated `node-ipc.cjs` bundle and its esbuild step are gone. Both
 `import` and `require()` now load the same source.
 
+## Paired Rust implementation
+
+Version 14 introduces the dependency-free Rust crate under the same
+`node-ipc` name and major version:
+
+```toml
+[dependencies]
+node-ipc = "=14.0.0"
+```
+
+The Rust crate implements the same event envelope, delimiter framing, runtime
+profiles, TCP, UDP, Unix sockets, and Windows named pipes. It has no runtime or
+build dependencies. TLS remains application supplied so the crate does not
+choose a cryptography stack or weaken certificate verification.
+
+Node and Rust normal framed messages interoperate. Review the documented
+language boundaries for malformed JSON, number precision, duplicate object
+members, UTF-16 surrogate escapes, custom delimiters, and incomplete frames
+before treating arbitrary language-specific values as portable.
+
 ## Event subscriptions
 
-Node-ipc 13 uses `event-pubsub` 6.1.0. Dispatch remains synchronous and live:
+Node-ipc 14 uses `event-pubsub` 6.1.0. Dispatch remains synchronous and live:
 wildcard listeners run before typed listeners, and listeners appended during a
 dispatch can run in that same dispatch. A `once` registration is removed before
 its handler is invoked, so nested emission cannot invoke it twice. `list`

@@ -4,14 +4,14 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 13.x    | :white_check_mark: |
+| 14.x    | :white_check_mark: |
 | 12.x    | :white_check_mark: |
 | 10.1.x  | :white_check_mark: |
 | Other versions | :x: |
 
-Version 13.x requires Node.js 22.13 or newer and ships as native ES modules. Main tracks the released 13.x contract between numeric releases.
+Version 14.x pairs the native-ESM Node.js implementation, which requires Node.js 22.13 or newer, with the dependency-free Rust implementation, which requires Rust 1.85 or newer. Version 13 was never published.
 
-## 13.x security profiles
+## 14.x Node.js security profiles
 
 Security and performance are selected once when a client or server is created. Changing `ipc.config.parser` or a related limit after `connect*()` or `serve*()` does not reconfigure an existing endpoint.
 
@@ -22,11 +22,22 @@ Security and performance are selected once when a client or server is created. C
 | Guarded | Frame and stream pending-write limits, object-envelope checks, event-name length, reserved and prototype-name rejection, and incomplete-frame timeout. | Mixed-trust local services or authenticated network services. |
 | Assured | Guarded plus a required event allow-list; network clients require a key, certificate, trusted CA, and verification; servers require verified client certificates; each Unix local server endpoint must be a direct child of the secure socket root. Clients must verify local endpoint ownership. Built-in Assured local service rejects Windows because node-ipc cannot prove a named-pipe ACL. | A building block for hostile networks when combined with authorization, payload validation, rate limits, key operations, and deployment controls. |
 
-These names describe node-ipc runtime profiles. They are not government, military, industry, or compliance certifications. No parser authenticates a user, authorizes a command, validates application payload schemas, prevents replay, manages certificates, or establishes a complete security program.
+These rows describe the Node.js runtime. They are not government, military, industry, or compliance certifications. No parser authenticates a user, authorizes a command, validates application payload schemas, prevents replay, manages certificates, or establishes a complete security program.
 
 `ipc.config.identifyPeer=true` restores the legacy server lookup of `data.id`, selected once at server construction. That payload field is untrusted application data and must never be treated as authenticated identity.
 
 The `node-ipc/parsers/message` compatibility parser is an explicit ecosystem option. It maps malformed envelopes to an `error` message and is not a hardened decoder. Use Guarded or Assured for the built-in protocol controls, or supply a custom parser with the policy your application requires.
+
+## 14.x Rust security profiles
+
+Rust exposes the same Raw, Fast, Guarded, and Assured profile names and framed
+wire contract. Guarded and Assured enforce a per-frame write ceiling because
+Rust writes synchronously; they do not measure Node.js-style queued socket
+writes. Rust Assured adds the event allow-list, but it cannot authenticate an
+arbitrary `Read + Write` transport. The application must supply and verify
+mutual TLS for hostile networks, enforce an owner-only Unix socket boundary,
+or create and verify an appropriate Windows named-pipe ACL. UDP is rejected by
+Rust Assured. See the [Rust security boundary](https://riaevangelist.github.io/node-ipc/rust/#security-boundary) for the exact contract.
 
 See the [profile guide](https://riaevangelist.github.io/node-ipc/profiles/), [parser contract](https://riaevangelist.github.io/node-ipc/parsers/), and [deployment security guide](https://riaevangelist.github.io/node-ipc/security/).
 

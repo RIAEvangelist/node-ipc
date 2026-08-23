@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {runBenchmark,transportOrder,versionOrder} from './run.js';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..');
+const currentVersion=JSON.parse(readFileSync(path.join(root,'package.json'),'utf8')).version;
 const result=await runBenchmark({
     currentRoot:root,
     legacyRoot:root,
@@ -24,7 +26,7 @@ assert.deepEqual(result.config.transports,transportOrder);
 assert.deepEqual(result.config.versions,versionOrder);
 assert.equal(result.config.messages,128);
 assert.equal(result.config.pairsPerTransport,1);
-assert.equal(result.config.currentVersion,'13.0.0');
+assert.equal(result.config.currentVersion,currentVersion);
 assert.equal(result.oracles['node-byte-reflector'].runtime,process.version);
 assert.equal(result.samples.length,transportOrder.length*versionOrder.length);
 assert.equal(result.summary.length,transportOrder.length);
@@ -35,7 +37,7 @@ for(const transport of transportOrder){
     const samples=result.samples.filter((sample) => sample.transport === transport);
     assert.deepEqual(samples.map((sample) => sample.version),versionOrder);
     for(const sample of samples){
-        assert.equal(sample.rootVersion,'13.0.0');
+        assert.equal(sample.rootVersion,currentVersion);
         assert.equal(sample.oracle,'node-byte-reflector');
         assert.equal(sample.exact.countVerified,true);
         assert.equal(sample.exact.contentVerified,true);

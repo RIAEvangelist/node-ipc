@@ -1,0 +1,197 @@
+name: Rust CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Rust 1.85.0 · Node ${{ matrix.node }} · ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            node: 22.13.0
+          - os: ubuntu-latest
+            node: 24.18.1
+          - os: macos-latest
+            node: 24.18.1
+          - os: windows-latest
+            node: 24.18.1
+    env:
+      RUSTUP_TOOLCHAIN: 1.85.0
+      RUSTDOCFLAGS: -D warnings
+      CARGO_TARGET_DIR: ${{ runner.temp }}/node-ipc-rust-target
+      CARGO_TERM_COLOR: always
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Use Node.js ${{ matrix.node }}
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install exact Node dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Install exact Rust toolchain
+        run: rustup toolchain install 1.85.0 --profile minimal --component rustfmt --component clippy
+
+      - name: Report toolchains
+        run: |
+          rustc --version --verbose
+          cargo --version --verbose
+          node --version
+
+      - name: Verify formatting
+        if: runner.os == 'Linux'
+        run: cargo fmt --manifest-path rust/node-ipc/Cargo.toml --all -- --check
+
+      - name: Check every target
+        run: cargo check --manifest-path rust/node-ipc/Cargo.toml --all-targets --locked
+
+      - name: Deny Clippy warnings
+        run: cargo clippy --manifest-path rust/node-ipc/Cargo.toml --all-targets --locked -- -D warnings
+
+      - name: Build documentation without dependencies
+        run: cargo doc --manifest-path rust/node-ipc/Cargo.toml --no-deps --locked
+
+      - name: Run the exact 38-case native suite
+        run: cargo test --manifest-path rust/node-ipc/Cargo.toml --all-targets --locked
+
+      - name: Run doctests
+        run: cargo test --manifest-path rust/node-ipc/Cargo.toml --doc --locked
+
+      - name: Run exact 2/2 Node and Rust interoperability
+        run: node rust/node-ipc/interop/vanilla-test.js
+
+      - name: Test the four-lane benchmark contract
+        run: node benchmark/rust/test.js
+
+      - name: Smoke all four benchmark lanes
+        run: node benchmark/rust/run.js --quick > "${{ runner.temp }}/node-ipc-rust-benchmark-quick.json"
+
+      - name: Validate the four-lane smoke result
+        run: node benchmark/rust/validate.js "${{ runner.temp }}/node-ipc-rust-benchmark-quick.json"
+
+      - name: Verify the checkout stayed clean
+        run: node -e "const {execFileSync}=require('node:child_process');const status=execFileSync('git',['status','--porcelain','--untracked-files=all'],{encoding:'utf8'});if(status){process.stderr.write(status);process.exit(1)}"
+
+  package:
+    name: crates.io package boundary
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      RUSTUP_TOOLCHAIN: 1.85.0
+      RUSTDOCFLAGS: -D warnings
+      CARGO_TARGET_DIR: ${{ runner.temp }}/node-ipc-rust-target
+      CARGO_TERM_COLOR: always
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install exact Rust toolchain
+        run: rustup toolchain install 1.85.0 --profile minimal
+
+      - name: Fetch the exact development dependency
+        run: cargo fetch --manifest-path rust/node-ipc/Cargo.toml --locked
+
+      - name: Verify dependency and package boundaries
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          normal_tree="$(cargo tree --manifest-path rust/node-ipc/Cargo.toml --locked --offline --edges normal,build --depth 1 --format '{p}' --prefix none)"
+          test "$(printf '%s\n' "$normal_tree" | wc -l)" -eq 1
+          printf '%s\n' "$normal_tree" | grep -Eq '^node-ipc v14\.0\.0( \(|$)'
+
+          dev_tree="$(cargo tree --manifest-path rust/node-ipc/Cargo.toml --locked --offline --edges dev --depth 1 --format '{p}' --prefix none)"
+          test "$(printf '%s\n' "$dev_tree" | wc -l)" -eq 2
+          printf '%s\n' "$dev_tree" | grep -Eq '^node-ipc v14\.0\.0( \(|$)'
+          printf '%s\n' "$dev_tree" | grep -Fx 'vanilla-test v2.1.0'
+
+          cat > "$RUNNER_TEMP/expected-package-files.txt" <<'EOF'
+          .cargo_vcs_info.json
+          Cargo.lock
+          Cargo.toml
+          Cargo.toml.orig
+          README.md
+          examples/README.md
+          examples/TCPSocket/README.md
+          examples/TCPSocket/main.rs
+          examples/TLSSocket/README.md
+          examples/TLSSocket/main.rs
+          examples/UDPSocket/README.md
+          examples/UDPSocket/main.rs
+          examples/clusterUnixSocket/README.md
+          examples/clusterUnixSocket/main.rs
+          examples/support/mod.rs
+          examples/unixWindowsSocket/README.md
+          examples/unixWindowsSocket/main.rs
+          licence
+          src/codec.rs
+          src/error.rs
+          src/event.rs
+          src/json.rs
+          src/lib.rs
+          src/local.rs
+          src/stream.rs
+          src/tcp.rs
+          src/udp.rs
+          src/windows_pipe.rs
+          tests/vanilla.rs
+          EOF
+          cargo package --manifest-path rust/node-ipc/Cargo.toml --locked --list > "$RUNNER_TEMP/package-files.txt"
+          diff -u "$RUNNER_TEMP/expected-package-files.txt" "$RUNNER_TEMP/package-files.txt"
+          if grep -Eq '^(interop/|examples/nodeRustInterop/|examples/tcp_roundtrip\.rs$)' "$RUNNER_TEMP/package-files.txt"; then
+            echo 'Repository-only interoperability tooling entered the crate package.' >&2
+            exit 1
+          fi
+
+          cargo package --manifest-path rust/node-ipc/Cargo.toml --locked
+          crate="$CARGO_TARGET_DIR/package/node-ipc-14.0.0.crate"
+          test -s "$crate"
+
+          extracted="$RUNNER_TEMP/node-ipc-crate"
+          mkdir -p "$extracted"
+          tar -xzf "$crate" -C "$extracted"
+          manifest="$extracted/node-ipc-14.0.0/Cargo.toml"
+          cargo check --manifest-path "$manifest" --all-targets --locked --offline
+          cargo test --manifest-path "$manifest" --test vanilla --locked --offline
+          cargo test --manifest-path "$manifest" --doc --locked --offline
+
+          artifact="$RUNNER_TEMP/node-ipc-rust-package"
+          mkdir -p "$artifact"
+          cp "$crate" "$artifact/"
+          cp "$RUNNER_TEMP/package-files.txt" "$artifact/"
+          printf '%s\n' "$normal_tree" > "$artifact/normal-build-tree.txt"
+          printf '%s\n' "$dev_tree" > "$artifact/development-tree.txt"
+          sha256sum "$crate" > "$artifact/node-ipc-14.0.0.crate.sha256"
+
+      - name: Upload verified crate artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: rust-package-${{ github.sha }}
+          path: ${{ runner.temp }}/node-ipc-rust-package/*
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Verify the checkout stayed clean
+        shell: bash
+        run: test -z "$(git status --porcelain --untracked-files=all)"

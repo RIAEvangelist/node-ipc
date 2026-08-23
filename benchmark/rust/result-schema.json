@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://riaevangelist.github.io/node-ipc/data/rust-benchmarks/result-schema.json",
+  "title": "node-ipc Rust and Node TCP round-trip benchmark",
+  "type": "object",
+  "required": [
+    "schema",
+    "schemaVersion",
+    "id",
+    "generatedAt",
+    "record",
+    "repository",
+    "system",
+    "runtime",
+    "packages",
+    "subjects",
+    "config",
+    "evidence",
+    "samples",
+    "summary",
+    "cleanup"
+  ],
+  "properties": {
+    "schema": {"const": "node-ipc-rust-benchmark-v1"},
+    "schemaVersion": {"const": 1},
+    "id": {"type": "string", "pattern": "^run-[0-9]{8}T[0-9]{9}Z-[0-9a-f]{16}$"},
+    "generatedAt": {"type": "string", "format": "date-time"},
+    "record": {
+      "type": "object",
+      "required": ["file", "recordedAt"],
+      "properties": {
+        "file": {"type": "string", "pattern": "^run-[A-Za-z0-9-]+[.]json$"},
+        "recordedAt": {"type": "string", "format": "date-time"}
+      },
+      "additionalProperties": false
+    },
+    "repository": {"type": "object"},
+    "system": {"type": "object"},
+    "runtime": {"type": "object"},
+    "packages": {"type": "object"},
+    "subjects": {"type": "object"},
+    "config": {"type": "object"},
+    "evidence": {"type": "object"},
+    "samples": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 20,
+      "items": {
+        "type": "object",
+        "required": ["orderIndex", "round", "lane", "client", "server", "metrics", "memory", "exact", "cleanup"]
+      }
+    },
+    "summary": {"type": "object"},
+    "cleanup": {"type": "object"}
+  },
+  "additionalProperties": false
+}

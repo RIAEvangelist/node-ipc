@@ -433,6 +433,8 @@ function transportComparisonResults(dashboard) {
       return [transportName(id, environment.platform), legacy, current, reduction, speedup, samples];
     });
     const block = element('section', {className: 'transport-environment', 'aria-label': transportEnvironmentName(environment)});
+    const measuredVersion=(run.transports ?? []).find(transport => transport.current?.version)?.current.version;
+    const measuredLabel=measuredVersion ? `v${measuredVersion}` : 'Recorded build';
     const detail = transportRawDetailLink(run);
     const note = element('p', {className: 'mini-note'});
     note.append(
@@ -443,7 +445,7 @@ function transportComparisonResults(dashboard) {
       element('h3', {textContent: transportEnvironmentName(environment)}),
       note,
       benchmarkTable(
-        ['Transport', 'v12 median / 1M', 'Current median / 1M', 'Time change', 'Speedup', 'Pairs'],
+        ['Transport', 'v12 median / 1M', `${measuredLabel} median / 1M`, 'Time change', 'Speedup', 'Pairs'],
         rows
       )
     );

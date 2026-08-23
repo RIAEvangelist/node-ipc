@@ -17,22 +17,35 @@ function renderTransportChart(dashboard){
     assert.equal(dashboard.certification,false,'certification must remain disabled');
     const cohort=selectCohort(dashboard.environments);
     const commit=cohort[0]?.commit || null;
+    const currentVersion=cohortVersion(cohort);
+    const currentLabel=currentVersion ? `v${currentVersion}` : 'recorded build';
     const panels=Array.from({length:6},(_,index) => panel(cohort[index],index)).join('\n');
     const description=cohort.length === 6
-        ? `Six exact-environment panels from commit ${commit}. Each transport shows paired v12.0.0 and current medians. Rankings and certification are disabled.`
+        ? `Six exact-environment panels from commit ${commit}. Each transport shows paired v12.0.0 and ${currentLabel} medians. Rankings and certification are disabled.`
         : 'No complete six-environment paired transport cohort is tracked. Missing evidence remains pending.';
     return `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600" role="img" aria-labelledby="title description">
-  <title id="title">node-ipc v12.0.0 versus current transport benchmark</title>
+  <title id="title">node-ipc v12.0.0 versus ${escapeXml(currentLabel)} transport benchmark</title>
   <desc id="description">${escapeXml(description)}</desc>
   <rect width="1200" height="600" rx="18" fill="#050812"/>
   <rect x="1" y="1" width="1198" height="598" rx="17" fill="none" stroke="#21304a" stroke-width="2"/>
-  <text x="38" y="42" fill="#f2f7ff" font-family="system-ui, sans-serif" font-size="25" font-weight="700">v12.0.0 vs current · transport comparison</text>
+  <text x="38" y="42" fill="#f2f7ff" font-family="system-ui, sans-serif" font-size="25" font-weight="700">v12.0.0 vs ${escapeXml(currentLabel)} · transport comparison</text>
   <text x="38" y="67" fill="#9fb1c8" font-family="system-ui, sans-serif" font-size="14">Paired median milliseconds per one million completed messages · exact environment only</text>
   <text x="1162" y="42" fill="#72839b" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="13" text-anchor="end">${commit ? escapeXml(commit.slice(0,12)) : 'no cohort'}</text>
 ${panels}
   <text x="38" y="578" fill="#72839b" font-family="system-ui, sans-serif" font-size="13">Local means Unix-domain socket on Linux/macOS and named pipe on Windows. Hosted snapshots are noisy; rankings and certification are disabled.</text>
 </svg>
 `;
+}
+
+function cohortVersion(cohort){
+    const versions=new Set;
+    for(const environment of cohort){
+        const run=selectedRun(environment);
+        for(const transport of run?.transports || []){
+            if(transport.current?.version) versions.add(transport.current.version);
+        }
+    }
+    return versions.size === 1 ? [...versions][0] : null;
 }
 
 function selectCohort(environments){

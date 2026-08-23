@@ -9,7 +9,7 @@ interoperability evidence, and performance evidence stay paired.
 
 ```toml
 [dependencies]
-node-ipc = "14.0.0"
+node-ipc = "=14.0.0"
 ```
 
 The production crate requires Rust 1.85 or newer and has no third-party runtime
@@ -171,8 +171,9 @@ the native Rust examples listed above are included.
   for both published artifacts. Future language ports follow the same rule.
 
 The Rust release line begins at `14.0.0`, the first paired Node and Rust
-release, rather than starting a separate `0.x` version line. Node `13.0.0`
-remains the JavaScript modernization release.
+release, rather than starting a separate `0.x` version line. Version `13.0.0`
+was an internal JavaScript modernization candidate and was never published;
+users upgrade directly from `12.0.0` to the paired `14.0.0` release.
 
 ## Maintainer release gate
 
@@ -185,7 +186,7 @@ event, profile, codec, and in-memory connection cases plus eight public
 transport cases. The transport cases exercise loopback TCP and UDP on every
 native target, Unix-domain streams on Unix, and named pipes on Windows, with
 bounded I/O or process deadlines and verified endpoint cleanup. Run the suite
-natively on both Windows and Linux; cross-target compilation alone is not
+natively on Windows, Linux, and macOS; cross-target compilation alone is not
 runtime evidence. Then publish with Cargo, verify the crates.io version, and
 include the verified npm and crates.io versions in the same numeric GitHub
 release.

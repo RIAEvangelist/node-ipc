@@ -14,7 +14,7 @@
   <a class="brand" href="../" aria-label="node-ipc documentation home"><span class="brand-mark" aria-hidden="true">IPC</span><span>node-ipc<small>main documentation</small></span></a>
   <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="site-nav">Menu</button>
   <nav class="site-nav" id="site-nav" data-site-nav aria-label="Primary navigation">
-    <a href="../">Home</a><a href="./" aria-current="page">Quick start</a><a href="../config/">Config</a><a href="../api/">API</a>
+    <a href="../">Home</a><a href="./" aria-current="page">Quick start</a><a href="../config/">Config</a><a href="../api/">API</a><a href="../rust/">Rust</a>
     <details class="nav-cluster"><summary>Transports</summary><div class="nav-menu"><a href="../unix-windows/">Unix / Windows</a><a href="../tcp/">TCP</a><a href="../tls/">TLS</a><a href="../udp/">UDP</a></div></details>
     <a href="../examples/">Examples</a>
     <details class="nav-cluster"><summary>Testing</summary><div class="nav-menu"><a href="../testing/">Overview</a><a href="../testing/unit/">Unit</a><a href="../testing/functional/">Functional</a><a href="../testing/integration/">Integration</a><a href="../testing/regression/">Regression</a><a href="../coverage/">Coverage</a><a href="../benchmarks/">Benchmarks</a></div></details>
@@ -23,12 +23,12 @@
 </div></header>
 <main id="content" class="shell page-shell">
   <nav aria-label="Breadcrumb"><ol class="crumbs"><li><a href="../">Home</a></li><li aria-current="page">Quick start</li></ol></nav>
-  <header class="page-hero compact"><p class="eyebrow">13.x · Node.js 22.13+</p><h1>Send the first local message</h1><p class="lead">Create a server and client on one machine using the released API. The same event model carries into TCP and TLS.</p></header>
+  <header class="page-hero compact"><p class="eyebrow">14.x · Node.js 22.13+</p><h1>Send the first local message</h1><p class="lead">Create a Node.js server and client on one machine. Rust has a separate native guide with the same normal framed event contract.</p></header>
   <div class="content-grid">
     <div>
-      <section class="section" id="requirements"><h2>1. Confirm the runtime</h2><div class="callout"><strong>Version 13 uses native ES modules.</strong><p>Use Node.js 22.13 or newer. Version 12 remains a separate legacy line for older runtimes.</p></div><pre><code>node --version
+      <section class="section" id="requirements"><h2>1. Confirm the runtime</h2><div class="callout"><strong>Version 14 uses native ES modules.</strong><p>Use Node.js 22.13 or newer. Version 12 remains a separate legacy line for older runtimes.</p></div><pre><code>node --version
 # v22.13.0 or newer</code></pre></section>
-      <section class="section" id="install"><h2>2. Pin the release</h2><pre><code>npm install --save-exact node-ipc@13.0.0</code></pre><p class="mini-note">These examples describe 13.x. Pin the exact numeric release rather than a mutable tag or version range.</p></section>
+      <section class="section" id="install"><h2>2. Pin the release</h2><pre><code>npm install --save-exact node-ipc@14.0.0</code></pre><p class="mini-note">These examples describe the 14.x Node.js package. Pin the exact numeric release rather than a mutable tag or version range.</p></section>
       <section class="section" id="server"><h2>3. Create <code>server.js</code></h2><pre><code>import ipc from 'node-ipc';
 
 ipc.config.id = 'world';
@@ -62,7 +62,7 @@ ipc.connectTo('world', () =&gt; {
   });
 });</code></pre></section>
       <section class="section" id="run"><h2>5. Run both processes</h2><div class="card-grid two"><article class="card"><h3>Terminal one</h3><pre><code>node server.js</code></pre></article><article class="card"><h3>Terminal two</h3><pre><code>node client.js</code></pre></article></div><div class="callout success"><strong>Expected output</strong><p>The client prints <code>hello world!</code>, disconnects, and leaves the server ready for the next client.</p></div></section>
-      <section class="section" id="loader"><h2>13.x CommonJS loading</h2><p>On Node.js 22.13+, the native ESM entry point can also be loaded synchronously. Version 13 does not generate a separate transpiled CommonJS bundle.</p><pre><code>const ipc = require('node-ipc').default;</code></pre></section>
+      <section class="section" id="loader"><h2>14.x CommonJS loading</h2><p>On Node.js 22.13+, the native ESM entry point can also be loaded synchronously. Version 14 does not generate a separate transpiled CommonJS bundle.</p><pre><code>const ipc = require('node-ipc').default;</code></pre></section>
       <section class="section" id="profile"><h2>Choose controls before production</h2><p>This trusted local example uses the default Fast profile. Use Guarded for bounded framing and event-name controls, or Assured with mutually authenticated TLS and an event allow-list on a hostile network.</p><div class="button-row"><a class="button primary" href="../profiles/">Compare profiles</a><a class="button" href="../parsers/">Parser contract</a><a class="button" href="../security/">Security checklist</a></div></section>
       <div class="next-links"><a href="../">← Documentation home</a><a href="../config/">Main configuration →</a></div>
     </div>

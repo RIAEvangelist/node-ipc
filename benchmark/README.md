@@ -4,7 +4,7 @@
 
 The vehicles define **Raw**, **Fast**, **Guarded**, and **Assured** profiles. Legacy remains a compatibility lane, not a performance tier. The raw-client harness measures Raw, Fast, and Guarded. Assured includes TLS and belongs in a separate end-to-end lane; mixing it with a plaintext byte reflector would be misleading. Profiles describe overhead and intended risk posture. They are not government or military certifications.
 
-The benchmark contract has three lanes. Results never cross lanes. The current harness implements the raw-client lane with one `node:net` baseline and one node-ipc adapter selected once as Raw, Fast, or Guarded.
+The Node.js profile contract has three lanes. Results never cross lanes. The current harness implements the raw-client lane with one `node:net` baseline and one node-ipc adapter selected once as Raw, Fast, or Guarded. The Node.js/Rust TCP comparison is a separate four-lane contract under `benchmark/rust/`.
 
 1. **Parser** measures encode, chunk, and decode work in one process.
 2. **Raw client** connects each compatible client to the same byte reflector.
@@ -42,7 +42,7 @@ npm run benchmark:quick
 npm run benchmark:test
 ```
 
-The v12/current transport comparison is a separate `snapshot-noisy` lane. Native local IPC, TCP, and TLS use the Node byte reflector; official UDP4 and UDP6 evidence uses the standard-C exact-count reflector. Both subjects use the same oracle implementation within every pair. Standard-C records retain the oracle source and binary SHA-256, compiler and version, fixed flags, and platform/architecture target. This lane never becomes profile, ranking, or certification evidence. TLS disables peer verification and excludes the handshake; that lane measures encrypted bulk transfer, not authenticated TLS. Its byte fields count the 101-byte node-ipc frame at the reflector boundary, before TLS encryption.
+The v12/recorded-version transport comparison is a separate `snapshot-noisy` lane. The internal subject id remains `current`, but every retained record and chart names the exact measured version. Native local IPC, TCP, and TLS use the Node byte reflector; official UDP4 and UDP6 evidence uses the standard-C exact-count reflector. Both subjects use the same oracle implementation within every pair. Standard-C records retain the oracle source and binary SHA-256, compiler and version, fixed flags, and platform/architecture target. This lane never becomes profile, ranking, or certification evidence. TLS disables peer verification and excludes the handshake; that lane measures encrypted bulk transfer, not authenticated TLS. Its byte fields count the 101-byte node-ipc frame at the reflector boundary, before TLS encryption.
 
 Prepare the exact v12 tag in an empty directory outside the repository, then run the paired harness:
 
@@ -109,6 +109,25 @@ npm run benchmark:transport:chart:check
 ```
 
 The transport merger requires exactly six artifacts from one workflow attempt and never accepts a partial matrix.
+
+### Rust and Node.js snapshots
+
+The cross-runtime harness runs the same validated framed TCP round trip through Node.js → Node.js, Node.js → Rust, Rust → Node.js, and Rust → Rust. Full evidence fixes 100,000 warm-up round trips, 1,000,000 measured round trips, a 64-byte payload, 64 maximum requests in flight, and five fresh samples per lane. Every sample owns new client and server processes, a fresh loopback port, and a private temporary directory.
+
+```sh
+npm run benchmark:rust:test
+npm run benchmark:rust:quick
+```
+
+Quick mode proves orchestration only. The manual **Record Rust and Node TCP benchmark snapshots** workflow uses exact Node.js 24.18.1 and Rust 1.85.0 on Windows, Linux, and macOS. It records sampled child RSS, npm/crate package footprint, exact counts and wire bytes, natural exits, process absence, endpoint reuse, and temporary-state removal. After all three jobs pass:
+
+```sh
+gh run download <run-id> --dir <temporary-directory>
+npm run benchmark:rust:merge -- --input-directory=<temporary-directory> --output-directory=benchmark/rust-results
+npm run benchmark:rust:validate -- --tracked benchmark/rust-results
+```
+
+The merger rejects quick, dirty, partial, mixed-commit, mixed-toolchain, duplicate, or symlinked evidence. See the [engineer-facing benchmark page](https://riaevangelist.github.io/node-ipc/benchmarks/rust/) for the exact comparison boundary.
 
 ## Clean baseline
 
