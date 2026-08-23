@@ -29,13 +29,16 @@ jobs:
     env:
       RUSTUP_TOOLCHAIN: 1.85.0
       RUSTDOCFLAGS: -D warnings
-      CARGO_TARGET_DIR: ${{ runner.temp }}/node-ipc-rust-target
       CARGO_TERM_COLOR: always
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+
+      - name: Isolate Cargo output
+        shell: bash
+        run: printf 'CARGO_TARGET_DIR=%s/node-ipc-rust-target\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
 
       - name: Use Node.js ${{ matrix.node }}
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -98,13 +101,16 @@ jobs:
     env:
       RUSTUP_TOOLCHAIN: 1.85.0
       RUSTDOCFLAGS: -D warnings
-      CARGO_TARGET_DIR: ${{ runner.temp }}/node-ipc-rust-target
       CARGO_TERM_COLOR: always
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+
+      - name: Isolate Cargo output
+        shell: bash
+        run: printf 'CARGO_TARGET_DIR=%s/node-ipc-rust-target\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
 
       - name: Install exact Rust toolchain
         run: rustup toolchain install 1.85.0 --profile minimal
