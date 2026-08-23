@@ -133,3 +133,16 @@ every result, every SHA-256, and every regenerated manifest entry. Existing
 manifest entries remain an exact prefix. A validated candidate is installed
 with exclusive result creation, atomic manifest replacement, and rollback on
 failure.
+
+Accepted history lives in `benchmark/rust-results/`. Validate it and regenerate
+the fixed-order chart with:
+
+```text
+npm run benchmark:rust:validate:tracked
+npm run benchmark:rust:chart
+npm run benchmark:rust:chart:check
+```
+
+The chart reads only the newest complete three-platform batch. It preserves
+Linux, macOS, Windows and Node→Node, Node→Rust, Rust→Node, Rust→Rust order; it
+does not sort by timing or claim a cross-platform ranking.

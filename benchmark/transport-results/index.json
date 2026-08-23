@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-08-22T22:49:36.759Z",
+  "updatedAt": "2026-08-23T07:06:25.857Z",
   "comparisonState": "version-comparison",
   "results": [
     {
@@ -110,6 +110,114 @@
       "publishable": true,
       "rankingEligible": false,
       "sha256": "a042fdb35b8319ce41217bfcaefd3fc5fa26a85f5043d2988fab858de7e740d1"
+    },
+    {
+      "architecture": "arm64",
+      "classification": "clean-end-to-end-transport-comparison",
+      "cleanupClean": true,
+      "commit": "2692d32c4d97c94aceedfe6cbdf1a48591ba00b5",
+      "dirty": false,
+      "file": "run-20260823T065229875Z-0ae0017b-a088-4dac-9e0f-b187153a7773.json",
+      "generatedAt": "2026-08-23T06:52:29.875Z",
+      "id": "run-20260823T065229875Z-0ae0017b-a088-4dac-9e0f-b187153a7773",
+      "machine": {
+        "id": "c1b2083dcbe04f0c"
+      },
+      "node": "v22.13.0",
+      "platform": "darwin",
+      "publishable": true,
+      "rankingEligible": false,
+      "sha256": "e9d9900d71bc370facb091697670d76e29d068dcecd9659e8dd2fcb054d23e52"
+    },
+    {
+      "architecture": "arm64",
+      "classification": "clean-end-to-end-transport-comparison",
+      "cleanupClean": true,
+      "commit": "2692d32c4d97c94aceedfe6cbdf1a48591ba00b5",
+      "dirty": false,
+      "file": "run-20260823T065009012Z-3d63e24c-f82c-4099-a985-a9d923b09351.json",
+      "generatedAt": "2026-08-23T06:50:09.012Z",
+      "id": "run-20260823T065009012Z-3d63e24c-f82c-4099-a985-a9d923b09351",
+      "machine": {
+        "id": "1ad723d141d17bad"
+      },
+      "node": "v24.18.1",
+      "platform": "darwin",
+      "publishable": true,
+      "rankingEligible": false,
+      "sha256": "51d3639ca6fbc3d7accf7f9594ba5469bd47326ea36aacc246ab4f95499c98c7"
+    },
+    {
+      "architecture": "x64",
+      "classification": "clean-end-to-end-transport-comparison",
+      "cleanupClean": true,
+      "commit": "2692d32c4d97c94aceedfe6cbdf1a48591ba00b5",
+      "dirty": false,
+      "file": "run-20260823T070020559Z-a6409f5d-daca-4847-a343-cb88eee11c1f.json",
+      "generatedAt": "2026-08-23T07:00:20.559Z",
+      "id": "run-20260823T070020559Z-a6409f5d-daca-4847-a343-cb88eee11c1f",
+      "machine": {
+        "id": "76ff957c14853103"
+      },
+      "node": "v22.13.0",
+      "platform": "linux",
+      "publishable": true,
+      "rankingEligible": false,
+      "sha256": "a6f9ec2c5e2b28202108cfe3f5189c8b4e94305e11cdb70f67b2311cd93c957a"
+    },
+    {
+      "architecture": "x64",
+      "classification": "clean-end-to-end-transport-comparison",
+      "cleanupClean": true,
+      "commit": "2692d32c4d97c94aceedfe6cbdf1a48591ba00b5",
+      "dirty": false,
+      "file": "run-20260823T065346138Z-f18a2689-1a76-44a6-91be-a6c9f0a24364.json",
+      "generatedAt": "2026-08-23T06:53:46.138Z",
+      "id": "run-20260823T065346138Z-f18a2689-1a76-44a6-91be-a6c9f0a24364",
+      "machine": {
+        "id": "80a211b3b247de60"
+      },
+      "node": "v24.18.1",
+      "platform": "linux",
+      "publishable": true,
+      "rankingEligible": false,
+      "sha256": "5179bdab64bc31987dc9b6bf4bb5b56d96347d0deadb7df00c5b04e0ca1d1251"
+    },
+    {
+      "architecture": "x64",
+      "classification": "clean-end-to-end-transport-comparison",
+      "cleanupClean": true,
+      "commit": "2692d32c4d97c94aceedfe6cbdf1a48591ba00b5",
+      "dirty": false,
+      "file": "run-20260823T070625580Z-997055ac-ccb6-4ae8-b658-45f520f4ef5e.json",
+      "generatedAt": "2026-08-23T07:06:25.580Z",
+      "id": "run-20260823T070625580Z-997055ac-ccb6-4ae8-b658-45f520f4ef5e",
+      "machine": {
+        "id": "0b9671793823cff1"
+      },
+      "node": "v22.13.0",
+      "platform": "win32",
+      "publishable": true,
+      "rankingEligible": false,
+      "sha256": "13ce80620a3d645f6c6faa943d4bf1daeeeb5357d34d7cc8b5b5a79b038ab546"
+    },
+    {
+      "architecture": "x64",
+      "classification": "clean-end-to-end-transport-comparison",
+      "cleanupClean": true,
+      "commit": "2692d32c4d97c94aceedfe6cbdf1a48591ba00b5",
+      "dirty": false,
+      "file": "run-20260823T065450483Z-ecab2db7-1a90-44a0-999b-fa22cab503e0.json",
+      "generatedAt": "2026-08-23T06:54:50.483Z",
+      "id": "run-20260823T065450483Z-ecab2db7-1a90-44a0-999b-fa22cab503e0",
+      "machine": {
+        "id": "29d8275607e1253d"
+      },
+      "node": "v24.18.1",
+      "platform": "win32",
+      "publishable": true,
+      "rankingEligible": false,
+      "sha256": "9ae9c997eb4ec0039ab36046900c543dcb416e027230de89024450606a4beab1"
     }
   ]
 }

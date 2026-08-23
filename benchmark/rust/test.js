@@ -7,6 +7,7 @@ import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
 import {fileURLToPath} from 'node:url';
+import {renderChart,selectBatch} from './chart.js';
 import {configurations,evidenceReasons,expectedWireBytes,lanes,manifestEntry,officialEnvironment,samplePlan,sha256,summarize} from './lib.js';
 import {validateHistory,validateHistoryIndex} from './history.js';
 
@@ -38,6 +39,20 @@ const samples=plan.map((entry,index) => ({
 const summary=summarize(samples);
 assert.equal(summary.lanes.length,4);
 assert.ok(summary.lanes.every((lane) => lane.samples === 5));
+
+const chartCommit='0'.repeat(40);
+const chartBatch=selectBatch(['win32','darwin','linux'].map((platform,index) => ({
+    record:{recordedAt:`2026-08-23T00:00:0${index}.000Z`},
+    repository:{commit:chartCommit},
+    runtime:{node:{version:'v24.18.1'},rust:{release:'1.85.0'}},
+    summary,
+    system:{architecture:platform === 'darwin' ? 'arm64' : 'x64',environment:{runAttempt:'1',runId:'7'},platform}
+})));
+assert.deepEqual(chartBatch.map(({system}) => system.platform),['linux','darwin','win32']);
+const chart=renderChart(chartBatch);
+assert.match(chart,new RegExp(`data-source-commit="${chartCommit}"`,'u'));
+assert.ok(chart.indexOf('Node → Node') < chart.indexOf('Node → Rust'));
+assert.ok(chart.indexOf('Linux') < chart.indexOf('macOS') && chart.indexOf('macOS') < chart.indexOf('Windows'));
 
 const result={
     id:'run-20260823T000000000Z-0123456789abcdef',

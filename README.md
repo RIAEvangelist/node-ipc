@@ -115,19 +115,24 @@ The chart is generated from tracked, clean profile runs. Results stay separated 
 
 ##### Version 12 versus tracked transport cohorts
 
-![Paired node-ipc v12.0.0 and exact recorded-version million-message transport timings on Linux, macOS, and Windows](https://riaevangelist.github.io/node-ipc/assets/node-ipc-transport-comparison.svg)
+![Paired node-ipc v12.0.0 and v14.0.0 million-message transport timings on Linux, macOS, and Windows](https://riaevangelist.github.io/node-ipc/assets/node-ipc-transport-comparison.svg)
 
-The paired CI snapshot reports median time for 1,000,000 completed messages through the native local transport, TCP, TLS, UDP4, and UDP6. Each chart and record names its exact measured version; an internal candidate is never relabeled as the current release. Local IPC, TCP, and TLS use the Node byte reflector; official UDP4 and UDP6 evidence uses the standard-C exact-count reflector. Both versions use the same oracle within every pair, and C-oracle source, binary, compiler, flags, and target provenance are retained. TLS is an encryption-only throughput lane with peer verification disabled and its handshake outside timing. Results remain grouped by operating system and transport; they are not a cross-platform or cross-transport ranking. The hosted view remains Pending until a complete valid matrix passes every provenance, count, and cleanup gate. See the [transport comparison](https://riaevangelist.github.io/node-ipc/benchmarks/transports/) for exact timings, pending lanes, raw samples, and methodology.
+The accepted `2692d32` CI cohort reports median time for 1,000,000 completed messages through native local IPC, TCP, TLS, UDP4, and UDP6 on Windows, macOS, and Linux with Node.js 22.13.0 and 24.18.1. v14.0.0 was faster than v12.0.0 in all 30 exact environment/transport pairs, with paired median speedups from 1.14× to 4.96×. Local IPC, TCP, and TLS use the Node byte reflector; UDP4 and UDP6 use the standard-C exact-count reflector. Both versions use the same oracle within every pair, and C-oracle source, binary, compiler, flags, target provenance, exact counts, and cleanup are retained. TLS is an encryption-only throughput lane with peer verification disabled and its handshake outside timing. Hosted results remain grouped by operating system, Node version, and transport; they are directional snapshots, not a universal ranking. See the [transport comparison](https://riaevangelist.github.io/node-ipc/benchmarks/transports/), [raw manifest](https://riaevangelist.github.io/node-ipc/data/transport-benchmarks/index.json), and [accepted workflow run](https://github.com/RIAEvangelist/node-ipc/actions/runs/32623449214).
 
 ##### Node.js and Rust TCP
 
-The release benchmark measures the same validated framed round trip across
-Node.js → Node.js, Node.js → Rust, Rust → Node.js, and Rust → Rust. Each full
-sample uses 100,000 warm-up and 1,000,000 measured round trips, a 64-byte
-payload, 64 maximum requests in flight, release-built Rust, fresh peers, a
-fresh loopback port, and exact cleanup. Windows, Linux, and macOS evidence must
-arrive as one clean CI batch before it is tracked. See the
-[Rust and Node.js benchmark](https://riaevangelist.github.io/node-ipc/benchmarks/rust/)
+![Node.js and Rust median milliseconds per one million validated TCP round trips on Linux, macOS, and Windows](https://riaevangelist.github.io/node-ipc/assets/node-ipc-rust-benchmark.svg)
+
+The accepted `2692d32` hosted-runner batch used Node.js 24.18.1 and Rust 1.85.0.
+Fixed lane order is Node→Node / Node→Rust / Rust→Node / Rust→Rust: Linux measured
+10,312 / 9,317 / 16,816 / 12,478 ms, macOS 7,817 / 7,368 / 8,165 / 5,596 ms,
+and Windows 12,609 / 15,231 / 23,186 / 13,070 ms per 1,000,000 validated round
+trips. One round trip is two application frames. Each full sample also uses
+100,000 warm-up round trips, a 64-byte payload, 64 maximum requests in flight,
+release-built Rust, fresh peers, a fresh loopback port, and exact cleanup.
+Hosted platforms have different hardware; this is fixed-order evidence, not a
+cross-platform ranking. See the [engineer benchmark page](https://riaevangelist.github.io/node-ipc/benchmarks/rust/),
+[raw manifest](https://riaevangelist.github.io/node-ipc/data/rust-benchmarks/index.json),
 or run `npm run benchmark:rust:quick` for a non-publishable four-lane smoke.
 
 ----

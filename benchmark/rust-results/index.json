@@ -1,0 +1,174 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-08-23T06:23:58.102Z",
+  "results": [
+    {
+      "id": "run-20260823T061716389Z-64d3f060d7b62faf",
+      "file": "run-20260823T061716389Z-64d3f060d7b62faf.json",
+      "sha256": "8b59cee67d0dc604d29ecf4bb1a7f97aa58a5d1869729bb8c0eec4b0b10c3982",
+      "generatedAt": "2026-08-23T06:17:16.389Z",
+      "commit": "2692d32c4d97c94aceedfe6cbdf1a48591ba00b5",
+      "platform": "darwin",
+      "architecture": "arm64",
+      "node": "v24.18.1",
+      "rust": "1.85.0",
+      "summary": {
+        "metric": "milliseconds-per-million-validated-round-trips",
+        "lanes": [
+          {
+            "lane": "node-node",
+            "samples": 5,
+            "medianDurationNs": 7817138167,
+            "medianMillisecondsPerMillionRoundTrips": 7817.138167,
+            "medianRoundTripsPerSecond": 127924.05336028135,
+            "medianLatencyP50Ns": 360041,
+            "medianClientSampledPeakRssBytes": 120504320,
+            "medianServerSampledPeakRssBytes": 69648384
+          },
+          {
+            "lane": "node-rust",
+            "samples": 5,
+            "medianDurationNs": 7367815584,
+            "medianMillisecondsPerMillionRoundTrips": 7367.815584,
+            "medianRoundTripsPerSecond": 135725.43837438154,
+            "medianLatencyP50Ns": 319459,
+            "medianClientSampledPeakRssBytes": 123863040,
+            "medianServerSampledPeakRssBytes": 1851392
+          },
+          {
+            "lane": "rust-node",
+            "samples": 5,
+            "medianDurationNs": 8165455333,
+            "medianMillisecondsPerMillionRoundTrips": 8165.455333,
+            "medianRoundTripsPerSecond": 122467.145,
+            "medianLatencyP50Ns": 417375,
+            "medianClientSampledPeakRssBytes": 17481728,
+            "medianServerSampledPeakRssBytes": 69582848
+          },
+          {
+            "lane": "rust-rust",
+            "samples": 5,
+            "medianDurationNs": 5595805791,
+            "medianMillisecondsPerMillionRoundTrips": 5595.805791,
+            "medianRoundTripsPerSecond": 178705.273,
+            "medianLatencyP50Ns": 256959,
+            "medianClientSampledPeakRssBytes": 17645568,
+            "medianServerSampledPeakRssBytes": 1835008
+          }
+        ]
+      }
+    },
+    {
+      "id": "run-20260823T061711200Z-eabc346b6760d217",
+      "file": "run-20260823T061711200Z-eabc346b6760d217.json",
+      "sha256": "ecc588f239d1adf610dcc28761e21c4f3a578d4c16ed14e2dc7b2b3761099957",
+      "generatedAt": "2026-08-23T06:17:11.200Z",
+      "commit": "2692d32c4d97c94aceedfe6cbdf1a48591ba00b5",
+      "platform": "linux",
+      "architecture": "x64",
+      "node": "v24.18.1",
+      "rust": "1.85.0",
+      "summary": {
+        "metric": "milliseconds-per-million-validated-round-trips",
+        "lanes": [
+          {
+            "lane": "node-node",
+            "samples": 5,
+            "medianDurationNs": 10312194365,
+            "medianMillisecondsPerMillionRoundTrips": 10312.194365,
+            "medianRoundTripsPerSecond": 96972.57097810724,
+            "medianLatencyP50Ns": 651724,
+            "medianClientSampledPeakRssBytes": 124653568,
+            "medianServerSampledPeakRssBytes": 72695808
+          },
+          {
+            "lane": "node-rust",
+            "samples": 5,
+            "medianDurationNs": 9316819124,
+            "medianMillisecondsPerMillionRoundTrips": 9316.819124,
+            "medianRoundTripsPerSecond": 107332.76955264845,
+            "medianLatencyP50Ns": 582197,
+            "medianClientSampledPeakRssBytes": 118370304,
+            "medianServerSampledPeakRssBytes": 2355200
+          },
+          {
+            "lane": "rust-node",
+            "samples": 5,
+            "medianDurationNs": 16815847583,
+            "medianMillisecondsPerMillionRoundTrips": 16815.847583,
+            "medianRoundTripsPerSecond": 59467.713,
+            "medianLatencyP50Ns": 1114427,
+            "medianClientSampledPeakRssBytes": 18161664,
+            "medianServerSampledPeakRssBytes": 72925184
+          },
+          {
+            "lane": "rust-rust",
+            "samples": 5,
+            "medianDurationNs": 12477546380,
+            "medianMillisecondsPerMillionRoundTrips": 12477.54638,
+            "medianRoundTripsPerSecond": 80143.962,
+            "medianLatencyP50Ns": 748937,
+            "medianClientSampledPeakRssBytes": 18178048,
+            "medianServerSampledPeakRssBytes": 2363392
+          }
+        ]
+      }
+    },
+    {
+      "id": "run-20260823T061733086Z-1456d6f26d330552",
+      "file": "run-20260823T061733086Z-1456d6f26d330552.json",
+      "sha256": "2448c9c6a5fd42e302e2f9eebadd3dbe44a98ebb7700e6f74afc48a7b6b1a684",
+      "generatedAt": "2026-08-23T06:17:33.086Z",
+      "commit": "2692d32c4d97c94aceedfe6cbdf1a48591ba00b5",
+      "platform": "win32",
+      "architecture": "x64",
+      "node": "v24.18.1",
+      "rust": "1.85.0",
+      "summary": {
+        "metric": "milliseconds-per-million-validated-round-trips",
+        "lanes": [
+          {
+            "lane": "node-node",
+            "samples": 5,
+            "medianDurationNs": 12609377200,
+            "medianMillisecondsPerMillionRoundTrips": 12609.3772,
+            "medianRoundTripsPerSecond": 79306.05803433336,
+            "medianLatencyP50Ns": 628100,
+            "medianClientSampledPeakRssBytes": 108466176,
+            "medianServerSampledPeakRssBytes": 56782848
+          },
+          {
+            "lane": "node-rust",
+            "samples": 5,
+            "medianDurationNs": 15231344000,
+            "medianMillisecondsPerMillionRoundTrips": 15231.344,
+            "medianRoundTripsPerSecond": 65654.08804370776,
+            "medianLatencyP50Ns": 813800,
+            "medianClientSampledPeakRssBytes": 99905536,
+            "medianServerSampledPeakRssBytes": 4620288
+          },
+          {
+            "lane": "rust-node",
+            "samples": 5,
+            "medianDurationNs": 23185769100,
+            "medianMillisecondsPerMillionRoundTrips": 23185.7691,
+            "medianRoundTripsPerSecond": 43129.904,
+            "medianLatencyP50Ns": 1184400,
+            "medianClientSampledPeakRssBytes": 20725760,
+            "medianServerSampledPeakRssBytes": 55951360
+          },
+          {
+            "lane": "rust-rust",
+            "samples": 5,
+            "medianDurationNs": 13069995200,
+            "medianMillisecondsPerMillionRoundTrips": 13069.9952,
+            "medianRoundTripsPerSecond": 76511.122,
+            "medianLatencyP50Ns": 760800,
+            "medianClientSampledPeakRssBytes": 20099072,
+            "medianServerSampledPeakRssBytes": 4616192
+          }
+        ]
+      }
+    }
+  ]
+}

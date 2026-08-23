@@ -1,0 +1,1419 @@
+{
+  "schema": "node-ipc-rust-benchmark-v1",
+  "schemaVersion": 1,
+  "id": "run-20260823T061716389Z-64d3f060d7b62faf",
+  "generatedAt": "2026-08-23T06:17:16.389Z",
+  "record": {
+    "file": "run-20260823T061716389Z-64d3f060d7b62faf.json",
+    "recordedAt": "2026-08-23T06:20:37.264Z"
+  },
+  "repository": {
+    "capture": "pre-and-post-execution",
+    "commit": "2692d32c4d97c94aceedfe6cbdf1a48591ba00b5",
+    "dirty": false,
+    "changedDuringRun": false,
+    "preExecution": {
+      "capturedAt": "2026-08-23T06:17:16.388Z",
+      "commit": "2692d32c4d97c94aceedfe6cbdf1a48591ba00b5",
+      "dirty": false,
+      "changedEntries": 0,
+      "statusSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "postExecution": {
+      "capturedAt": "2026-08-23T06:20:37.244Z",
+      "commit": "2692d32c4d97c94aceedfe6cbdf1a48591ba00b5",
+      "dirty": false,
+      "changedEntries": 0,
+      "statusSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "system": {
+    "platform": "darwin",
+    "release": "25.5.0",
+    "architecture": "arm64",
+    "cpu": {
+      "model": "Apple M1 (Virtual)",
+      "count": 3
+    },
+    "totalMemoryBytes": 7516192768,
+    "machine": {
+      "id": "7ddf4bd5334feac039d5d7e271a4c13c0648110d34688f81ee3c6e63e7bd1ba6"
+    },
+    "environment": {
+      "provider": "github-actions",
+      "githubRepository": "RIAEvangelist/node-ipc",
+      "imageOS": "macos26",
+      "imageVersion": "20260728.0273.1",
+      "osLane": "macos-latest",
+      "nodeLane": "24.18.1",
+      "runId": "32622520570",
+      "runAttempt": "1",
+      "runnerArchitecture": "ARM64",
+      "runnerEnvironment": "github-hosted",
+      "sourceRef": "refs/heads/main",
+      "sourceSha": "2692d32c4d97c94aceedfe6cbdf1a48591ba00b5",
+      "workflow": "Record Rust and Node TCP benchmark snapshots",
+      "workflowRef": "RIAEvangelist/node-ipc/.github/workflows/rust-benchmark.yml@refs/heads/main",
+      "workflowSha": "2692d32c4d97c94aceedfe6cbdf1a48591ba00b5"
+    }
+  },
+  "runtime": {
+    "node": {
+      "version": "v24.18.1",
+      "v8": "13.6.233.17-node.50",
+      "uv": "1.52.1",
+      "openssl": "3.5.7"
+    },
+    "rust": {
+      "version": "rustc 1.85.0 (4d91de4e4 2025-02-17)",
+      "release": "1.85.0",
+      "host": "aarch64-apple-darwin",
+      "commitHash": "4d91de4e48198da2e33413efdcd9cd2cc0c46688",
+      "llvmVersion": "19.1.7"
+    },
+    "cargo": {
+      "version": "cargo 1.85.0 (d73d2caf9 2024-12-31)",
+      "release": "1.85.0"
+    }
+  },
+  "packages": {
+    "npm": {
+      "version": "14.0.0",
+      "packedBytes": 26845,
+      "unpackedBytes": 100596,
+      "fileCount": 13,
+      "sha1": "cb0b555328447009df98c309c86535c9a1708069",
+      "integrity": "sha512-1hdohSxlL9XqolXAWG4VOAqAWnsU/4MCMsemxLC+g16uJ9ZIvgC7S1uPNqqhE0NtEd9IoxoZIsBGre9AEFTe8A=="
+    },
+    "crate": {
+      "version": "14.0.0",
+      "packedBytes": 56946,
+      "fileCount": 29,
+      "sha256": "7e99bcd34f99d5aeb84214e9d717c77d0394376d8dc6b8affd206f98c75ffd79"
+    }
+  },
+  "subjects": {
+    "node": {
+      "version": "14.0.0",
+      "peerSha256": "af4cf03b0c7b56c67bcb462da11114d235f6a6a5a093159a02dab5c9839d39f7",
+      "packageJsonSha256": "f9ea21a0d3c1e968f550dc244f4113a9eab41d8ca06d809f2bf24ed32409a8aa",
+      "packageLockSha256": "bb3a0030e36441ec2e4918b04d0c9596f11b48d91de31970e4acea0c28939b14"
+    },
+    "rust": {
+      "version": "14.0.0",
+      "binarySha256": "556a07438c1f1460c025b8409181eee39a23a87c545d0d564dbcdd552e37bef1",
+      "cargoTomlSha256": "f594c69ae897ef74360287a6a686ee8e1fa677318ca179266e01ef9c003613f7",
+      "cargoLockSha256": "14011ecee23b2a386fc37071bd23f0b9a6f9b9f4d4f3150111dada4563f3fea2",
+      "exampleSha256": "f7270595213686ae6dd79d568e0f8ef9fa1995a87702512a249a708ece439f46"
+    }
+  },
+  "config": {
+    "mode": "full",
+    "warmup": 100000,
+    "count": 1000000,
+    "payloadBytes": 64,
+    "inflight": 64,
+    "samplesPerLane": 5,
+    "readyTimeoutMs": 15000,
+    "sampleTimeoutMs": 180000,
+    "cleanupTimeoutMs": 5000,
+    "baselineDelayMs": 1000,
+    "memoryIntervalMs": 500,
+    "lanes": [
+      "node-node",
+      "node-rust",
+      "rust-node",
+      "rust-rust"
+    ],
+    "peerSchema": "node-ipc-roundtrip-v1",
+    "transport": "tcp",
+    "rustProfile": "release"
+  },
+  "evidence": {
+    "classification": "release-performance-snapshot",
+    "performanceClaims": true,
+    "publishable": true,
+    "rankingEligible": false,
+    "certification": false,
+    "reasons": [],
+    "notes": [
+      "hosted and local measurements remain environment-specific"
+    ]
+  },
+  "samples": [
+    {
+      "orderIndex": 0,
+      "round": 0,
+      "lane": "node-node",
+      "client": "node",
+      "server": "node",
+      "metrics": {
+        "durationNs": "9327050542",
+        "roundTripsPerSecond": 107215.02960630145,
+        "wireBytes": "276777780",
+        "wireBytesPerSecond": 29674737.87706639,
+        "latencyNs": {
+          "mean": 596757.394563,
+          "p50": 480958,
+          "p95": 1349250,
+          "p99": 2080792,
+          "max": 10704792
+        }
+      },
+      "memory": {
+        "method": "ps-rss",
+        "peakKind": "sampled-maximum",
+        "intervalMs": 500,
+        "clientSampledPeakRssBytes": 116441088,
+        "serverSampledPeakRssBytes": 69402624,
+        "clientPostExitRssBytes": null,
+        "serverPostExitRssBytes": null,
+        "clientGoneAfterExit": true,
+        "serverGoneAfterExit": true,
+        "samplerErrors": 0,
+        "parentBeforeGcRssBytes": 58228736,
+        "parentAfterGcRssBytes": 58867712,
+        "parentPostCleanupRssBytes": 61112320,
+        "systemFreeBeforeBytes": 442892288,
+        "systemFreePostCleanupBytes": 232488960
+      },
+      "exact": {
+        "peerSchema": "node-ipc-roundtrip-v1",
+        "host": "loopback-ipv4",
+        "portReservationId": "3e497fb20fee1547eb4df901f4805f7f7943ce12ec8d0d6c067badd951a622c2",
+        "portReserved": true,
+        "reservationReleasedBeforeServer": true,
+        "serverListening": true,
+        "serverComplete": true,
+        "clientComplete": true,
+        "serverFrames": 1100000,
+        "clientCount": 1000000,
+        "payloadBytes": 64,
+        "inflight": 64
+      },
+      "cleanup": {
+        "clientNaturalExit": true,
+        "serverNaturalExit": true,
+        "forced": [],
+        "portRebound": true,
+        "tempEntriesBeforeRemoval": 0,
+        "tempRemoved": true,
+        "activeProcesses": 0,
+        "activeSockets": 0
+      }
+    },
+    {
+      "orderIndex": 1,
+      "round": 0,
+      "lane": "node-rust",
+      "client": "node",
+      "server": "rust",
+      "metrics": {
+        "durationNs": "9002547958",
+        "roundTripsPerSecond": 111079.66374245891,
+        "wireBytes": "276777780",
+        "wireBytesPerSecond": 30744382.73378427,
+        "latencyNs": {
+          "mean": 576009.18308,
+          "p50": 489125,
+          "p95": 1165750,
+          "p99": 1460458,
+          "max": 7511750
+        }
+      },
+      "memory": {
+        "method": "ps-rss",
+        "peakKind": "sampled-maximum",
+        "intervalMs": 500,
+        "clientSampledPeakRssBytes": 113229824,
+        "serverSampledPeakRssBytes": 1851392,
+        "clientPostExitRssBytes": null,
+        "serverPostExitRssBytes": null,
+        "clientGoneAfterExit": true,
+        "serverGoneAfterExit": true,
+        "samplerErrors": 0,
+        "parentBeforeGcRssBytes": 61112320,
+        "parentAfterGcRssBytes": 61145088,
+        "parentPostCleanupRssBytes": 64929792,
+        "systemFreeBeforeBytes": 131612672,
+        "systemFreePostCleanupBytes": 178946048
+      },
+      "exact": {
+        "peerSchema": "node-ipc-roundtrip-v1",
+        "host": "loopback-ipv4",
+        "portReservationId": "7c39437df1a451c8b2a8aabb95048f4eb7608225aff93b431ed134115ecce504",
+        "portReserved": true,
+        "reservationReleasedBeforeServer": true,
+        "serverListening": true,
+        "serverComplete": true,
+        "clientComplete": true,
+        "serverFrames": 1100000,
+        "clientCount": 1000000,
+        "payloadBytes": 64,
+        "inflight": 64
+      },
+      "cleanup": {
+        "clientNaturalExit": true,
+        "serverNaturalExit": true,
+        "forced": [],
+        "portRebound": true,
+        "tempEntriesBeforeRemoval": 0,
+        "tempRemoved": true,
+        "activeProcesses": 0,
+        "activeSockets": 0
+      }
+    },
+    {
+      "orderIndex": 2,
+      "round": 0,
+      "lane": "rust-node",
+      "client": "rust",
+      "server": "node",
+      "metrics": {
+        "durationNs": "11905122625",
+        "roundTripsPerSecond": 83997.455,
+        "wireBytes": "276777780",
+        "wireBytesPerSecond": 23248629.075,
+        "latencyNs": {
+          "mean": 761733.619,
+          "p50": 734416,
+          "p95": 1467875,
+          "p99": 2441875,
+          "max": 11678625
+        }
+      },
+      "memory": {
+        "method": "ps-rss",
+        "peakKind": "sampled-maximum",
+        "intervalMs": 500,
+        "clientSampledPeakRssBytes": 17924096,
+        "serverSampledPeakRssBytes": 69566464,
+        "clientPostExitRssBytes": null,
+        "serverPostExitRssBytes": null,
+        "clientGoneAfterExit": true,
+        "serverGoneAfterExit": true,
+        "samplerErrors": 0,
+        "parentBeforeGcRssBytes": 64929792,
+        "parentAfterGcRssBytes": 64929792,
+        "parentPostCleanupRssBytes": 64978944,
+        "systemFreeBeforeBytes": 95780864,
+        "systemFreePostCleanupBytes": 337362944
+      },
+      "exact": {
+        "peerSchema": "node-ipc-roundtrip-v1",
+        "host": "loopback-ipv4",
+        "portReservationId": "a1db959fa75ac1f6ba1298c2527ff382610229e2428dbc82fad3d5e17ef9142c",
+        "portReserved": true,
+        "reservationReleasedBeforeServer": true,
+        "serverListening": true,
+        "serverComplete": true,
+        "clientComplete": true,
+        "serverFrames": 1100000,
+        "clientCount": 1000000,
+        "payloadBytes": 64,
+        "inflight": 64
+      },
+      "cleanup": {
+        "clientNaturalExit": true,
+        "serverNaturalExit": true,
+        "forced": [],
+        "portRebound": true,
+        "tempEntriesBeforeRemoval": 0,
+        "tempRemoved": true,
+        "activeProcesses": 0,
+        "activeSockets": 0
+      }
+    },
+    {
+      "orderIndex": 3,
+      "round": 0,
+      "lane": "rust-rust",
+      "client": "rust",
+      "server": "rust",
+      "metrics": {
+        "durationNs": "10588967834",
+        "roundTripsPerSecond": 94437.911,
+        "wireBytes": "276777780",
+        "wireBytesPerSecond": 26138315.305,
+        "latencyNs": {
+          "mean": 677544.648,
+          "p50": 630833,
+          "p95": 1320083,
+          "p99": 2497334,
+          "max": 12008875
+        }
+      },
+      "memory": {
+        "method": "ps-rss",
+        "peakKind": "sampled-maximum",
+        "intervalMs": 500,
+        "clientSampledPeakRssBytes": 17645568,
+        "serverSampledPeakRssBytes": 1835008,
+        "clientPostExitRssBytes": null,
+        "serverPostExitRssBytes": null,
+        "clientGoneAfterExit": true,
+        "serverGoneAfterExit": true,
+        "samplerErrors": 0,
+        "parentBeforeGcRssBytes": 64978944,
+        "parentAfterGcRssBytes": 64978944,
+        "parentPostCleanupRssBytes": 64995328,
+        "systemFreeBeforeBytes": 306577408,
+        "systemFreePostCleanupBytes": 270942208
+      },
+      "exact": {
+        "peerSchema": "node-ipc-roundtrip-v1",
+        "host": "loopback-ipv4",
+        "portReservationId": "1b372b6c6a34a5e775b0d98be50d022b9cfaf39aae103b4bcbc3345d4c43354c",
+        "portReserved": true,
+        "reservationReleasedBeforeServer": true,
+        "serverListening": true,
+        "serverComplete": true,
+        "clientComplete": true,
+        "serverFrames": 1100000,
+        "clientCount": 1000000,
+        "payloadBytes": 64,
+        "inflight": 64
+      },
+      "cleanup": {
+        "clientNaturalExit": true,
+        "serverNaturalExit": true,
+        "forced": [],
+        "portRebound": true,
+        "tempEntriesBeforeRemoval": 0,
+        "tempRemoved": true,
+        "activeProcesses": 0,
+        "activeSockets": 0
+      }
+    },
+    {
+      "orderIndex": 4,
+      "round": 1,
+      "lane": "node-rust",
+      "client": "node",
+      "server": "rust",
+      "metrics": {
+        "durationNs": "11015884167",
+        "roundTripsPerSecond": 90778.00609012159,
+        "wireBytes": "276777780",
+        "wireBytesPerSecond": 25125334.998450335,
+        "latencyNs": {
+          "mean": 704798.129451,
+          "p50": 619333,
+          "p95": 1331500,
+          "p99": 2044333,
+          "max": 26932792
+        }
+      },
+      "memory": {
+        "method": "ps-rss",
+        "peakKind": "sampled-maximum",
+        "intervalMs": 500,
+        "clientSampledPeakRssBytes": 124256256,
+        "serverSampledPeakRssBytes": 1851392,
+        "clientPostExitRssBytes": null,
+        "serverPostExitRssBytes": null,
+        "clientGoneAfterExit": true,
+        "serverGoneAfterExit": true,
+        "samplerErrors": 0,
+        "parentBeforeGcRssBytes": 64995328,
+        "parentAfterGcRssBytes": 64995328,
+        "parentPostCleanupRssBytes": 65077248,
+        "systemFreeBeforeBytes": 268894208,
+        "systemFreePostCleanupBytes": 263421952
+      },
+      "exact": {
+        "peerSchema": "node-ipc-roundtrip-v1",
+        "host": "loopback-ipv4",
+        "portReservationId": "841b113aa46f96b234fdf77d329322e6b9b1d43fbf26882a31d3a432dae63b47",
+        "portReserved": true,
+        "reservationReleasedBeforeServer": true,
+        "serverListening": true,
+        "serverComplete": true,
+        "clientComplete": true,
+        "serverFrames": 1100000,
+        "clientCount": 1000000,
+        "payloadBytes": 64,
+        "inflight": 64
+      },
+      "cleanup": {
+        "clientNaturalExit": true,
+        "serverNaturalExit": true,
+        "forced": [],
+        "portRebound": true,
+        "tempEntriesBeforeRemoval": 0,
+        "tempRemoved": true,
+        "activeProcesses": 0,
+        "activeSockets": 0
+      }
+    },
+    {
+      "orderIndex": 5,
+      "round": 1,
+      "lane": "rust-node",
+      "client": "rust",
+      "server": "node",
+      "metrics": {
+        "durationNs": "8165455333",
+        "roundTripsPerSecond": 122467.145,
+        "wireBytes": "276777780",
+        "wireBytesPerSecond": 33896184.44,
+        "latencyNs": {
+          "mean": 522448.929,
+          "p50": 417375,
+          "p95": 1163041,
+          "p99": 1836583,
+          "max": 44190125
+        }
+      },
+      "memory": {
+        "method": "ps-rss",
+        "peakKind": "sampled-maximum",
+        "intervalMs": 500,
+        "clientSampledPeakRssBytes": 17481728,
+        "serverSampledPeakRssBytes": 69582848,
+        "clientPostExitRssBytes": null,
+        "serverPostExitRssBytes": null,
+        "clientGoneAfterExit": true,
+        "serverGoneAfterExit": true,
+        "samplerErrors": 0,
+        "parentBeforeGcRssBytes": 65077248,
+        "parentAfterGcRssBytes": 65077248,
+        "parentPostCleanupRssBytes": 65110016,
+        "systemFreeBeforeBytes": 244629504,
+        "systemFreePostCleanupBytes": 163315712
+      },
+      "exact": {
+        "peerSchema": "node-ipc-roundtrip-v1",
+        "host": "loopback-ipv4",
+        "portReservationId": "f2b24f0df0eae49d9fe6762aec0bb01fb17f0300bffc2098c6106fde6c4e7bbe",
+        "portReserved": true,
+        "reservationReleasedBeforeServer": true,
+        "serverListening": true,
+        "serverComplete": true,
+        "clientComplete": true,
+        "serverFrames": 1100000,
+        "clientCount": 1000000,
+        "payloadBytes": 64,
+        "inflight": 64
+      },
+      "cleanup": {
+        "clientNaturalExit": true,
+        "serverNaturalExit": true,
+        "forced": [],
+        "portRebound": true,
+        "tempEntriesBeforeRemoval": 0,
+        "tempRemoved": true,
+        "activeProcesses": 0,
+        "activeSockets": 0
+      }
+    },
+    {
+      "orderIndex": 6,
+      "round": 1,
+      "lane": "rust-rust",
+      "client": "rust",
+      "server": "rust",
+      "metrics": {
+        "durationNs": "5595805791",
+        "roundTripsPerSecond": 178705.273,
+        "wireBytes": "276777780",
+        "wireBytesPerSecond": 49461648.659,
+        "latencyNs": {
+          "mean": 358019.691,
+          "p50": 256959,
+          "p95": 764709,
+          "p99": 1062459,
+          "max": 4321541
+        }
+      },
+      "memory": {
+        "method": "ps-rss",
+        "peakKind": "sampled-maximum",
+        "intervalMs": 500,
+        "clientSampledPeakRssBytes": 17825792,
+        "serverSampledPeakRssBytes": 1851392,
+        "clientPostExitRssBytes": null,
+        "serverPostExitRssBytes": null,
+        "clientGoneAfterExit": true,
+        "serverGoneAfterExit": true,
+        "samplerErrors": 0,
+        "parentBeforeGcRssBytes": 65110016,
+        "parentAfterGcRssBytes": 65110016,
+        "parentPostCleanupRssBytes": 65142784,
+        "systemFreeBeforeBytes": 122748928,
+        "systemFreePostCleanupBytes": 116850688
+      },
+      "exact": {
+        "peerSchema": "node-ipc-roundtrip-v1",
+        "host": "loopback-ipv4",
+        "portReservationId": "cc4704d93cb87abc1c9ad763bb82a9f35338b89daf598e96695af1b87fe6bbb3",
+        "portReserved": true,
+        "reservationReleasedBeforeServer": true,
+        "serverListening": true,
+        "serverComplete": true,
+        "clientComplete": true,
+        "serverFrames": 1100000,
+        "clientCount": 1000000,
+        "payloadBytes": 64,
+        "inflight": 64
+      },
+      "cleanup": {
+        "clientNaturalExit": true,
+        "serverNaturalExit": true,
+        "forced": [],
+        "portRebound": true,
+        "tempEntriesBeforeRemoval": 0,
+        "tempRemoved": true,
+        "activeProcesses": 0,
+        "activeSockets": 0
+      }
+    },
+    {
+      "orderIndex": 7,
+      "round": 1,
+      "lane": "node-node",
+      "client": "node",
+      "server": "node",
+      "metrics": {
+        "durationNs": "9347869375",
+        "roundTripsPerSecond": 106976.24879894088,
+        "wireBytes": "276777780",
+        "wireBytesPerSecond": 29608648.655298524,
+        "latencyNs": {
+          "mean": 598099.446164,
+          "p50": 432167,
+          "p95": 1228917,
+          "p99": 1613375,
+          "max": 14095875
+        }
+      },
+      "memory": {
+        "method": "ps-rss",
+        "peakKind": "sampled-maximum",
+        "intervalMs": 500,
+        "clientSampledPeakRssBytes": 120504320,
+        "serverSampledPeakRssBytes": 69926912,
+        "clientPostExitRssBytes": null,
+        "serverPostExitRssBytes": null,
+        "clientGoneAfterExit": true,
+        "serverGoneAfterExit": true,
+        "samplerErrors": 0,
+        "parentBeforeGcRssBytes": 65142784,
+        "parentAfterGcRssBytes": 65142784,
+        "parentPostCleanupRssBytes": 65175552,
+        "systemFreeBeforeBytes": 103546880,
+        "systemFreePostCleanupBytes": 185352192
+      },
+      "exact": {
+        "peerSchema": "node-ipc-roundtrip-v1",
+        "host": "loopback-ipv4",
+        "portReservationId": "abe7cf2c2f956987feb7a92047d0b6f0abc7e7aa3c6a725d372df4f8de553120",
+        "portReserved": true,
+        "reservationReleasedBeforeServer": true,
+        "serverListening": true,
+        "serverComplete": true,
+        "clientComplete": true,
+        "serverFrames": 1100000,
+        "clientCount": 1000000,
+        "payloadBytes": 64,
+        "inflight": 64
+      },
+      "cleanup": {
+        "clientNaturalExit": true,
+        "serverNaturalExit": true,
+        "forced": [],
+        "portRebound": true,
+        "tempEntriesBeforeRemoval": 0,
+        "tempRemoved": true,
+        "activeProcesses": 0,
+        "activeSockets": 0
+      }
+    },
+    {
+      "orderIndex": 8,
+      "round": 2,
+      "lane": "rust-node",
+      "client": "rust",
+      "server": "node",
+      "metrics": {
+        "durationNs": "8989471333",
+        "roundTripsPerSecond": 111241.247,
+        "wireBytes": "276777780",
+        "wireBytesPerSecond": 30789105.36,
+        "latencyNs": {
+          "mean": 575188.815,
+          "p50": 499208,
+          "p95": 1101667,
+          "p99": 1682875,
+          "max": 9027500
+        }
+      },
+      "memory": {
+        "method": "ps-rss",
+        "peakKind": "sampled-maximum",
+        "intervalMs": 500,
+        "clientSampledPeakRssBytes": 17776640,
+        "serverSampledPeakRssBytes": 69484544,
+        "clientPostExitRssBytes": null,
+        "serverPostExitRssBytes": null,
+        "clientGoneAfterExit": true,
+        "serverGoneAfterExit": true,
+        "samplerErrors": 0,
+        "parentBeforeGcRssBytes": 65191936,
+        "parentAfterGcRssBytes": 65191936,
+        "parentPostCleanupRssBytes": 65208320,
+        "systemFreeBeforeBytes": 166789120,
+        "systemFreePostCleanupBytes": 121683968
+      },
+      "exact": {
+        "peerSchema": "node-ipc-roundtrip-v1",
+        "host": "loopback-ipv4",
+        "portReservationId": "3f9c70bc02e22353ed1425fb0de3b8d1473a59ad7227ad05ee6ba3bf37b49ce5",
+        "portReserved": true,
+        "reservationReleasedBeforeServer": true,
+        "serverListening": true,
+        "serverComplete": true,
+        "clientComplete": true,
+        "serverFrames": 1100000,
+        "clientCount": 1000000,
+        "payloadBytes": 64,
+        "inflight": 64
+      },
+      "cleanup": {
+        "clientNaturalExit": true,
+        "serverNaturalExit": true,
+        "forced": [],
+        "portRebound": true,
+        "tempEntriesBeforeRemoval": 0,
+        "tempRemoved": true,
+        "activeProcesses": 0,
+        "activeSockets": 0
+      }
+    },
+    {
+      "orderIndex": 9,
+      "round": 2,
+      "lane": "rust-rust",
+      "client": "rust",
+      "server": "rust",
+      "metrics": {
+        "durationNs": "5227844666",
+        "roundTripsPerSecond": 191283.419,
+        "wireBytes": "276777780",
+        "wireBytesPerSecond": 52942999.971,
+        "latencyNs": {
+          "mean": 334492.651,
+          "p50": 247083,
+          "p95": 735667,
+          "p99": 936292,
+          "max": 7617125
+        }
+      },
+      "memory": {
+        "method": "ps-rss",
+        "peakKind": "sampled-maximum",
+        "intervalMs": 500,
+        "clientSampledPeakRssBytes": 16236544,
+        "serverSampledPeakRssBytes": 1835008,
+        "clientPostExitRssBytes": null,
+        "serverPostExitRssBytes": null,
+        "clientGoneAfterExit": true,
+        "serverGoneAfterExit": true,
+        "samplerErrors": 0,
+        "parentBeforeGcRssBytes": 65241088,
+        "parentAfterGcRssBytes": 65257472,
+        "parentPostCleanupRssBytes": 65323008,
+        "systemFreeBeforeBytes": 80986112,
+        "systemFreePostCleanupBytes": 91406336
+      },
+      "exact": {
+        "peerSchema": "node-ipc-roundtrip-v1",
+        "host": "loopback-ipv4",
+        "portReservationId": "128307058a7a918e2353605889a8b7783df10c5fea86c36344c2984c0cd55d13",
+        "portReserved": true,
+        "reservationReleasedBeforeServer": true,
+        "serverListening": true,
+        "serverComplete": true,
+        "clientComplete": true,
+        "serverFrames": 1100000,
+        "clientCount": 1000000,
+        "payloadBytes": 64,
+        "inflight": 64
+      },
+      "cleanup": {
+        "clientNaturalExit": true,
+        "serverNaturalExit": true,
+        "forced": [],
+        "portRebound": true,
+        "tempEntriesBeforeRemoval": 0,
+        "tempRemoved": true,
+        "activeProcesses": 0,
+        "activeSockets": 0
+      }
+    },
+    {
+      "orderIndex": 10,
+      "round": 2,
+      "lane": "node-node",
+      "client": "node",
+      "server": "node",
+      "metrics": {
+        "durationNs": "7215064625",
+        "roundTripsPerSecond": 138598.89716511028,
+        "wireBytes": "276777780",
+        "wireBytesPerSecond": 38361095.06780752,
+        "latencyNs": {
+          "mean": 461610.19415,
+          "p50": 360041,
+          "p95": 1036000,
+          "p99": 1418208,
+          "max": 8583500
+        }
+      },
+      "memory": {
+        "method": "ps-rss",
+        "peakKind": "sampled-maximum",
+        "intervalMs": 500,
+        "clientSampledPeakRssBytes": 126271488,
+        "serverSampledPeakRssBytes": 69386240,
+        "clientPostExitRssBytes": null,
+        "serverPostExitRssBytes": null,
+        "clientGoneAfterExit": true,
+        "serverGoneAfterExit": true,
+        "samplerErrors": 0,
+        "parentBeforeGcRssBytes": 65323008,
+        "parentAfterGcRssBytes": 65323008,
+        "parentPostCleanupRssBytes": 65339392,
+        "systemFreeBeforeBytes": 78249984,
+        "systemFreePostCleanupBytes": 187858944
+      },
+      "exact": {
+        "peerSchema": "node-ipc-roundtrip-v1",
+        "host": "loopback-ipv4",
+        "portReservationId": "a3d557a100065817ceffb7633fef8da5af497ceac878fa559f1edf80f7fae814",
+        "portReserved": true,
+        "reservationReleasedBeforeServer": true,
+        "serverListening": true,
+        "serverComplete": true,
+        "clientComplete": true,
+        "serverFrames": 1100000,
+        "clientCount": 1000000,
+        "payloadBytes": 64,
+        "inflight": 64
+      },
+      "cleanup": {
+        "clientNaturalExit": true,
+        "serverNaturalExit": true,
+        "forced": [],
+        "portRebound": true,
+        "tempEntriesBeforeRemoval": 0,
+        "tempRemoved": true,
+        "activeProcesses": 0,
+        "activeSockets": 0
+      }
+    },
+    {
+      "orderIndex": 11,
+      "round": 2,
+      "lane": "node-rust",
+      "client": "node",
+      "server": "rust",
+      "metrics": {
+        "durationNs": "6246513458",
+        "roundTripsPerSecond": 160089.30529386527,
+        "wireBytes": "276777780",
+        "wireBytesPerSecond": 44309162.52097827,
+        "latencyNs": {
+          "mean": 399654.523618,
+          "p50": 315333,
+          "p95": 846584,
+          "p99": 1291708,
+          "max": 6065916
+        }
+      },
+      "memory": {
+        "method": "ps-rss",
+        "peakKind": "sampled-maximum",
+        "intervalMs": 500,
+        "clientSampledPeakRssBytes": 113033216,
+        "serverSampledPeakRssBytes": 1851392,
+        "clientPostExitRssBytes": null,
+        "serverPostExitRssBytes": null,
+        "clientGoneAfterExit": true,
+        "serverGoneAfterExit": true,
+        "samplerErrors": 0,
+        "parentBeforeGcRssBytes": 65339392,
+        "parentAfterGcRssBytes": 65339392,
+        "parentPostCleanupRssBytes": 65339392,
+        "systemFreeBeforeBytes": 175144960,
+        "systemFreePostCleanupBytes": 155762688
+      },
+      "exact": {
+        "peerSchema": "node-ipc-roundtrip-v1",
+        "host": "loopback-ipv4",
+        "portReservationId": "56f72f89ce594e3bb76b755078906ea31f40a5e9b6232925db2baf0c7030509c",
+        "portReserved": true,
+        "reservationReleasedBeforeServer": true,
+        "serverListening": true,
+        "serverComplete": true,
+        "clientComplete": true,
+        "serverFrames": 1100000,
+        "clientCount": 1000000,
+        "payloadBytes": 64,
+        "inflight": 64
+      },
+      "cleanup": {
+        "clientNaturalExit": true,
+        "serverNaturalExit": true,
+        "forced": [],
+        "portRebound": true,
+        "tempEntriesBeforeRemoval": 0,
+        "tempRemoved": true,
+        "activeProcesses": 0,
+        "activeSockets": 0
+      }
+    },
+    {
+      "orderIndex": 12,
+      "round": 3,
+      "lane": "rust-rust",
+      "client": "rust",
+      "server": "rust",
+      "metrics": {
+        "durationNs": "6625698291",
+        "roundTripsPerSecond": 150927.488,
+        "wireBytes": "276777780",
+        "wireBytesPerSecond": 41773375.099,
+        "latencyNs": {
+          "mean": 423939.665,
+          "p50": 267500,
+          "p95": 846459,
+          "p99": 1360250,
+          "max": 36609042
+        }
+      },
+      "memory": {
+        "method": "ps-rss",
+        "peakKind": "sampled-maximum",
+        "intervalMs": 500,
+        "clientSampledPeakRssBytes": 17924096,
+        "serverSampledPeakRssBytes": 1851392,
+        "clientPostExitRssBytes": null,
+        "serverPostExitRssBytes": null,
+        "clientGoneAfterExit": true,
+        "serverGoneAfterExit": true,
+        "samplerErrors": 0,
+        "parentBeforeGcRssBytes": 65339392,
+        "parentAfterGcRssBytes": 65339392,
+        "parentPostCleanupRssBytes": 65404928,
+        "systemFreeBeforeBytes": 129269760,
+        "systemFreePostCleanupBytes": 123912192
+      },
+      "exact": {
+        "peerSchema": "node-ipc-roundtrip-v1",
+        "host": "loopback-ipv4",
+        "portReservationId": "d7206ebe8a7e4f22298dc9cb287258d3dff4beb2bd9e63cf5becace854a27700",
+        "portReserved": true,
+        "reservationReleasedBeforeServer": true,
+        "serverListening": true,
+        "serverComplete": true,
+        "clientComplete": true,
+        "serverFrames": 1100000,
+        "clientCount": 1000000,
+        "payloadBytes": 64,
+        "inflight": 64
+      },
+      "cleanup": {
+        "clientNaturalExit": true,
+        "serverNaturalExit": true,
+        "forced": [],
+        "portRebound": true,
+        "tempEntriesBeforeRemoval": 0,
+        "tempRemoved": true,
+        "activeProcesses": 0,
+        "activeSockets": 0
+      }
+    },
+    {
+      "orderIndex": 13,
+      "round": 3,
+      "lane": "node-node",
+      "client": "node",
+      "server": "node",
+      "metrics": {
+        "durationNs": "7817138167",
+        "roundTripsPerSecond": 127924.05336028135,
+        "wireBytes": "276777780",
+        "wireBytesPerSecond": 35406535.49766021,
+        "latencyNs": {
+          "mean": 500148.923657,
+          "p50": 333750,
+          "p95": 1163750,
+          "p99": 1593167,
+          "max": 10758584
+        }
+      },
+      "memory": {
+        "method": "ps-rss",
+        "peakKind": "sampled-maximum",
+        "intervalMs": 500,
+        "clientSampledPeakRssBytes": 113049600,
+        "serverSampledPeakRssBytes": 69746688,
+        "clientPostExitRssBytes": null,
+        "serverPostExitRssBytes": null,
+        "clientGoneAfterExit": true,
+        "serverGoneAfterExit": true,
+        "samplerErrors": 0,
+        "parentBeforeGcRssBytes": 65404928,
+        "parentAfterGcRssBytes": 65404928,
+        "parentPostCleanupRssBytes": 65454080,
+        "systemFreeBeforeBytes": 96256000,
+        "systemFreePostCleanupBytes": 202588160
+      },
+      "exact": {
+        "peerSchema": "node-ipc-roundtrip-v1",
+        "host": "loopback-ipv4",
+        "portReservationId": "703c3946a850c5caac83d579d0b3e1bfed4c5dbb05458911e41017e52b39c785",
+        "portReserved": true,
+        "reservationReleasedBeforeServer": true,
+        "serverListening": true,
+        "serverComplete": true,
+        "clientComplete": true,
+        "serverFrames": 1100000,
+        "clientCount": 1000000,
+        "payloadBytes": 64,
+        "inflight": 64
+      },
+      "cleanup": {
+        "clientNaturalExit": true,
+        "serverNaturalExit": true,
+        "forced": [],
+        "portRebound": true,
+        "tempEntriesBeforeRemoval": 0,
+        "tempRemoved": true,
+        "activeProcesses": 0,
+        "activeSockets": 0
+      }
+    },
+    {
+      "orderIndex": 14,
+      "round": 3,
+      "lane": "node-rust",
+      "client": "node",
+      "server": "rust",
+      "metrics": {
+        "durationNs": "6792925875",
+        "roundTripsPerSecond": 147211.9699819336,
+        "wireBytes": "276777780",
+        "wireBytesPerSecond": 40745002.24102622,
+        "latencyNs": {
+          "mean": 434622.431235,
+          "p50": 295125,
+          "p95": 1037958,
+          "p99": 1533625,
+          "max": 22164334
+        }
+      },
+      "memory": {
+        "method": "ps-rss",
+        "peakKind": "sampled-maximum",
+        "intervalMs": 500,
+        "clientSampledPeakRssBytes": 125091840,
+        "serverSampledPeakRssBytes": 1835008,
+        "clientPostExitRssBytes": null,
+        "serverPostExitRssBytes": null,
+        "clientGoneAfterExit": true,
+        "serverGoneAfterExit": true,
+        "samplerErrors": 0,
+        "parentBeforeGcRssBytes": 65454080,
+        "parentAfterGcRssBytes": 65454080,
+        "parentPostCleanupRssBytes": 65454080,
+        "systemFreeBeforeBytes": 109461504,
+        "systemFreePostCleanupBytes": 172523520
+      },
+      "exact": {
+        "peerSchema": "node-ipc-roundtrip-v1",
+        "host": "loopback-ipv4",
+        "portReservationId": "4959aa1d4d7900bdc25c44f735ed07c4871b9ffa87aa1f7ae0a14924046134e8",
+        "portReserved": true,
+        "reservationReleasedBeforeServer": true,
+        "serverListening": true,
+        "serverComplete": true,
+        "clientComplete": true,
+        "serverFrames": 1100000,
+        "clientCount": 1000000,
+        "payloadBytes": 64,
+        "inflight": 64
+      },
+      "cleanup": {
+        "clientNaturalExit": true,
+        "serverNaturalExit": true,
+        "forced": [],
+        "portRebound": true,
+        "tempEntriesBeforeRemoval": 0,
+        "tempRemoved": true,
+        "activeProcesses": 0,
+        "activeSockets": 0
+      }
+    },
+    {
+      "orderIndex": 15,
+      "round": 3,
+      "lane": "rust-node",
+      "client": "rust",
+      "server": "node",
+      "metrics": {
+        "durationNs": "7813641834",
+        "roundTripsPerSecond": 127981.295,
+        "wireBytes": "276777780",
+        "wireBytesPerSecond": 35422378.691,
+        "latencyNs": {
+          "mean": 499928.472,
+          "p50": 346458,
+          "p95": 1097209,
+          "p99": 1790125,
+          "max": 17728500
+        }
+      },
+      "memory": {
+        "method": "ps-rss",
+        "peakKind": "sampled-maximum",
+        "intervalMs": 500,
+        "clientSampledPeakRssBytes": 17367040,
+        "serverSampledPeakRssBytes": 69648384,
+        "clientPostExitRssBytes": null,
+        "serverPostExitRssBytes": null,
+        "clientGoneAfterExit": true,
+        "serverGoneAfterExit": true,
+        "samplerErrors": 0,
+        "parentBeforeGcRssBytes": 65454080,
+        "parentAfterGcRssBytes": 65454080,
+        "parentPostCleanupRssBytes": 65519616,
+        "systemFreeBeforeBytes": 216301568,
+        "systemFreePostCleanupBytes": 184516608
+      },
+      "exact": {
+        "peerSchema": "node-ipc-roundtrip-v1",
+        "host": "loopback-ipv4",
+        "portReservationId": "60446c7dff0e8899b901230355dcb11381db5e2a3448c9ae400549a431f4bc44",
+        "portReserved": true,
+        "reservationReleasedBeforeServer": true,
+        "serverListening": true,
+        "serverComplete": true,
+        "clientComplete": true,
+        "serverFrames": 1100000,
+        "clientCount": 1000000,
+        "payloadBytes": 64,
+        "inflight": 64
+      },
+      "cleanup": {
+        "clientNaturalExit": true,
+        "serverNaturalExit": true,
+        "forced": [],
+        "portRebound": true,
+        "tempEntriesBeforeRemoval": 0,
+        "tempRemoved": true,
+        "activeProcesses": 0,
+        "activeSockets": 0
+      }
+    },
+    {
+      "orderIndex": 16,
+      "round": 4,
+      "lane": "node-node",
+      "client": "node",
+      "server": "node",
+      "metrics": {
+        "durationNs": "7709689375",
+        "roundTripsPerSecond": 129706.91183002428,
+        "wireBytes": "276777780",
+        "wireBytesPerSecond": 35899991.106969856,
+        "latencyNs": {
+          "mean": 493235.291092,
+          "p50": 330750,
+          "p95": 1170416,
+          "p99": 1498875,
+          "max": 9055792
+        }
+      },
+      "memory": {
+        "method": "ps-rss",
+        "peakKind": "sampled-maximum",
+        "intervalMs": 500,
+        "clientSampledPeakRssBytes": 124059648,
+        "serverSampledPeakRssBytes": 69648384,
+        "clientPostExitRssBytes": null,
+        "serverPostExitRssBytes": null,
+        "clientGoneAfterExit": true,
+        "serverGoneAfterExit": true,
+        "samplerErrors": 0,
+        "parentBeforeGcRssBytes": 65519616,
+        "parentAfterGcRssBytes": 65519616,
+        "parentPostCleanupRssBytes": 65519616,
+        "systemFreeBeforeBytes": 142114816,
+        "systemFreePostCleanupBytes": 191102976
+      },
+      "exact": {
+        "peerSchema": "node-ipc-roundtrip-v1",
+        "host": "loopback-ipv4",
+        "portReservationId": "61936fdfcc566b09de7a77882fb25cca02321292da97cbe208aa36f9dc5a80ca",
+        "portReserved": true,
+        "reservationReleasedBeforeServer": true,
+        "serverListening": true,
+        "serverComplete": true,
+        "clientComplete": true,
+        "serverFrames": 1100000,
+        "clientCount": 1000000,
+        "payloadBytes": 64,
+        "inflight": 64
+      },
+      "cleanup": {
+        "clientNaturalExit": true,
+        "serverNaturalExit": true,
+        "forced": [],
+        "portRebound": true,
+        "tempEntriesBeforeRemoval": 0,
+        "tempRemoved": true,
+        "activeProcesses": 0,
+        "activeSockets": 0
+      }
+    },
+    {
+      "orderIndex": 17,
+      "round": 4,
+      "lane": "node-rust",
+      "client": "node",
+      "server": "rust",
+      "metrics": {
+        "durationNs": "7367815584",
+        "roundTripsPerSecond": 135725.43837438154,
+        "wireBytes": "276777780",
+        "wireBytesPerSecond": 37565785.52278814,
+        "latencyNs": {
+          "mean": 471400.533749,
+          "p50": 319459,
+          "p95": 1115333,
+          "p99": 1465167,
+          "max": 6838583
+        }
+      },
+      "memory": {
+        "method": "ps-rss",
+        "peakKind": "sampled-maximum",
+        "intervalMs": 500,
+        "clientSampledPeakRssBytes": 123863040,
+        "serverSampledPeakRssBytes": 1851392,
+        "clientPostExitRssBytes": null,
+        "serverPostExitRssBytes": null,
+        "clientGoneAfterExit": true,
+        "serverGoneAfterExit": true,
+        "samplerErrors": 0,
+        "parentBeforeGcRssBytes": 65519616,
+        "parentAfterGcRssBytes": 65519616,
+        "parentPostCleanupRssBytes": 65699840,
+        "systemFreeBeforeBytes": 166772736,
+        "systemFreePostCleanupBytes": 155238400
+      },
+      "exact": {
+        "peerSchema": "node-ipc-roundtrip-v1",
+        "host": "loopback-ipv4",
+        "portReservationId": "f29700c9c1625517afd924ba15d7fafcb020b92c11edfca1d114196e97963719",
+        "portReserved": true,
+        "reservationReleasedBeforeServer": true,
+        "serverListening": true,
+        "serverComplete": true,
+        "clientComplete": true,
+        "serverFrames": 1100000,
+        "clientCount": 1000000,
+        "payloadBytes": 64,
+        "inflight": 64
+      },
+      "cleanup": {
+        "clientNaturalExit": true,
+        "serverNaturalExit": true,
+        "forced": [],
+        "portRebound": true,
+        "tempEntriesBeforeRemoval": 0,
+        "tempRemoved": true,
+        "activeProcesses": 0,
+        "activeSockets": 0
+      }
+    },
+    {
+      "orderIndex": 18,
+      "round": 4,
+      "lane": "rust-node",
+      "client": "rust",
+      "server": "node",
+      "metrics": {
+        "durationNs": "5752979208",
+        "roundTripsPerSecond": 173822.982,
+        "wireBytes": "276777780",
+        "wireBytesPerSecond": 48110339.008,
+        "latencyNs": {
+          "mean": 368078.481,
+          "p50": 277292,
+          "p95": 850917,
+          "p99": 1144208,
+          "max": 16797792
+        }
+      },
+      "memory": {
+        "method": "ps-rss",
+        "peakKind": "sampled-maximum",
+        "intervalMs": 500,
+        "clientSampledPeakRssBytes": 16498688,
+        "serverSampledPeakRssBytes": 69795840,
+        "clientPostExitRssBytes": null,
+        "serverPostExitRssBytes": null,
+        "clientGoneAfterExit": true,
+        "serverGoneAfterExit": true,
+        "samplerErrors": 0,
+        "parentBeforeGcRssBytes": 65699840,
+        "parentAfterGcRssBytes": 65699840,
+        "parentPostCleanupRssBytes": 65716224,
+        "systemFreeBeforeBytes": 226525184,
+        "systemFreePostCleanupBytes": 149864448
+      },
+      "exact": {
+        "peerSchema": "node-ipc-roundtrip-v1",
+        "host": "loopback-ipv4",
+        "portReservationId": "4077cf7bfe1b65f141f866bb592d35925afe51ee46ac4dfc0dab3bc5b5ce839b",
+        "portReserved": true,
+        "reservationReleasedBeforeServer": true,
+        "serverListening": true,
+        "serverComplete": true,
+        "clientComplete": true,
+        "serverFrames": 1100000,
+        "clientCount": 1000000,
+        "payloadBytes": 64,
+        "inflight": 64
+      },
+      "cleanup": {
+        "clientNaturalExit": true,
+        "serverNaturalExit": true,
+        "forced": [],
+        "portRebound": true,
+        "tempEntriesBeforeRemoval": 0,
+        "tempRemoved": true,
+        "activeProcesses": 0,
+        "activeSockets": 0
+      }
+    },
+    {
+      "orderIndex": 19,
+      "round": 4,
+      "lane": "rust-rust",
+      "client": "rust",
+      "server": "rust",
+      "metrics": {
+        "durationNs": "4277408875",
+        "roundTripsPerSecond": 233786.395,
+        "wireBytes": "276777780",
+        "wireBytesPerSecond": 64706879.349,
+        "latencyNs": {
+          "mean": 273664.304,
+          "p50": 217959,
+          "p95": 660417,
+          "p99": 856084,
+          "max": 5799542
+        }
+      },
+      "memory": {
+        "method": "ps-rss",
+        "peakKind": "sampled-maximum",
+        "intervalMs": 500,
+        "clientSampledPeakRssBytes": 16728064,
+        "serverSampledPeakRssBytes": 1835008,
+        "clientPostExitRssBytes": null,
+        "serverPostExitRssBytes": null,
+        "clientGoneAfterExit": true,
+        "serverGoneAfterExit": true,
+        "samplerErrors": 0,
+        "parentBeforeGcRssBytes": 65716224,
+        "parentAfterGcRssBytes": 65716224,
+        "parentPostCleanupRssBytes": 65732608,
+        "systemFreeBeforeBytes": 110510080,
+        "systemFreePostCleanupBytes": 130465792
+      },
+      "exact": {
+        "peerSchema": "node-ipc-roundtrip-v1",
+        "host": "loopback-ipv4",
+        "portReservationId": "94c5f32217eed71bffb52d929e893534601d025ba25541ef89ac298761fbf90b",
+        "portReserved": true,
+        "reservationReleasedBeforeServer": true,
+        "serverListening": true,
+        "serverComplete": true,
+        "clientComplete": true,
+        "serverFrames": 1100000,
+        "clientCount": 1000000,
+        "payloadBytes": 64,
+        "inflight": 64
+      },
+      "cleanup": {
+        "clientNaturalExit": true,
+        "serverNaturalExit": true,
+        "forced": [],
+        "portRebound": true,
+        "tempEntriesBeforeRemoval": 0,
+        "tempRemoved": true,
+        "activeProcesses": 0,
+        "activeSockets": 0
+      }
+    }
+  ],
+  "summary": {
+    "metric": "milliseconds-per-million-validated-round-trips",
+    "lanes": [
+      {
+        "lane": "node-node",
+        "samples": 5,
+        "medianDurationNs": 7817138167,
+        "medianMillisecondsPerMillionRoundTrips": 7817.138167,
+        "medianRoundTripsPerSecond": 127924.05336028135,
+        "medianLatencyP50Ns": 360041,
+        "medianClientSampledPeakRssBytes": 120504320,
+        "medianServerSampledPeakRssBytes": 69648384
+      },
+      {
+        "lane": "node-rust",
+        "samples": 5,
+        "medianDurationNs": 7367815584,
+        "medianMillisecondsPerMillionRoundTrips": 7367.815584,
+        "medianRoundTripsPerSecond": 135725.43837438154,
+        "medianLatencyP50Ns": 319459,
+        "medianClientSampledPeakRssBytes": 123863040,
+        "medianServerSampledPeakRssBytes": 1851392
+      },
+      {
+        "lane": "rust-node",
+        "samples": 5,
+        "medianDurationNs": 8165455333,
+        "medianMillisecondsPerMillionRoundTrips": 8165.455333,
+        "medianRoundTripsPerSecond": 122467.145,
+        "medianLatencyP50Ns": 417375,
+        "medianClientSampledPeakRssBytes": 17481728,
+        "medianServerSampledPeakRssBytes": 69582848
+      },
+      {
+        "lane": "rust-rust",
+        "samples": 5,
+        "medianDurationNs": 5595805791,
+        "medianMillisecondsPerMillionRoundTrips": 5595.805791,
+        "medianRoundTripsPerSecond": 178705.273,
+        "medianLatencyP50Ns": 256959,
+        "medianClientSampledPeakRssBytes": 17645568,
+        "medianServerSampledPeakRssBytes": 1835008
+      }
+    ]
+  },
+  "cleanup": {
+    "activeProcesses": 0,
+    "activeSockets": 0,
+    "forcedProcesses": 0,
+    "uniquePorts": 20,
+    "tempEntries": 0,
+    "tempRootRemoved": true,
+    "clean": true
+  }
+}

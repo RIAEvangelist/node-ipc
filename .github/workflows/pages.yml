@@ -20,6 +20,8 @@ jobs:
       benchmark_manifest_sha256: ${{ steps.stage.outputs.benchmark_manifest_sha256 }}
       benchmark_dashboard_sha256: ${{ steps.stage.outputs.benchmark_dashboard_sha256 }}
       benchmark_chart_sha256: ${{ steps.stage.outputs.benchmark_chart_sha256 }}
+      rust_manifest_sha256: ${{ steps.stage.outputs.rust_manifest_sha256 }}
+      rust_chart_sha256: ${{ steps.stage.outputs.rust_chart_sha256 }}
       transport_manifest_sha256: ${{ steps.stage.outputs.transport_manifest_sha256 }}
       transport_dashboard_sha256: ${{ steps.stage.outputs.transport_dashboard_sha256 }}
       transport_chart_sha256: ${{ steps.stage.outputs.transport_chart_sha256 }}
@@ -64,6 +66,9 @@ jobs:
       - name: Validate tracked transport comparison results
         run: node benchmark/validate-transport-results.js
 
+      - name: Validate tracked Rust and Node benchmark results
+        run: node benchmark/rust/validate.js --tracked benchmark/rust-results
+
       - name: Build the standard C oracle
         run: node benchmark/oracle/build.js
 
@@ -105,6 +110,9 @@ jobs:
           transport_root="benchmark/transport-results"
           transport_schema="benchmark/transport-result-schema.json"
           transport_chart="docs/assets/node-ipc-transport-comparison.svg"
+          rust_root="benchmark/rust-results"
+          rust_schema="benchmark/rust/result-schema.json"
+          rust_chart="docs/assets/node-ipc-rust-benchmark.svg"
           header_asset="assets/node-ipc-header.png"
           performance_asset="assets/node-ipc-performance-tiers.png"
           artifact_root="_site"
@@ -123,6 +131,9 @@ jobs:
           test -s "$transport_root/index.json"
           test -s "$transport_schema"
           test -s "$transport_chart"
+          test -s "$rust_root/index.json"
+          test -s "$rust_schema"
+          test -s "$rust_chart"
           test -s "$header_asset"
           test -s "$performance_asset"
           test ! -e "$artifact_root"
@@ -132,6 +143,9 @@ jobs:
           git ls-files --error-unmatch "$transport_root/index.json" >/dev/null
           git ls-files --error-unmatch "$transport_schema" >/dev/null
           git ls-files --error-unmatch "$transport_chart" >/dev/null
+          git ls-files --error-unmatch "$rust_root/index.json" >/dev/null
+          git ls-files --error-unmatch "$rust_schema" >/dev/null
+          git ls-files --error-unmatch "$rust_chart" >/dev/null
           git ls-files --error-unmatch "$header_asset" >/dev/null
           git ls-files --error-unmatch "$performance_asset" >/dev/null
           git ls-files --error-unmatch docs/data/test-inventory.json >/dev/null
@@ -149,6 +163,14 @@ jobs:
           ((${#transport_files[@]} > 0))
           for source in "${transport_files[@]}"; do
             relative="${source#benchmark/transport-results/}"
+            [[ "$relative" != */* && "$relative" == *.json ]]
+            test -s "$source"
+          done
+
+          mapfile -t rust_files < <(git ls-files -- "$rust_root")
+          ((${#rust_files[@]} > 0))
+          for source in "${rust_files[@]}"; do
+            relative="${source#benchmark/rust-results/}"
             [[ "$relative" != */* && "$relative" == *.json ]]
             test -s "$source"
           done
@@ -189,6 +211,12 @@ jobs:
           cp "$transport_schema" "$artifact_root/data/transport-benchmarks/result-schema.json"
           node benchmark/transport-dashboard.js --output="$artifact_root/data/transport-benchmarks/dashboard.json"
 
+          mkdir -p "$artifact_root/data/rust-benchmarks"
+          for source in "${rust_files[@]}"; do
+            cp "$source" "$artifact_root/data/rust-benchmarks/"
+          done
+          cp "$rust_schema" "$artifact_root/data/rust-benchmarks/result-schema.json"
+
           for entry in "${page_entries[@]}"; do
             test -s "$artifact_root/$entry"
           done
@@ -211,6 +239,11 @@ jobs:
           test -s "$artifact_root/assets/node-ipc-transport-comparison.svg"
           cmp -s "$transport_schema" "$artifact_root/data/transport-benchmarks/result-schema.json"
           cmp -s "$transport_chart" "$artifact_root/assets/node-ipc-transport-comparison.svg"
+          test -s "$artifact_root/data/rust-benchmarks/index.json"
+          test -s "$artifact_root/data/rust-benchmarks/result-schema.json"
+          test -s "$artifact_root/assets/node-ipc-rust-benchmark.svg"
+          cmp -s "$rust_schema" "$artifact_root/data/rust-benchmarks/result-schema.json"
+          cmp -s "$rust_chart" "$artifact_root/assets/node-ipc-rust-benchmark.svg"
 
           forbidden_entry="$({
             find "$artifact_root" \
@@ -244,6 +277,10 @@ jobs:
               printf 'data/transport-benchmarks/%s\n' "${source#benchmark/transport-results/}"
             done
             printf '%s\n' data/transport-benchmarks/dashboard.json data/transport-benchmarks/result-schema.json
+            for source in "${rust_files[@]}"; do
+              printf 'data/rust-benchmarks/%s\n' "${source#benchmark/rust-results/}"
+            done
+            printf '%s\n' data/rust-benchmarks/result-schema.json
           } | LC_ALL=C sort -u > "$expected_inventory"
           find "$artifact_root" -type f -printf '%P\n' | LC_ALL=C sort -u > "$actual_inventory"
           diff -u "$expected_inventory" "$actual_inventory"
@@ -264,7 +301,9 @@ jobs:
               'data/benchmarks/result-schema.json',
               'data/transport-benchmarks/dashboard.json',
               'data/transport-benchmarks/index.json',
-              'data/transport-benchmarks/result-schema.json'
+              'data/transport-benchmarks/result-schema.json',
+              'data/rust-benchmarks/index.json',
+              'data/rust-benchmarks/result-schema.json'
           ];
 
           for (const file of files) {
@@ -324,6 +363,41 @@ jobs:
               }
           }
 
+          const rustSchema = JSON.parse(await readFile(`${root}/data/rust-benchmarks/result-schema.json`, 'utf8'));
+          if (rustSchema.$id !== 'https://riaevangelist.github.io/node-ipc/data/rust-benchmarks/result-schema.json') {
+              throw new Error(`Unexpected Rust benchmark schema $id: ${rustSchema.$id}`);
+          }
+          const rustManifest = JSON.parse(await readFile(`${root}/data/rust-benchmarks/index.json`, 'utf8'));
+          if (rustManifest.schemaVersion !== 1
+              || !Array.isArray(rustManifest.results)
+              || rustManifest.results.length < 3
+              || rustManifest.results.length % 3 !== 0) {
+              throw new Error('Rust benchmark manifest must contain complete three-platform batches.');
+          }
+          const rustBatches = new Map;
+          for (const entry of rustManifest.results) {
+              if (!/^run-[A-Za-z0-9-]+[.]json$/u.test(entry.file ?? '')) {
+                  throw new Error(`Unsafe Rust benchmark detail filename: ${entry.file}`);
+              }
+              const bytes = await readFile(`${root}/data/rust-benchmarks/${entry.file}`);
+              if (createHash('sha256').update(bytes).digest('hex') !== entry.sha256) {
+                  throw new Error(`${entry.file}: Rust benchmark manifest SHA-256 mismatch.`);
+              }
+              const detail = JSON.parse(bytes);
+              if (detail.id !== entry.id || detail.record?.file !== entry.file) {
+                  throw new Error(`${entry.file}: Rust benchmark detail linkage is invalid.`);
+              }
+              const environment = detail.system?.environment;
+              const key = [detail.repository?.commit, environment?.runId, environment?.runAttempt].join(':');
+              rustBatches.set(key, [...rustBatches.get(key) ?? [], detail.system?.platform]);
+          }
+          for (const [key, platforms] of rustBatches) {
+              if (platforms.length !== 3
+                  || JSON.stringify(platforms.sort()) !== JSON.stringify(['darwin','linux','win32'])) {
+                  throw new Error(`${key}: Rust benchmark batch is incomplete.`);
+              }
+          }
+
           const inventory = JSON.parse(await readFile(`${root}/data/test-inventory.json`, 'utf8'));
           const routeManifest = JSON.parse(await readFile(`${root}/data/routes.json`, 'utf8'));
           const results = JSON.parse(await readFile(`${root}/data/test-results.json`, 'utf8'));
@@ -351,6 +425,8 @@ jobs:
           printf 'transport_manifest_sha256=%s\n' "$(sha256sum "$artifact_root/data/transport-benchmarks/index.json" | cut -d ' ' -f 1)" >> "$GITHUB_OUTPUT"
           printf 'transport_dashboard_sha256=%s\n' "$(sha256sum "$artifact_root/data/transport-benchmarks/dashboard.json" | cut -d ' ' -f 1)" >> "$GITHUB_OUTPUT"
           printf 'transport_chart_sha256=%s\n' "$(sha256sum "$artifact_root/assets/node-ipc-transport-comparison.svg" | cut -d ' ' -f 1)" >> "$GITHUB_OUTPUT"
+          printf 'rust_manifest_sha256=%s\n' "$(sha256sum "$artifact_root/data/rust-benchmarks/index.json" | cut -d ' ' -f 1)" >> "$GITHUB_OUTPUT"
+          printf 'rust_chart_sha256=%s\n' "$(sha256sum "$artifact_root/assets/node-ipc-rust-benchmark.svg" | cut -d ' ' -f 1)" >> "$GITHUB_OUTPUT"
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
@@ -392,6 +468,8 @@ jobs:
           EXPECTED_TRANSPORT_CHART_SHA256: ${{ needs.build.outputs.transport_chart_sha256 }}
           EXPECTED_TRANSPORT_DASHBOARD_SHA256: ${{ needs.build.outputs.transport_dashboard_sha256 }}
           EXPECTED_TRANSPORT_MANIFEST_SHA256: ${{ needs.build.outputs.transport_manifest_sha256 }}
+          EXPECTED_RUST_CHART_SHA256: ${{ needs.build.outputs.rust_chart_sha256 }}
+          EXPECTED_RUST_MANIFEST_SHA256: ${{ needs.build.outputs.rust_manifest_sha256 }}
           LIVE_BASE_URL: ${{ steps.deployment.outputs.page_url }}
           LIVE_CACHE_KEY: ${{ github.run_id }}-${{ github.run_attempt }}
         shell: bash
@@ -558,6 +636,28 @@ jobs:
           const transportChartResponse = await live('assets/node-ipc-transport-comparison.svg', /^image\/svg\+xml\b/u);
           const transportChartBytes = Buffer.from(await transportChartResponse.arrayBuffer());
           assert.equal(createHash('sha256').update(transportChartBytes).digest('hex'), process.env.EXPECTED_TRANSPORT_CHART_SHA256, 'live transport chart differs from the deployed artifact');
+
+          const rustManifestResponse = await live('data/rust-benchmarks/index.json', /^application\/json\b/u);
+          const rustManifestBytes = Buffer.from(await rustManifestResponse.arrayBuffer());
+          assert.equal(createHash('sha256').update(rustManifestBytes).digest('hex'), process.env.EXPECTED_RUST_MANIFEST_SHA256, 'live Rust benchmark manifest differs from the deployed artifact');
+          const rustManifest = JSON.parse(rustManifestBytes.toString('utf8'));
+          assert.equal(rustManifest.schemaVersion, 1);
+          assert.ok(Array.isArray(rustManifest.results));
+          assert.ok(rustManifest.results.length >= 3 && rustManifest.results.length % 3 === 0);
+          const rustSchema = await json('data/rust-benchmarks/result-schema.json');
+          assert.equal(rustSchema.$id, 'https://riaevangelist.github.io/node-ipc/data/rust-benchmarks/result-schema.json');
+          for (const entry of rustManifest.results) {
+              assert.match(entry.file ?? '', /^run-[A-Za-z0-9-]+[.]json$/u, 'unsafe Rust benchmark detail filename');
+              const response = await live(`data/rust-benchmarks/${encodeURIComponent(entry.file)}`, /^application\/json\b/u);
+              const bytes = Buffer.from(await response.arrayBuffer());
+              assert.equal(createHash('sha256').update(bytes).digest('hex'), entry.sha256, `${entry.file}: Rust benchmark manifest SHA-256 mismatch`);
+              const detail = JSON.parse(bytes.toString('utf8'));
+              assert.equal(detail.id, entry.id, `${entry.file}: Rust benchmark id mismatch`);
+              assert.equal(detail.record?.file, entry.file, `${entry.file}: Rust benchmark record.file mismatch`);
+          }
+          const rustChartResponse = await live('assets/node-ipc-rust-benchmark.svg', /^image\/svg\+xml\b/u);
+          const rustChartBytes = Buffer.from(await rustChartResponse.arrayBuffer());
+          assert.equal(createHash('sha256').update(rustChartBytes).digest('hex'), process.env.EXPECTED_RUST_CHART_SHA256, 'live Rust benchmark chart differs from the deployed artifact');
 
           await Promise.all([
               live('assets/node-ipc-header.png', /^image\/png\b/u),

@@ -20,6 +20,8 @@ const stagedPaths=new Set([
     'data/benchmarks/dashboard.json',
     'data/benchmarks/index.json',
     'data/benchmarks/result-schema.json',
+    'data/rust-benchmarks/index.json',
+    'data/rust-benchmarks/result-schema.json',
     'data/transport-benchmarks/dashboard.json',
     'data/transport-benchmarks/index.json',
     'data/transport-benchmarks/result-schema.json'
@@ -90,7 +92,14 @@ for(const file of htmlFiles){
             check(canonical === expected,`${relative}: canonical ${canonical} does not match ${expected}`);
         }
         check(/property="og:image"/.test(source),`${relative}: missing Open Graph image`);
-        check(/data-site-nav/.test(source),`${relative}: missing global navigation`);
+        const primaryNavigation=source.match(/<nav class="site-nav"[\s\S]*?<\/nav>/u)?.[0];
+        check(Boolean(primaryNavigation),`${relative}: missing global navigation`);
+        const rustHref=primaryNavigation?.match(/<a\b[^>]*href="([^"]+)"[^>]*>\s*Rust\s*<\/a>/iu)?.[1];
+        check(Boolean(rustHref),`${relative}: primary navigation is missing Rust`);
+        if(rustHref){
+            const rustTarget=localTarget(file,rustHref);
+            check(rustTarget?.relative === 'rust/index.html',`${relative}: primary Rust route must target docs/rust/`);
+        }
         check(/aria-label="Breadcrumb"/.test(source),`${relative}: missing breadcrumb`);
     }
 
