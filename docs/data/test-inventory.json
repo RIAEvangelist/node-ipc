@@ -65,7 +65,7 @@
       "cases": [
         "extracts one complete frame",
         "extracts multiple frames in wire order",
-        "ignores an incomplete trailing frame",
+        "ignores parse tails and reassembles streaming fragments",
         "supports a configured multi-character delimiter",
         "returns an empty list when no frame is complete"
       ]

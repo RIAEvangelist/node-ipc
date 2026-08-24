@@ -1039,7 +1039,8 @@ static IPCModule AssuredIpc(int port)
 
 static (IPCModule Server, IPCModule Client, string Endpoint, Action Cleanup) LocalFixture()
 {
-    var name = "node-ipc-csharp-" + Guid.NewGuid().ToString("N");
+    var nonce = Guid.NewGuid().ToString("N");
+    var name = "node-ipc-csharp-" + nonce;
     if (OperatingSystem.IsWindows())
     {
         var server = NetworkIpc(1);
@@ -1047,8 +1048,8 @@ static (IPCModule Server, IPCModule Client, string Endpoint, Action Cleanup) Loc
         return (server, client, "/" + name, () => { });
     }
 
-    var root = Path.Combine(Path.GetTempPath(), name);
-    var endpoint = Path.Combine(root, "service.sock");
+    var root = Path.Combine(Path.GetTempPath(), "nipc-" + nonce);
+    var endpoint = Path.Combine(root, "s");
     var serverIpc = NetworkIpc(1);
     var clientIpc = NetworkIpc(1);
     serverIpc.config.socketRoot = root + Path.DirectorySeparatorChar;
