@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
-import {mkdir,mkdtemp,readFile,rm,writeFile} from 'node:fs/promises';
+import {mkdir,mkdtemp,readFile,realpath,rm,writeFile} from 'node:fs/promises';
 import {createRequire} from 'node:module';
 import os from 'node:os';
 import path from 'node:path';
@@ -483,8 +483,14 @@ assert.equal(client.retryTimer,false);
             poisonedRootDependency.version
         );
 
-        const nestedEntry=requireFromDirectNodeIpc.resolve(dependencyName);
-        const relativeEntry=path.relative(nestedDependencyRoot,nestedEntry);
+        const nestedEntry=await realpath(
+            requireFromDirectNodeIpc.resolve(dependencyName)
+        );
+        const resolvedNestedDependencyRoot=await realpath(nestedDependencyRoot);
+        const relativeEntry=path.relative(
+            resolvedNestedDependencyRoot,
+            nestedEntry
+        );
         assert.ok(
             relativeEntry &&
             !relativeEntry.startsWith(`..${path.sep}`) &&
