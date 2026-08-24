@@ -12,6 +12,13 @@ import {
 import {asOf,catalog,popularityWindow,sources} from './catalog.js';
 import {complexityReport} from './complexity.js';
 import {dependencyExposure} from './dependencies.js';
+import {
+    fragmentCountForBytes,
+    logicalWindowForUdp,
+    udpChunkBytes,
+    udpDatagramBytes,
+    udpDatagramWindow
+} from './lib/udp.js';
 import {buildCohortPlan,buildPlan,cycleLength} from './plan.js';
 import {distribution} from './stats.js';
 
@@ -176,6 +183,121 @@ function assertSampleMeasurement(sample,index){
     }else{
         assert.equal(sample.metrics.latencyNs,null);
         assert.ok(sample.metrics.maximumInFlight > 0);
+    }
+}
+
+function udpTransport(transportId){
+    return transportId === 'udp4' || transportId === 'udp6';
+}
+
+function expectedUdpLogicalWindow(sample,config){
+    if(sample.workload === 'latency'){
+        return 1;
+    }
+    const requested=Math.max(1,Math.min(
+        sample.config.frames,
+        config.windowMessages,
+        Math.floor(config.windowBytes/sample.payloadBytes)
+    ));
+    return logicalWindowForUdp(sample.payloadBytes,requested);
+}
+
+function assertNonnegativeInteger(value,label){
+    assert.ok(Number.isSafeInteger(value) && value >= 0,`${label} must be a non-negative integer`);
+}
+
+function assertUdpMeasurement(sample,index,config){
+    const udp=sample.metrics.udp;
+    assert.ok(udp && typeof udp === 'object' && !Array.isArray(udp),`sample ${index} UDP metrics`);
+    assertExactKeys(udp,[
+        'acceptedFragments',
+        'completedMessages',
+        'conflictingDuplicates',
+        'datagramsRead',
+        'datagramsWritten',
+        'duplicateFragments',
+        'expectedDatagramsPerDirection',
+        'fragmentCountPerMessage',
+        'fragmentPayloadBytes',
+        'logicalWindowMessages',
+        'maximumAllowedDatagramBytes',
+        'maximumDatagramBytes',
+        'maximumOutstandingDatagrams',
+        'maximumPendingMessages',
+        'outOfOrderFragments',
+        'pendingMessages',
+        'retransmissions',
+        'udpPayloadBytesRead',
+        'udpPayloadBytesWritten'
+    ],`sample ${index} UDP metrics`);
+    for(const field of [
+        'acceptedFragments',
+        'completedMessages',
+        'conflictingDuplicates',
+        'datagramsRead',
+        'datagramsWritten',
+        'duplicateFragments',
+        'expectedDatagramsPerDirection',
+        'fragmentCountPerMessage',
+        'fragmentPayloadBytes',
+        'logicalWindowMessages',
+        'maximumAllowedDatagramBytes',
+        'maximumDatagramBytes',
+        'maximumOutstandingDatagrams',
+        'maximumPendingMessages',
+        'outOfOrderFragments',
+        'pendingMessages',
+        'retransmissions',
+        'udpPayloadBytesRead',
+        'udpPayloadBytesWritten'
+    ]){
+        assertNonnegativeInteger(udp[field],`sample ${index} UDP ${field}`);
+    }
+
+    const fragments=fragmentCountForBytes(sample.payloadBytes);
+    const expectedDatagrams=sample.config.frames*fragments;
+    const logicalWindow=expectedUdpLogicalWindow(sample,config);
+    assert.equal(udp.fragmentCountPerMessage,fragments,`sample ${index} UDP fragment count`);
+    assert.equal(udp.fragmentPayloadBytes,udpChunkBytes,`sample ${index} UDP fragment payload bytes`);
+    assert.equal(udp.maximumAllowedDatagramBytes,udpDatagramBytes,`sample ${index} UDP datagram cap`);
+    assert.equal(udp.maximumOutstandingDatagrams,udpDatagramWindow,`sample ${index} UDP datagram window`);
+    assert.ok(udp.maximumDatagramBytes > 0,`sample ${index} UDP maximum datagram bytes`);
+    assert.ok(
+        udp.maximumDatagramBytes <= udpDatagramBytes,
+        `sample ${index} UDP maximum datagram exceeds ${udpDatagramBytes}`
+    );
+    assert.equal(udp.expectedDatagramsPerDirection,expectedDatagrams,`sample ${index} UDP expected datagrams`);
+    assert.equal(udp.datagramsWritten,expectedDatagrams,`sample ${index} UDP written datagrams`);
+    assert.equal(udp.acceptedFragments,expectedDatagrams,`sample ${index} UDP accepted fragments`);
+    assert.equal(udp.completedMessages,sample.config.frames,`sample ${index} UDP completed messages`);
+    assert.equal(
+        udp.datagramsRead,
+        expectedDatagrams+udp.duplicateFragments,
+        `sample ${index} UDP read datagrams`
+    );
+    assert.equal(udp.pendingMessages,0,`sample ${index} UDP pending messages`);
+    assert.equal(udp.conflictingDuplicates,0,`sample ${index} UDP conflicting duplicates`);
+    assert.equal(udp.retransmissions,0,`sample ${index} UDP retransmissions`);
+    assert.ok(
+        udp.maximumPendingMessages > 0 && udp.maximumPendingMessages <= udpDatagramWindow,
+        `sample ${index} UDP maximum pending messages`
+    );
+    assert.equal(sample.config.effectiveWindowMessages,logicalWindow,`sample ${index} UDP effective window`);
+    assert.equal(udp.logicalWindowMessages,logicalWindow,`sample ${index} UDP logical window`);
+    assert.equal(sample.metrics.maximumInFlight,logicalWindow,`sample ${index} UDP maximum in flight`);
+    for(const direction of ['Read','Written']){
+        const datagrams=udp[`datagrams${direction}`];
+        const payloadBytes=udp[`udpPayloadBytes${direction}`];
+        assert.ok(payloadBytes >= datagrams,`sample ${index} UDP ${direction} payload lower bound`);
+        assert.ok(
+            payloadBytes <= datagrams*udpDatagramBytes,
+            `sample ${index} UDP ${direction} payload exceeds datagram cap`
+        );
+        assert.equal(
+            sample.metrics[`wireBytes${direction}`],
+            payloadBytes,
+            `sample ${index} UDP ${direction} wire-byte accounting`
+        );
     }
 }
 
@@ -477,6 +599,11 @@ async function validateV2(result,{verifyFiles=true}={}){
         if(sample.transportId === 'tls'){
             assert.equal(sample.metrics.tls?.authorized,true,`sample ${index} TLS authorized`);
             assert.equal(sample.metrics.tls?.protocol,'TLSv1.3',`sample ${index} TLS protocol`);
+        }
+        if(udpTransport(sample.transportId)){
+            assertUdpMeasurement(sample,index,result.config);
+        }else{
+            assert.equal(sample.metrics.udp,undefined,`sample ${index} unexpected UDP metrics`);
         }
         if(sample.workload === 'throughput'){
             assert.ok(sample.metrics.maximumInFlight <= result.config.windowMessages);

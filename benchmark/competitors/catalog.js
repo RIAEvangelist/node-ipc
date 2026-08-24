@@ -17,6 +17,11 @@ const catalog={
         packages:[],
         selectionReason:'Native authenticated TLS stream baseline from Node.js core'
     },
+    'native-dgram':{
+        label:'Node dgram',
+        packages:[],
+        selectionReason:'Native UDP4 and UDP6 datagram baseline from Node.js core'
+    },
     'node-ipc':{
         benchmarkProfile:'fast',
         benchmarkVersion:'14.0.0',

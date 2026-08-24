@@ -5,12 +5,21 @@ import path from 'node:path';
 import readline from 'node:readline';
 import {fileURLToPath} from 'node:url';
 import {createInbox} from './lib/inbox.js';
+import {
+    fragmentCountForBytes,
+    logicalWindowForUdp,
+    udpChunkBytes,
+    udpDatagramBytes,
+    udpDatagramWindow
+} from './lib/udp.js';
 import {loadLane} from './lanes.js';
-import {createMessageFactory,verifyMessage} from './protocol.js';
+import {createMessageFactory,sequenceValue,verifyMessage} from './protocol.js';
 import {latencySummary} from './stats.js';
 
 const directory=path.dirname(fileURLToPath(import.meta.url));
-const config=JSON.parse(process.argv[2]);
+const directInvocation=process.argv[1]
+    && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+const config=directInvocation ? JSON.parse(process.argv[2]) : null;
 const runtime={
     platform:process.platform,
     temporaryRoot:process.cwd()
@@ -19,8 +28,10 @@ let activeClient;
 let activePeerState;
 let shutdownPromise;
 
-process.stdout.on('error',() => {});
-process.stderr.on('error',() => {});
+if(directInvocation){
+    process.stdout.on('error',() => {});
+    process.stderr.on('error',() => {});
+}
 
 function deadline(promise,milliseconds,label){
     let timer;
@@ -126,30 +137,85 @@ async function sequential(client,factory,bytes,frames,startSequence,measure){
     return {elapsedNs:ended-started,samples};
 }
 
-async function windowed(client,factory,bytes,frames,startSequence,windowMessages,windowBytes){
-    const window=Math.max(1,Math.min(
+function udpTransport(transportId){
+    return transportId === 'udp4' || transportId === 'udp6';
+}
+
+function effectiveWindowForTransport(
+    transportId,
+    bytes,
+    frames,
+    windowMessages,
+    windowBytes
+){
+    let window=Math.max(1,Math.min(
         frames,
         windowMessages,
         Math.floor(windowBytes/bytes)
     ));
+    if(udpTransport(transportId)){
+        window=logicalWindowForUdp(bytes,window);
+    }
+    return window;
+}
+
+async function windowed(
+    client,
+    factory,
+    bytes,
+    frames,
+    startSequence,
+    windowMessages,
+    windowBytes,
+    {orderIndependent=false,transportId=null}={}
+){
+    const window=effectiveWindowForTransport(
+        transportId,
+        bytes,
+        frames,
+        windowMessages,
+        windowBytes
+    );
     let received=0;
     let sent=0;
     let maximumInFlight=0;
+    const completed=new Set;
+    const pending=new Map;
     const started=process.hrtime.bigint();
-    while(sent<window){
-        await send(client,factory(startSequence+sent));
+    const sendNext=async() => {
+        const sequence=startSequence+sent;
+        pending.set(sequenceValue(sequence),sequence);
+        await send(client,factory(sequence));
         sent+=1;
-        maximumInFlight=Math.max(maximumInFlight,sent-received);
+        maximumInFlight=Math.max(maximumInFlight,pending.size);
+    };
+    while(sent<window){
+        await sendNext();
     }
     while(received<frames){
         const message=await client.receive();
-        verifyMessage(message,bytes,startSequence+received,factory.payload);
+        let sequence=startSequence+received;
+        if(orderIndependent){
+            const encodedSequence=message?.sequence;
+            sequence=pending.get(encodedSequence);
+            if(sequence === undefined){
+                const reason=completed.has(encodedSequence) ? 'duplicate' : 'unexpected';
+                throw new Error(`${reason} response sequence ${String(encodedSequence)}`);
+            }
+        }
+        verifyMessage(message,bytes,sequence,factory.payload);
+        const encodedSequence=sequenceValue(sequence);
+        pending.delete(encodedSequence);
+        completed.add(encodedSequence);
         received+=1;
         if(sent<frames){
-            await send(client,factory(startSequence+sent));
-            sent+=1;
-            maximumInFlight=Math.max(maximumInFlight,sent-received);
+            await sendNext();
         }
+    }
+    if(pending.size !== 0 || completed.size !== frames){
+        throw new Error(
+            `windowed response accounting mismatch: pending=${pending.size} completed=${completed.size}`
+        );
     }
     return {
         elapsedNs:process.hrtime.bigint()-started,
@@ -164,6 +230,38 @@ function metricDifference(after,before,key){
     return Number.isFinite(after[key]) && Number.isFinite(before[key])
         ? after[key]-before[key]
         : null;
+}
+
+function udpMetrics(before,after,measured,payloadBytes,frames){
+    const fragmentCount=fragmentCountForBytes(payloadBytes);
+    const counterKeys=[
+        'acceptedFragments',
+        'completedMessages',
+        'conflictingDuplicates',
+        'datagramsRead',
+        'datagramsWritten',
+        'duplicateFragments',
+        'outOfOrderFragments',
+        'udpPayloadBytesRead',
+        'udpPayloadBytesWritten'
+    ];
+    const counters=Object.fromEntries(counterKeys.map(key => [
+        key,
+        metricDifference(after,before,key)
+    ]));
+    return {
+        ...counters,
+        expectedDatagramsPerDirection:frames*fragmentCount,
+        fragmentCountPerMessage:fragmentCount,
+        fragmentPayloadBytes:after.fragmentPayloadBytes,
+        logicalWindowMessages:measured.window ?? 1,
+        maximumAllowedDatagramBytes:after.maximumAllowedDatagramBytes,
+        maximumDatagramBytes:after.maximumDatagramBytes,
+        maximumOutstandingDatagrams:after.maximumOutstandingDatagrams,
+        maximumPendingMessages:after.maximumPendingMessages,
+        pendingMessages:after.pendingMessages,
+        retransmissions:0
+    };
 }
 
 function tcpEndpoint(endpoint){
@@ -262,8 +360,8 @@ async function shutdownOwnedProcesses(){
     return shutdownPromise;
 }
 
-let parentControlComplete=false;
-const parentControl=readline.createInterface({input:process.stdin,terminal:false});
+let parentControlComplete=!directInvocation;
+let parentControl;
 
 function requestShutdown(){
     if(parentControlComplete){
@@ -274,25 +372,39 @@ function requestShutdown(){
         .finally(() => process.exit(1));
 }
 
-parentControl.on('line',line => {
-    try{
-        if(JSON.parse(line).type === 'terminate'){
+if(directInvocation){
+    parentControl=readline.createInterface({input:process.stdin,terminal:false});
+    parentControl.on('line',line => {
+        try{
+            if(JSON.parse(line).type === 'terminate'){
+                requestShutdown();
+            }
+        }catch(error){
+            process.stderr.write(`invalid worker control message: ${error.message}\n`);
             requestShutdown();
         }
-    }catch(error){
-        process.stderr.write(`invalid worker control message: ${error.message}\n`);
-        requestShutdown();
-    }
-});
-parentControl.once('close',requestShutdown);
+    });
+    parentControl.once('close',requestShutdown);
+}
 
 function completeParentControl(){
+    if(!parentControl){
+        return;
+    }
     parentControlComplete=true;
     parentControl.close();
 }
 
 async function run(){
     const lane=await loadLane(config.laneId);
+    const datagram=udpTransport(config.transportId);
+    const effectiveWindowMessages=config.workload === 'latency' ? 1 : effectiveWindowForTransport(
+        config.transportId,
+        config.payloadBytes,
+        config.frames,
+        config.windowMessages,
+        config.windowBytes
+    );
     const peerState=await startPeer(lane);
     const {control,peer,ready}=peerState;
     let client;
@@ -325,7 +437,8 @@ async function run(){
                     config.warmupFrames,
                     0x100000,
                     config.windowMessages,
-                    config.windowBytes
+                    config.windowBytes,
+                    {orderIndependent:datagram,transportId:config.transportId}
                 ),
                 config.timeoutMs,
                 'throughput warmup'
@@ -345,7 +458,8 @@ async function run(){
                     config.frames,
                     0x200000,
                     config.windowMessages,
-                    config.windowBytes
+                    config.windowBytes,
+                    {orderIndependent:datagram,transportId:config.transportId}
                 ),
                 config.timeoutMs,
                 'throughput measurement'
@@ -360,6 +474,9 @@ async function run(){
             maximumInFlight:measured.maximumInFlight ?? 1,
             roundTripsPerSecond:config.frames/elapsedSeconds,
             tls:after.tls ?? null,
+            ...(datagram ? {
+                udp:udpMetrics(before,after,measured,config.payloadBytes,config.frames)
+            } : {}),
             wireBytesRead:metricDifference(after,before,'wireBytesRead'),
             wireBytesWritten:metricDifference(after,before,'wireBytesWritten')
         };
@@ -393,6 +510,7 @@ async function run(){
             coldStartNs:(connected-peerState.started).toString(),
             config:{
                 frames:config.frames,
+                ...(datagram ? {effectiveWindowMessages} : {}),
                 payloadBytes:config.payloadBytes,
                 probeFrames:config.probeFrames,
                 warmupFrames:config.warmupFrames,
@@ -429,23 +547,27 @@ async function run(){
     }
 }
 
-try{
-    const result=await run();
-    process.stdout.write(`${JSON.stringify(result)}\n`);
-}catch(error){
-    process.stdout.write(`${JSON.stringify({
-        error:error.stack ?? String(error),
-        laneId:config.laneId,
-        status:'failed',
-        moduleId:config.moduleId
-    })}\n`);
-    process.exitCode=1;
-}finally{
-    completeParentControl();
+if(directInvocation){
+    try{
+        const result=await run();
+        process.stdout.write(`${JSON.stringify(result)}\n`);
+    }catch(error){
+        process.stdout.write(`${JSON.stringify({
+            error:error.stack ?? String(error),
+            laneId:config.laneId,
+            status:'failed',
+            moduleId:config.moduleId
+        })}\n`);
+        process.exitCode=1;
+    }finally{
+        completeParentControl();
+    }
 }
 
 export {
+    effectiveWindowForTransport,
     endpointCleanup,
     sequential,
+    udpMetrics,
     windowed
 };

@@ -1,6 +1,13 @@
 import {readFile,writeFile} from 'node:fs/promises';
 import path from 'node:path';
 import {pathToFileURL} from 'node:url';
+import {
+    fragmentCountForBytes,
+    logicalWindowForUdp,
+    udpChunkBytes,
+    udpDatagramBytes,
+    udpDatagramWindow
+} from './lib/udp.js';
 import {cycleLength} from './plan.js';
 import {validateResult} from './validate.js';
 
@@ -21,6 +28,19 @@ const formatList=values => values.length < 2
     : values.length === 2
         ? values.join(' and ')
         : `${values.slice(0,-1).join(', ')}, and ${values.at(-1)}`;
+const isUdpTransport=transportId => transportId === 'udp4' || transportId === 'udp6';
+
+function hasUdpLanes(view){
+    return view.laneIds.some(laneId => isUdpTransport(view.dimensions.lanes[laneId].transportId));
+}
+
+function udpPayloadSummary(payloads,requestedWindow){
+    return payloads.map(bytes => {
+        const fragments=fragmentCountForBytes(bytes);
+        const logicalWindow=logicalWindowForUdp(bytes,requestedWindow ?? udpDatagramWindow);
+        return `${payloadLabel(bytes)}: ${fragments} datagram${fragments === 1 ? '' : 's'}, logical window ${logicalWindow}`;
+    }).join('; ');
+}
 
 function legacyDimensions(result){
     const transports={
@@ -205,14 +225,16 @@ function complexitySection(view){
     return [
         '## Implementation-glue complexity is lane-aware',
         '',
-        '| Transport lane | Module | Adapter SLOC | Files | Bytes | Source |',
+        '| Transport lane | Module | Implementation SLOC | Files | Bytes | Source |',
         '| --- | --- | ---: | ---: | ---: | --- |',
         ...rows.map(({complexity,lane}) => {
             const label=view.result.catalog?.subjects?.[lane.moduleId]?.label ?? lane.moduleId;
             return `| ${markdown(lane.label)} | ${markdown(label)} | ${complexity.sourceLines} | ${complexity.implementationFiles} | ${complexity.implementationBytes} | ${markdown(complexity.source ?? lane.sourceFiles.join(', '))} |`;
         }),
         '',
-        'SLOC counts nonblank, noncomment subject-specific benchmark adapter code. Shared harness code is excluded. When one adapter implements several lanes, the recorded module-level value is shown for each lane; it is an auditable glue proxy, not intrinsic API difficulty.',
+        hasUdpLanes(view)
+            ? 'SLOC counts nonblank, noncomment subject-specific benchmark implementation code. UDP lane complexity includes its adapter and the shared `lib/udp.js` fragmentation/reassembly helper because both are required to satisfy the common logical-payload contract; unrelated shared harness code is excluded. When one implementation supplies several lanes, its recorded value is shown for each lane. This is an auditable glue proxy, not intrinsic API difficulty.'
+            : 'SLOC counts nonblank, noncomment subject-specific benchmark adapter code. Shared harness code is excluded. When one adapter implements several lanes, the recorded module-level value is shown for each lane; it is an auditable glue proxy, not intrinsic API difficulty.',
         ''
     ];
 }
@@ -332,6 +354,10 @@ async function renderReport(result,{input='result.json',output='REPORT.md',valid
         const lane=view.dimensions.lanes[cohortLanes(view,cohortId)[0]];
         return view.dimensions.transports[lane.transportId]?.label ?? cohortId;
     });
+    const udpMeasured=hasUdpLanes(view);
+    const udpSummary=udpMeasured
+        ? udpPayloadSummary(payloads,result.config?.windowMessages)
+        : '';
     const performance=[];
     for(const workload of ['throughput','latency']){
         const tables=cohortIds(view).map(cohortId => performanceTable(view,cohortId,workload)).filter(Boolean);
@@ -347,10 +373,20 @@ async function renderReport(result,{input='result.json',output='REPORT.md',valid
         for(const table of tables){
             performance.push(...table,'');
         }
-        performance.push(workload === 'throughput'
-            ? `Higher is faster within the same cohort and payload cell. The workload keeps up to ${result.config.windowMessages} requests and no more than ${byteLimitLabel(result.config.windowBytes)} of canonical application payload outstanding. Application MiB/s counts the request payload once per completed round trip, not both request and echo.`
-            : 'Lower is faster within the same cohort and payload cell. Latency uses exactly one request in flight and sender-side monotonic RTT timing. p95, p99, maximum, and every per-sample latency summary remain in the raw JSON.',
-        '');
+        if(workload === 'throughput'){
+            performance.push(
+                `Higher is faster within the same cohort and payload cell. Stream and message transports keep up to ${result.config.windowMessages} requests and no more than ${byteLimitLabel(result.config.windowBytes)} of canonical application payload outstanding. Application MiB/s counts the logical request payload once per completed round trip, not both request and echo.`
+            );
+            if(udpMeasured){
+                performance.push(
+                    '',
+                    `UDP uses ${integer(udpChunkBytes)}-byte application fragments, complete datagrams no larger than ${integer(udpDatagramBytes)} bytes, and at most ${udpDatagramWindow} outstanding datagrams. Effective payload windows are ${udpSummary}. Fragment envelopes and echoed bytes are excluded from application MiB/s.`
+                );
+            }
+        }else{
+            performance.push('Lower is faster within the same cohort and payload cell. Latency uses exactly one logical request in flight and sender-side monotonic RTT timing. p95, p99, maximum, and every per-sample latency summary remain in the raw JSON.');
+        }
+        performance.push('');
     }
     const sources=orderedUnique(Object.values(result.capabilities?.matrix ?? {}).flatMap(module =>
         Object.values(module).map(capability => capability.source)
@@ -361,7 +397,7 @@ async function renderReport(result,{input='result.json',output='REPORT.md',valid
         '',
         '## Technical summary',
         '',
-        `- This ${platformLabel} result contains ${successfulSamples} successful fresh-process samples across ${view.laneIds.length} measured transport lanes and ${transportNames.length} transport cohorts: ${formatList(transportNames)}.`,
+        `- This ${platformLabel} result contains ${successfulSamples} successful fresh-process samples across ${view.moduleIds.length} module subjects, ${view.laneIds.length} measured transport lanes, and ${transportNames.length} transport cohorts: ${formatList(transportNames)}.`,
         '- Performance is descriptive at the transport-lane level. No global, cross-transport, within-transport, or transport-effect ranking is eligible from this noisy snapshot.',
         '- Capability fit, module-level dependency exposure, and lane-aware implementation glue are reported separately; they are not combined into a composite score.',
         '',
@@ -375,8 +411,12 @@ async function renderReport(result,{input='result.json',output='REPORT.md',valid
         '',
         `- Snapshot generated ${localTimestamp(result.generatedAt)} on ${platformLabel} (${result.system?.platform ?? 'unknown'}/${result.system?.architecture ?? 'unknown'}), Node ${result.system?.node ?? 'unknown'}, ${result.system?.cpu?.model ?? 'unknown CPU'} (${result.system?.cpu?.count ?? 'unknown'} logical processors).`,
         ...(payloads.length ? [`- Payload matrix: ${payloads.map(payloadLabel).join(', ')} exact canonical JSON bytes. Each message is \`{"payload":"…","sequence":"00000000"}\`; the ASCII payload length is adjusted so the whole JSON message is exactly the stated size.`] : []),
+        ...(udpMeasured ? [
+            `- UDP4 and UDP6 carry those same logical bytes using ${integer(udpChunkBytes)}-byte canonical-ASCII fragments. Every fragment is one complete compact JSON datagram of at most ${integer(udpDatagramBytes)} bytes; the configured payload mapping and effective logical windows are ${udpSummary}.`,
+            `- UDP throughput caps each direction at ${udpDatagramWindow} outstanding datagrams. The measured protocol adds no acknowledgement, retry, retransmission, authentication, or confidentiality; a missing fragment leaves an incomplete logical exchange and the trial fails or times out.`
+        ] : []),
         '- Every sample creates a fresh driver process and echo peer. Startup, connection negotiation, correctness probing, and warm-up are outside the timed measurement; cold-start observations remain in the raw result.',
-        `- Throughput counts completed request/echo round trips with bounded pipelining. The ${byteLimitLabel(result.config.windowBytes)} cap covers canonical application request payload only; framing and serialization overhead are outside the cap. Application MiB/s counts request payload once per RTT.`,
+        `- Throughput counts completed request/echo round trips with bounded pipelining. The ${byteLimitLabel(result.config.windowBytes)} cap covers canonical application request payload only; framing and serialization overhead are outside the cap. Application MiB/s counts the logical request payload once per RTT.`,
         '- Latency keeps one request in flight and reports sender-side RTT percentiles. Timed replies verify exact sequence, encoded size, and payload content.',
         '- Failed or timed-out trials remain failures. Successful samples must exit naturally, leave no private temporary artifacts, and close/release their endpoint.',
         '',
@@ -391,6 +431,10 @@ async function renderReport(result,{input='result.json',output='REPORT.md',valid
         `- This result is classified \`${result.classification}\`; repository state at capture was ${repositoryState}. Host load, scheduler state, power state, and page-cache state are uncontrolled.`,
         '- Transport cohorts have different topology, framing, security, and protocol semantics. Values from different cohorts are not exchangeable and must not be used as a leaderboard.',
         '- A singleton process IPC cohort is useful as a descriptive baseline but cannot support an ordinal comparison. One local snapshot cannot estimate a transport effect.',
+        ...(udpMeasured ? [
+            '- UDP4 and UDP6 are distinct cohorts. Numeric loopback binds measure local kernel and runtime behavior; they do not exercise routed-network loss, congestion, path MTU, firewall policy, or physical interfaces and must not be generalized to those conditions.',
+            '- The UDP lanes intentionally measure unauthenticated, unencrypted, non-retransmitting datagrams. They are not evidence of reliable delivery or network security.'
+        ] : []),
         '- Results are host-, OS-, Node-version-, package-version-, endpoint-implementation-, and power-state-specific. Publication evidence should use identified idle Windows and Linux hosts and repeated complete cohort cycles.',
         '',
         '## Recommended next steps',
@@ -404,7 +448,7 @@ async function renderReport(result,{input='result.json',output='REPORT.md',valid
         `- Raw result: [${path.basename(input)}](${rawLink})`,
         '- Validation and rendering: `validate.js` and `render-report.js`.',
         '- Reproducible artifact data: `node artifact-data.js <result.json>` executes the named SQLite queries in `artifact-queries.sql` against the selected raw result and records its path, schema version, ID, and SHA-256.',
-        '- Benchmark implementation: `run.js`, `worker.js`, `peer.js`, `protocol.js`, `plan.js`, `dependencies.js`, `complexity.js`, `lanes.js`, and `adapters/`.',
+        `- Benchmark implementation: \`run.js\`, \`worker.js\`, \`peer.js\`, \`protocol.js\`, \`plan.js\`, \`dependencies.js\`, \`complexity.js\`, \`lanes.js\`, \`adapters/\`${udpMeasured ? ', and `lib/udp.js`' : ''}.`,
         ...sources.map(source => `- ${source}`)
     ];
     return `${lines.join('\n')}\n`;

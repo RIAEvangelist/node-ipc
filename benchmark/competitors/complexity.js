@@ -2,7 +2,7 @@ import {createHash} from 'node:crypto';
 import {readFile} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {moduleIds} from './lanes.js';
+import {laneDefinitions,laneIds,moduleIds} from './lanes.js';
 
 const directory=path.dirname(fileURLToPath(import.meta.url));
 
@@ -27,19 +27,47 @@ function sourceLines(text){
     }).length;
 }
 
+async function complexityEntry(files){
+    const sources=await Promise.all(files.map(async file => {
+        const text=(await readFile(path.join(directory,file),'utf8')).replaceAll('\r\n','\n');
+        return {bytes:Buffer.from(text,'utf8'),file,text};
+    }));
+    const digest=createHash('sha256');
+    if(sources.length === 1){
+        digest.update(sources[0].bytes);
+    }else{
+        for(const source of sources){
+            digest.update(`${source.file}\0${source.bytes.length}\0`);
+            digest.update(source.bytes);
+        }
+    }
+    return {
+        implementationBytes:sources.reduce((total,source) => total+source.bytes.length,0),
+        implementationFiles:sources.length,
+        source:files.join(', '),
+        sourceSha256:digest.digest('hex'),
+        sourceLines:sources.reduce((total,source) => total+sourceLines(source.text),0)
+    };
+}
+
 async function complexityReport(){
     const result={};
+    const cache=new Map;
+    const entry=files => {
+        const key=files.join('\0');
+        if(!cache.has(key)){
+            cache.set(key,complexityEntry(files));
+        }
+        return cache.get(key);
+    };
     for(const moduleId of moduleIds){
-        const file=`adapters/${moduleId}.js`;
-        const text=(await readFile(path.join(directory,file),'utf8')).replaceAll('\r\n','\n');
-        const bytes=Buffer.from(text,'utf8');
-        result[moduleId]={
-            implementationBytes:bytes.length,
-            implementationFiles:1,
-            source:file,
-            sourceSha256:createHash('sha256').update(bytes).digest('hex'),
-            sourceLines:sourceLines(text)
-        };
+        result[moduleId]=await entry([`adapters/${moduleId}.js`]);
+    }
+    for(const laneId of laneIds){
+        const files=laneDefinitions[laneId].sourceFiles;
+        if(files.length > 1){
+            result[laneId]=await entry(files);
+        }
     }
     return result;
 }

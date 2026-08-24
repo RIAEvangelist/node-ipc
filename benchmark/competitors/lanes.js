@@ -32,11 +32,28 @@ const transportDefinitions=Object.freeze({
         label:'Authenticated TLS loopback',
         scope:'loopback',
         securityMode:'mutual TLS 1.3 with CA peer verification'
+    }),
+    udp4:Object.freeze({
+        family:'datagram',
+        id:'udp4',
+        implementation:'udp4-loopback-with-benchmark-fragmentation',
+        label:'UDP4 loopback',
+        scope:'loopback',
+        securityMode:'none; no authentication, confidentiality, or delivery guarantee'
+    }),
+    udp6:Object.freeze({
+        family:'datagram',
+        id:'udp6',
+        implementation:'udp6-loopback-with-benchmark-fragmentation',
+        label:'UDP6 loopback',
+        scope:'loopback',
+        securityMode:'none; no authentication, confidentiality, or delivery guarantee'
     })
 });
 
 const adapterLoaders=Object.freeze({
     'native-child-process':() => import('./adapters/native-child-process.js'),
+    'native-dgram':() => import('./adapters/native-dgram.js'),
     'native-net':() => import('./adapters/native-net.js'),
     'native-tls':() => import('./adapters/native-tls.js'),
     'node-ipc':() => import('./adapters/node-ipc.js'),
@@ -69,6 +86,18 @@ const laneInputs=[
         serialization:'canonical JSON with newline framing'
     },
     {
+        id:'native-dgram:udp4',label:'Node dgram over UDP4',moduleId:'native-dgram',transportId:'udp4',
+        protocolStack:['benchmark UDP fragmentation','node:dgram','UDP4 loopback'],
+        topology:'unrelated processes',serialization:'canonical JSON in benchmark fragment envelopes',
+        sourceFiles:['adapters/native-dgram.js','lib/udp.js']
+    },
+    {
+        id:'native-dgram:udp6',label:'Node dgram over UDP6',moduleId:'native-dgram',transportId:'udp6',
+        protocolStack:['benchmark UDP fragmentation','node:dgram','UDP6 loopback'],
+        topology:'unrelated processes',serialization:'canonical JSON in benchmark fragment envelopes',
+        sourceFiles:['adapters/native-dgram.js','lib/udp.js']
+    },
+    {
         id:'node-ipc:tcp',label:'node-ipc over TCP',moduleId:'node-ipc',transportId:'tcp',
         protocolStack:['node-ipc fast framing','node:net','TCP4 loopback'],topology:'unrelated processes',
         serialization:'node-ipc fast event framing'
@@ -82,6 +111,20 @@ const laneInputs=[
         id:'node-ipc:tls',label:'node-ipc over TLS',moduleId:'node-ipc',transportId:'tls',
         protocolStack:['node-ipc fast framing','node:tls','TLS 1.3','TCP4 loopback'],
         topology:'unrelated processes',serialization:'node-ipc fast event framing'
+    },
+    {
+        id:'node-ipc:udp4',label:'node-ipc over UDP4',moduleId:'node-ipc',transportId:'udp4',
+        protocolStack:['benchmark UDP fragmentation','node-ipc fast framing','node:dgram','UDP4 loopback'],
+        topology:'unrelated processes',
+        serialization:'node-ipc fast event framing carrying benchmark UDP fragments',
+        sourceFiles:['adapters/node-ipc.js','lib/udp.js']
+    },
+    {
+        id:'node-ipc:udp6',label:'node-ipc over UDP6',moduleId:'node-ipc',transportId:'udp6',
+        protocolStack:['benchmark UDP fragmentation','node-ipc fast framing','node:dgram','UDP6 loopback'],
+        topology:'unrelated processes',
+        serialization:'node-ipc fast event framing carrying benchmark UDP fragments',
+        sourceFiles:['adapters/node-ipc.js','lib/udp.js']
     },
     {
         id:'ws:tcp',label:'ws over TCP',moduleId:'ws',transportId:'tcp',
@@ -122,7 +165,7 @@ const laneDefinitions=Object.freeze(Object.fromEntries(laneInputs.map(input => {
         cohortId:input.transportId,
         protocolStack:Object.freeze([...input.protocolStack]),
         securityMode:transport.securityMode,
-        sourceFiles:Object.freeze([`adapters/${input.moduleId}.js`])
+        sourceFiles:Object.freeze(input.sourceFiles ?? [`adapters/${input.moduleId}.js`])
     });
     return [definition.id,definition];
 })));

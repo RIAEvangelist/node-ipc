@@ -1,27 +1,118 @@
 import {once} from 'node:events';
 import {IPCModule} from '../../../node-ipc.js';
-import {nodeIpcLocalEndpoint,verifyStreamCleanup} from '../lib/endpoints.js';
+import {
+    nodeIpcLocalEndpoint,
+    verifyDatagramCleanup,
+    verifyStreamCleanup
+} from '../lib/endpoints.js';
 import {createInbox} from '../lib/inbox.js';
-import {reserveTcpPort} from '../lib/port.js';
+import {reserveTcpPort,reserveUdpPort} from '../lib/port.js';
 import {
     assertAuthenticatedTls,
     clientTlsOptions,
     serverTlsOptions,
     tlsSessionMetadata
 } from '../lib/tls.js';
+import {
+    assertDatagram,
+    createFragmentReassembler,
+    fragmentMessage,
+    udpChunkBytes,
+    udpDatagramBytes,
+    udpDatagramWindow
+} from '../lib/udp.js';
 
 const event='benchmark.message';
+const udpEvent='benchmark.udp.fragment';
 const metadata={
     id:'node-ipc',
     label:'node-ipc 14 fast profile',
     packages:['node-ipc'],
     serialization:'node-ipc fast event framing',
     topology:'unrelated processes',
-    transport:'TCP, local IPC, or mutual TLS loopback'
+    transport:'TCP, local IPC, mutual TLS, UDP4, or UDP6 loopback'
 };
 
 function transportId(lane){
     return lane?.transportId ?? 'tcp';
+}
+
+function isUdp(selected){
+    return selected === 'udp4' || selected === 'udp6';
+}
+
+function udpHost(selected){
+    return selected === 'udp4' ? '127.0.0.1' : '::1';
+}
+
+function createUdpCounters(){
+    return {
+        datagramsRead:0,
+        datagramsWritten:0,
+        maximumDatagramBytes:0,
+        udpPayloadBytesRead:0,
+        udpPayloadBytesWritten:0
+    };
+}
+
+function tuneUdpSocket(socket){
+    for(const method of ['setRecvBufferSize','setSendBufferSize']){
+        try{
+            socket[method](8*1024*1024);
+        }catch{}
+    }
+}
+
+function recordDatagram(counters,direction,data,label){
+    const bytes=assertDatagram(data,label);
+    counters[`datagrams${direction}`]+=1;
+    counters[`udpPayloadBytes${direction}`]+=bytes;
+    counters.maximumDatagramBytes=Math.max(counters.maximumDatagramBytes,bytes);
+    return bytes;
+}
+
+function observeUdpSocket(socket,counters,{countRead=false,countWritten=false}={}){
+    if(countRead){
+        socket.on('message',message => {
+            recordDatagram(counters,'Read',message,'node-ipc received UDP event');
+        });
+    }
+    const originalSend=socket.send.bind(socket);
+    socket.send=(data,...arguments_) => {
+        if(countWritten){
+            recordDatagram(counters,'Written',data,'node-ipc encoded UDP event');
+        }else{
+            assertDatagram(data,'node-ipc encoded UDP event');
+        }
+        return originalSend(data,...arguments_);
+    };
+}
+
+function udpMetrics(counters,reassembler){
+    return {
+        ...counters,
+        ...reassembler.metrics(),
+        backpressureEvents:0,
+        fragmentPayloadBytes:udpChunkBytes,
+        maximumAllowedDatagramBytes:udpDatagramBytes,
+        maximumOutstandingDatagrams:udpDatagramWindow,
+        tls:null,
+        wireBytesRead:counters.udpPayloadBytesRead,
+        wireBytesWritten:counters.udpPayloadBytesWritten
+    };
+}
+
+async function stopServer(ipc){
+    const networkServer=ipc.server.server;
+    let closed=null;
+    try{
+        networkServer?.address?.();
+        closed=once(networkServer,'close');
+    }catch{}
+    ipc.server.stop();
+    if(closed){
+        await closed;
+    }
 }
 
 function configure(ipc,lane,role){
@@ -39,6 +130,42 @@ async function createServer({lane,onError}){
     const selected=transportId(lane);
     const ipc=new IPCModule;
     configure(ipc,lane,'server');
+    if(isUdp(selected)){
+        const host=udpHost(selected);
+        const port=await reserveUdpPort(host,selected);
+        const requests=createFragmentReassembler({direction:'q'});
+        const counters=createUdpCounters();
+        const started=new Promise(resolve => ipc.serveNet(host,port,selected,resolve));
+        ipc.server.on(udpEvent,(fragment,peer) => {
+            try{
+                const complete=requests.accept(fragment,peer);
+                if(!complete){
+                    return;
+                }
+                for(const response of fragmentMessage(complete.message,'r')){
+                    ipc.server.emit(peer,udpEvent,response);
+                }
+            }catch(error){
+                onError(error);
+            }
+        });
+        ipc.server.on('error',onError);
+        ipc.server.start();
+        await started;
+        tuneUdpSocket(ipc.server.server);
+        observeUdpSocket(ipc.server.server,counters);
+        return {
+            endpoint:{host,port,type:selected},
+            async close(){
+                const pending=requests.metrics().pendingMessages;
+                await stopServer(ipc);
+                requests.clear();
+                if(pending !== 0){
+                    throw new Error(`node-ipc UDP server closed with ${pending} incomplete messages`);
+                }
+            }
+        };
+    }
     let host;
     let port;
     let local;
@@ -70,12 +197,7 @@ async function createServer({lane,onError}){
             ? {implementation:local.implementation,path:ipc.server.path}
             : {host,port},
         async close(){
-            const networkServer=ipc.server.server;
-            const closed=networkServer?.listening ? once(networkServer,'close') : null;
-            ipc.server.stop();
-            if(closed){
-                await closed;
-            }
+            await stopServer(ipc);
         }
     };
 }
@@ -88,6 +210,50 @@ async function createClient({endpoint,lane}){
     let backpressureEvents=0;
     const selected=transportId(lane);
     configure(ipc,lane,'client');
+    if(isUdp(selected)){
+        const host=udpHost(selected);
+        const port=await reserveUdpPort(host,selected);
+        const responses=createFragmentReassembler({direction:'r'});
+        const counters=createUdpCounters();
+        const started=new Promise(resolve => ipc.serveNet(host,port,selected,resolve));
+        ipc.server.on(udpEvent,(fragment,peer) => {
+            try{
+                if(peer.address !== endpoint.host || peer.port !== endpoint.port){
+                    throw new Error(`node-ipc UDP received an unexpected peer ${peer.address}:${peer.port}`);
+                }
+                const complete=responses.accept(fragment,peer);
+                if(complete){
+                    inbox.push(complete.message);
+                }
+            }catch(error){
+                inbox.fail(error);
+            }
+        });
+        ipc.server.on('error',error => inbox.fail(error));
+        ipc.server.start();
+        await started;
+        tuneUdpSocket(ipc.server.server);
+        observeUdpSocket(ipc.server.server,counters,{countRead:true,countWritten:true});
+        return {
+            send(value){
+                const peer={address:endpoint.host,port:endpoint.port};
+                for(const fragment of fragmentMessage(value,'q')){
+                    ipc.server.emit(peer,udpEvent,fragment);
+                }
+            },
+            receive:inbox.receive,
+            metrics:() => udpMetrics(counters,responses),
+            async close(){
+                const pending=responses.metrics().pendingMessages;
+                await stopServer(ipc);
+                responses.clear();
+                inbox.end();
+                if(pending !== 0){
+                    throw new Error(`node-ipc UDP client closed with ${pending} incomplete messages`);
+                }
+            }
+        };
+    }
     await new Promise((resolve,reject) => {
         const connected=() => {
             channel=ipc.of[id];
@@ -128,9 +294,15 @@ async function createClient({endpoint,lane}){
     };
 }
 
+async function verifyCleanup(context){
+    return isUdp(transportId(context.lane))
+        ? verifyDatagramCleanup(context)
+        : verifyStreamCleanup(context);
+}
+
 export {
     createClient,
     createServer,
     metadata,
-    verifyStreamCleanup as verifyCleanup
+    verifyCleanup
 };

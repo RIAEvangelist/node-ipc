@@ -139,6 +139,7 @@ async function dependencyExposure(){
         'native-child-process':{...zero},
         'native-net':{...zero},
         'native-tls':{...zero},
+        'native-dgram':{...zero},
         'node-ipc':rootClosure(rootLock,rootManifest),
         'socket-io':closure(benchmarkLock,['node_modules/socket.io','node_modules/socket.io-client']),
         'ws':closure(benchmarkLock,['node_modules/ws']),

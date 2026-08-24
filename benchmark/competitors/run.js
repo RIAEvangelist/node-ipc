@@ -22,6 +22,7 @@ import {
     serializeLaneDefinitions,
     serializeTransportDefinitions
 } from './lanes.js';
+import {fragmentCountForBytes} from './lib/udp.js';
 import {buildCohortPlan,cycleLength} from './plan.js';
 import {distribution} from './stats.js';
 
@@ -129,6 +130,11 @@ const config={
 
 if(config.workloads.some(workload => !['latency','throughput'].includes(workload))){
     throw new Error('available workloads: throughput, latency');
+}
+if(config.transportIds.some(transportId => transportId === 'udp4' || transportId === 'udp6')){
+    for(const payloadBytes of config.payloads){
+        fragmentCountForBytes(payloadBytes);
+    }
 }
 
 function workloadSize(payloadBytes,workload){
@@ -440,11 +446,12 @@ async function main(){
                 unit:'transport-lane',
                 withinTransportRankingEligible:false
             },
-            commonContract:'exact canonical JSON request/echo in fresh two-process trials',
+            commonContract:'exact canonical JSON logical request/echo in fresh two-process trials; UDP4 and UDP6 use deterministic application fragmentation without retransmission',
             rankingEligible:false,
             reasons:[
                 'Descriptive performance comparisons must remain within a single transport cohort; no ordinal rank is eligible.',
                 'The native child channel, TCP, local IPC, TLS, WebSocket, Socket.IO, and ZMTP transports have different semantics.',
+                'UDP4 and UDP6 preserve unordered, unauthenticated, unreliable datagram semantics; exact completion is a sample-validity gate rather than a delivery guarantee.',
                 'Local host load, scheduler state, power state, and page cache are not controlled.',
                 'Results are descriptive snapshots, not certification or a universal ranking.'
             ]

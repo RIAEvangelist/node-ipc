@@ -21,7 +21,9 @@ const transportDefinitions={
     'process-ipc':{id:'process-ipc',label:'Direct process IPC'},
     tcp:{id:'tcp',label:'TCP loopback'},
     local:{id:'local',label:'Local endpoint (Windows named pipe / POSIX UDS)'},
-    tls:{id:'tls',label:'Authenticated TLS'}
+    tls:{id:'tls',label:'Authenticated TLS'},
+    udp4:{id:'udp4',label:'UDP4 loopback'},
+    udp6:{id:'udp6',label:'UDP6 loopback'}
 };
 
 const cell=(status,note,source) => ({note,source,status});
@@ -49,7 +51,7 @@ const matrix={
         unrelatedProcesses:cell('built-in','TCP and IPC servers accept independent clients.',sources.nodeNet),
         tcp:cell('built-in','TCP client and server APIs are built in.',sources.nodeNet),
         localEndpoint:cell('built-in','Unix sockets and Windows named pipes are documented.',sources.nodeNet),
-        udp:cell('separate-core-module','node:dgram supports UDP4 and UDP6; datagrams are excluded from this stream-payload suite rather than treated as failed lanes.',sources.nodeDgram),
+        udp:cell('separate-core-module','node:dgram supplies the separately measured native UDP4 and UDP6 lanes.',sources.nodeDgram),
         encryptedTransport:cell('separate-core-module','TLS uses node:tls over a stream.',sources.nodeTls),
         namedEvents:cell('manual','Framing and event dispatch are application-owned.',sources.nodeNet),
         requestReply:cell('manual','Framing and correlation are application-owned.',sources.nodeNet),
@@ -76,12 +78,28 @@ const matrix={
         crossLanguage:cell('supported','TLS is standardized across languages; application framing remains manual.',sources.nodeTls),
         handlePassing:cell('unsupported','node:tls exposes no public transfer of live TLS session state.',sources.nodeTls)
     },
+    'native-dgram':{
+        parentChild:cell('manual','Related processes can bind and address UDP sockets, but node:dgram does not create a dedicated parent-child channel.',sources.nodeDgram),
+        unrelatedProcesses:cell('built-in','Independently started processes can bind and exchange UDP datagrams.',sources.nodeDgram),
+        tcp:cell('unsupported','node:dgram exposes UDP rather than TCP streams.',sources.nodeDgram),
+        localEndpoint:cell('unsupported','node:dgram does not expose Unix-domain sockets or Windows named pipes.',sources.nodeDgram),
+        udp:cell('built-in','UDP4 and UDP6 sockets are built in and both loopback families are measured.',sources.nodeDgram),
+        encryptedTransport:cell('unsupported','node:dgram provides no DTLS or authenticated-encryption transport.',sources.nodeDgram),
+        namedEvents:cell('manual','Applications define event envelopes inside datagrams.',sources.nodeDgram),
+        requestReply:cell('manual','Applications own addressing, correlation, fragmentation, loss, duplication, and reordering policy.',sources.nodeDgram),
+        broadcastPubSub:cell('manual','Broadcast and multicast primitives exist, but applications own subscription and message semantics.',sources.nodeDgram),
+        automaticReconnect:cell('unsupported','UDP is connectionless and node:dgram supplies no reconnect policy.',sources.nodeDgram),
+        queueingBackpressure:cell('manual','Send callbacks and queue observations expose local state, but applications own limits and loss policy.',sources.nodeDgram),
+        browserClient:cell('unsupported','Browser JavaScript cannot create raw UDP sockets.',sources.nodeDgram),
+        crossLanguage:cell('supported','UDP is standardized across languages; application fragmentation and framing remain manual.',sources.nodeDgram),
+        handlePassing:cell('unsupported','Handle transfer is provided by child_process rather than node:dgram alone.',sources.nodeDgram)
+    },
     'node-ipc':{
         parentChild:cell('supported','The same client/server API works between related processes.',sources.nodeIpc),
         unrelatedProcesses:cell('supported','Local and network servers accept independent clients.',sources.nodeIpc),
         tcp:cell('supported','TCP client and server transports are built in.',sources.nodeIpc),
         localEndpoint:cell('supported','Unix sockets and Windows named pipes are built in.',sources.nodeIpc),
-        udp:cell('supported','UDP4 and UDP6 modes are built in but excluded from this stream-payload suite rather than treated as failed lanes.',sources.nodeIpc),
+        udp:cell('supported','UDP4 and UDP6 Fast-event lanes are measured with the same benchmark fragmentation used by the native dgram baseline.',sources.nodeIpc),
         encryptedTransport:cell('supported','TLS and Assured mutual TLS are configurable product capabilities; transport coverage records the measured Fast-over-TLS lane separately.',sources.nodeIpc),
         namedEvents:cell('supported','Event names are part of the public API.',sources.nodeIpc),
         requestReply:cell('manual','Applications correlate event payloads.',sources.nodeIpc),
@@ -147,43 +165,65 @@ const transportMatrix={
         'process-ipc':transportCell('measured','Measured through the dedicated channel created by child_process.fork().',sources.nodeChildProcess),
         tcp:transportCell('unsupported','The child-process message channel is not a TCP transport.',sources.nodeChildProcess),
         local:transportCell('unsupported','Its internal platform pipe is not exposed as a general named-pipe or UDS endpoint.',sources.nodeChildProcess),
-        tls:transportCell('unsupported','The child-process message channel has no TLS transport API.',sources.nodeChildProcess)
+        tls:transportCell('unsupported','The child-process message channel has no TLS transport API.',sources.nodeChildProcess),
+        udp4:transportCell('unsupported','The child-process message channel is not a UDP4 transport.',sources.nodeChildProcess),
+        udp6:transportCell('unsupported','The child-process message channel is not a UDP6 transport.',sources.nodeChildProcess)
     },
     'native-net':{
         'process-ipc':transportCell('unsupported','node:net can be wired between related processes but does not create the dedicated fork channel.',sources.nodeNet),
         tcp:transportCell('measured','Measured with node:net over TCP loopback.',sources.nodeNet),
         local:transportCell('measured','Measured with a Windows named pipe or POSIX Unix-domain socket selected by platform.',sources.nodeNet),
-        tls:transportCell('unsupported','Authenticated TLS is represented by the separate native-tls module row.',sources.nodeTls)
+        tls:transportCell('unsupported','Authenticated TLS is represented by the separate native-tls module row.',sources.nodeTls),
+        udp4:transportCell('unsupported','UDP4 is represented by the separate native-dgram module row.',sources.nodeDgram),
+        udp6:transportCell('unsupported','UDP6 is represented by the separate native-dgram module row.',sources.nodeDgram)
     },
     'native-tls':{
         'process-ipc':transportCell('unsupported','node:tls does not create a dedicated parent-child message channel.',sources.nodeTls),
         tcp:transportCell('unsupported','This module row represents authenticated TLS, not the plaintext TCP cohort.',sources.nodeTls),
         local:transportCell('not-implemented','TLS can wrap an existing stream, but TLS-over-local endpoints are outside the executable local cohort.',sources.nodeTls),
-        tls:transportCell('measured','Measured as the native authenticated TLS baseline over loopback TCP.',sources.nodeTls)
+        tls:transportCell('measured','Measured as the native authenticated TLS baseline over loopback TCP.',sources.nodeTls),
+        udp4:transportCell('unsupported','node:tls does not provide DTLS over UDP4.',sources.nodeTls),
+        udp6:transportCell('unsupported','node:tls does not provide DTLS over UDP6.',sources.nodeTls)
+    },
+    'native-dgram':{
+        'process-ipc':transportCell('unsupported','node:dgram does not create the dedicated child_process message channel.',sources.nodeDgram),
+        tcp:transportCell('unsupported','node:dgram exposes UDP rather than TCP.',sources.nodeDgram),
+        local:transportCell('unsupported','node:dgram does not expose named-pipe or Unix-domain-socket endpoints.',sources.nodeDgram),
+        tls:transportCell('unsupported','node:dgram does not provide authenticated TLS or DTLS.',sources.nodeDgram),
+        udp4:transportCell('measured','Measured with node:dgram over UDP4 loopback and the common benchmark fragment envelope.',sources.nodeDgram),
+        udp6:transportCell('measured','Measured with node:dgram over UDP6 loopback and the common benchmark fragment envelope.',sources.nodeDgram)
     },
     'node-ipc':{
         'process-ipc':transportCell('unsupported','node-ipc uses its socket client/server API rather than the dedicated child_process channel.',sources.nodeIpc),
         tcp:transportCell('measured','Measured with the Fast profile over TCP loopback.',sources.nodeIpc),
         local:transportCell('measured','Measured over a Windows named pipe or POSIX Unix-domain socket selected by platform.',sources.nodeIpc),
-        tls:transportCell('measured','Measured with the Fast profile over authenticated TLS; this is distinct from the Assured parser profile.',sources.nodeIpc)
-    },
-    'socket-io':{
-        'process-ipc':transportCell('unsupported','Socket.IO does not use the dedicated child_process message channel.',sources.socketIoEngineClient),
-        tcp:transportCell('measured','Measured over a forced WebSocket transport on TCP loopback with upgrade and reconnect disabled.',sources.socketIoEngineClient),
-        local:transportCell('not-implemented','No portable first-class named-pipe or UDS client lane is documented; a custom Engine.IO transport would change the implementation under test.',sources.socketIoEngineClient),
-        tls:transportCell('measured','Measured over forced WSS with certificate trust and server-identity validation configured.',sources.socketIoEngineClient)
+        tls:transportCell('measured','Measured with the Fast profile over authenticated TLS; this is distinct from the Assured parser profile.',sources.nodeIpc),
+        udp4:transportCell('measured','Measured with Fast event framing over UDP4 loopback and the common benchmark fragment envelope.',sources.nodeIpc),
+        udp6:transportCell('measured','Measured with Fast event framing over UDP6 loopback and the common benchmark fragment envelope.',sources.nodeIpc)
     },
     ws:{
         'process-ipc':transportCell('unsupported','WebSocket does not use the dedicated child_process message channel.',sources.ws),
         tcp:transportCell('measured','Measured as WebSocket over TCP loopback.',sources.ws),
         local:transportCell('measured','The pinned API documents ws+unix URLs for POSIX UDS and Windows named pipes.',sources.wsIpc),
-        tls:transportCell('measured','Measured as WSS over an authenticated HTTPS/TLS server.',sources.wsTls)
+        tls:transportCell('measured','Measured as WSS over an authenticated HTTPS/TLS server.',sources.wsTls),
+        udp4:transportCell('unsupported','WebSocket is a stream protocol and does not expose raw UDP4.',sources.ws),
+        udp6:transportCell('unsupported','WebSocket is a stream protocol and does not expose raw UDP6.',sources.ws)
+    },
+    'socket-io':{
+        'process-ipc':transportCell('unsupported','Socket.IO does not use the dedicated child_process message channel.',sources.socketIoEngineClient),
+        tcp:transportCell('measured','Measured over a forced WebSocket transport on TCP loopback with upgrade and reconnect disabled.',sources.socketIoEngineClient),
+        local:transportCell('not-implemented','No portable first-class named-pipe or UDS client lane is documented; a custom Engine.IO transport would change the implementation under test.',sources.socketIoEngineClient),
+        tls:transportCell('measured','Measured over forced WSS with certificate trust and server-identity validation configured.',sources.socketIoEngineClient),
+        udp4:transportCell('unsupported','Socket.IO exposes no raw UDP4 transport; WebTransport is not this cohort.',sources.socketIoTransports),
+        udp6:transportCell('unsupported','Socket.IO exposes no raw UDP6 transport; WebTransport is not this cohort.',sources.socketIoTransports)
     },
     zeromq:{
         'process-ipc':transportCell('unsupported','ZeroMQ sockets do not use the dedicated child_process message channel.',sources.zeromqSocket),
         tcp:transportCell('measured','Measured as ZMTP over TCP loopback with DEALER/ROUTER sockets.',sources.zeromqSocket),
         local:transportCell('supported-not-measured','ipc:// uses Unix-domain sockets and is not a Windows named-pipe transport; it is outside the executable local cohort.',sources.zeromqIpc),
-        tls:transportCell('unsupported','ZeroMQ CURVE is a distinct security mechanism, not authenticated TLS.',sources.zeromqCurve)
+        tls:transportCell('unsupported','ZeroMQ CURVE is a distinct security mechanism, not authenticated TLS.',sources.zeromqCurve),
+        udp4:transportCell('supported-not-measured','The draft udp:// transport is limited to Radio/Dish sockets and does not match the request/echo cohort.',sources.zeromqUdp),
+        udp6:transportCell('supported-not-measured','The draft udp:// transport is limited to Radio/Dish sockets and does not match the request/echo cohort.',sources.zeromqUdp)
     }
 };
 

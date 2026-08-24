@@ -1,4 +1,6 @@
 import {createHash} from 'node:crypto';
+import dgram from 'node:dgram';
+import {once} from 'node:events';
 import {lstat} from 'node:fs/promises';
 import net from 'node:net';
 import path from 'node:path';
@@ -116,10 +118,39 @@ async function verifyStreamCleanup({endpoint}){
     return {artifactRemoved:removed,closed,reusable};
 }
 
+async function verifyDatagramCleanup({endpoint,lane}){
+    const type=endpoint?.type ?? lane?.transportId;
+    if(!endpoint?.host || !Number.isSafeInteger(endpoint?.port) || !['udp4','udp6'].includes(type)){
+        return {artifactRemoved:null,closed:null,reusable:null};
+    }
+    const socket=dgram.createSocket(type);
+    let reusable=false;
+    try{
+        socket.bind({
+            address:endpoint.host,
+            exclusive:true,
+            port:endpoint.port
+        });
+        await once(socket,'listening');
+        reusable=true;
+    }catch{
+        reusable=false;
+    }finally{
+        try{
+            socket.address();
+            const closed=once(socket,'close');
+            socket.close();
+            await closed;
+        }catch{}
+    }
+    return {artifactRemoved:null,closed:reusable,reusable};
+}
+
 export {
     endpointToken,
     localEndpoint,
     nodeIpcLocalEndpoint,
     streamTarget,
+    verifyDatagramCleanup,
     verifyStreamCleanup
 };

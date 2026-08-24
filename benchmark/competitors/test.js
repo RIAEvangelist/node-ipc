@@ -15,6 +15,18 @@ import {
 import {catalog} from './catalog.js';
 import {complexityReport,sourceLines} from './complexity.js';
 import {dependencyExposure,riskTier} from './dependencies.js';
+import {
+    assertDatagram,
+    assertFragment,
+    createFragmentReassembler,
+    fragmentCountForBytes,
+    fragmentDatagram,
+    fragmentMessage,
+    logicalWindowForUdp,
+    udpChunkBytes,
+    udpDatagramBytes,
+    udpDatagramWindow
+} from './lib/udp.js';
 import {laneDefinitions,laneIds,moduleIds,transportIds} from './lanes.js';
 import {
     baseWilliamsOrder,
@@ -28,6 +40,7 @@ import {renderReport} from './render-report.js';
 import {distribution,quantile} from './stats.js';
 import {subjectIds} from './subjects.js';
 import {validateResult} from './validate.js';
+import {effectiveWindowForTransport,windowed} from './worker.js';
 
 const directory=path.dirname(fileURLToPath(import.meta.url));
 const schemaV2='https://riaevangelist.github.io/node-ipc/data/competitor-benchmarks/result-schema-v2.json';
@@ -86,6 +99,195 @@ for(const bytes of [64,1024,65536]){
 }
 assert.throws(() => createMessage(8,0));
 
+assert.equal(udpChunkBytes,1024);
+assert.equal(udpDatagramBytes,1200);
+assert.equal(udpDatagramWindow,64);
+assert.equal(fragmentCountForBytes(64),1);
+assert.equal(fragmentCountForBytes(4096),4);
+assert.equal(fragmentCountForBytes(65536),64);
+assert.equal(logicalWindowForUdp(64),64);
+assert.equal(logicalWindowForUdp(4096),16);
+assert.equal(logicalWindowForUdp(65536),1);
+assert.equal(effectiveWindowForTransport('udp4',64,128,64,8*1024*1024),64);
+assert.equal(effectiveWindowForTransport('udp4',4096,128,64,8*1024*1024),16);
+assert.equal(effectiveWindowForTransport('udp6',65536,128,64,8*1024*1024),1);
+assert.equal(effectiveWindowForTransport('tcp',65536,128,64,8*1024*1024),64);
+assert.throws(() => fragmentCountForBytes(0),/UDP logical message bytes/u);
+assert.throws(() => fragmentCountForBytes(65537),/UDP logical message bytes/u);
+assert.throws(() => logicalWindowForUdp(64,0),/positive integer/u);
+assert.throws(() => assertDatagram(Buffer.alloc(udpDatagramBytes+1)),/received 1201/u);
+
+const udpPeer={address:'127.0.0.1',port:32000};
+for(const [bytes,expectedFragments] of [[64,1],[4096,4],[65536,64]]){
+    const message=createMessage(bytes,42);
+    const fragments=fragmentMessage(message,'q');
+    assert.equal(fragments.length,expectedFragments);
+    const reassembler=createFragmentReassembler({direction:'q'});
+    let completed=null;
+    for(const fragment of [...fragments].reverse()){
+        assertFragment(fragment,'q');
+        assert.ok(assertDatagram(fragmentDatagram(fragment)) <= udpDatagramBytes);
+        assert.ok(assertDatagram(
+            `${JSON.stringify({type:'benchmark.udp.fragment',data:fragment})}\f`,
+            'node-ipc fast UDP frame'
+        ) <= udpDatagramBytes);
+        completed=reassembler.accept(fragment,udpPeer) ?? completed;
+    }
+    assert.deepEqual(completed?.message,message);
+    assert.equal(completed?.fragmentCount,expectedFragments);
+    assert.equal(reassembler.metrics().acceptedFragments,expectedFragments);
+    assert.equal(reassembler.metrics().completedMessages,1);
+    assert.equal(reassembler.metrics().pendingMessages,0);
+    assert.equal(
+        reassembler.metrics().outOfOrderFragments > 0,
+        expectedFragments > 1
+    );
+}
+
+const duplicatedFragments=fragmentMessage(createMessage(4096,43),'q');
+const duplicateReassembler=createFragmentReassembler({direction:'q'});
+assert.equal(duplicateReassembler.accept(duplicatedFragments[0],udpPeer),null);
+assert.equal(duplicateReassembler.accept(duplicatedFragments[0],udpPeer),null);
+let duplicateCompleted;
+for(const fragment of duplicatedFragments.slice(1)){
+    duplicateCompleted=duplicateReassembler.accept(fragment,udpPeer) ?? duplicateCompleted;
+}
+assert.equal(duplicateCompleted.message.sequence,'0000002b');
+assert.equal(duplicateReassembler.metrics().duplicateFragments,1);
+assert.equal(duplicateReassembler.metrics().completedMessages,1);
+assert.equal(duplicateReassembler.metrics().pendingMessages,0);
+
+const conflictingReassembler=createFragmentReassembler({direction:'q'});
+conflictingReassembler.accept(duplicatedFragments[0],udpPeer);
+const conflicting={
+    ...duplicatedFragments[0],
+    c:`${duplicatedFragments[0].c.slice(0,-1)}y`
+};
+assert.throws(
+    () => conflictingReassembler.accept(conflicting,udpPeer),
+    /duplicate conflicts/u
+);
+assert.equal(conflictingReassembler.metrics().conflictingDuplicates,1);
+assert.equal(conflictingReassembler.metrics().pendingMessages,1);
+conflictingReassembler.clear();
+assert.equal(conflictingReassembler.metrics().pendingMessages,0);
+
+const missingReassembler=createFragmentReassembler({direction:'q'});
+for(const fragment of duplicatedFragments.slice(0,-1)){
+    assert.equal(missingReassembler.accept(fragment,udpPeer),null);
+}
+assert.equal(missingReassembler.metrics().pendingMessages,1);
+missingReassembler.clear();
+assert.equal(missingReassembler.metrics().pendingMessages,0);
+
+const secondUdpPeer={address:'::1',port:32001};
+const isolatedReassembler=createFragmentReassembler({direction:'q'});
+assert.equal(isolatedReassembler.accept(duplicatedFragments[0],udpPeer),null);
+assert.equal(isolatedReassembler.accept(duplicatedFragments[0],secondUdpPeer),null);
+let isolatedCompletions=0;
+for(const fragment of duplicatedFragments.slice(1)){
+    isolatedCompletions+=isolatedReassembler.accept(fragment,udpPeer) ? 1 : 0;
+    isolatedCompletions+=isolatedReassembler.accept(fragment,secondUdpPeer) ? 1 : 0;
+}
+assert.equal(isolatedCompletions,2);
+assert.equal(isolatedReassembler.metrics().completedMessages,2);
+assert.equal(isolatedReassembler.metrics().maximumPendingMessages,2);
+assert.equal(isolatedReassembler.metrics().pendingMessages,0);
+assert.throws(
+    () => createFragmentReassembler({direction:'q'}).accept(duplicatedFragments[0],{
+        address:'127.0.0.1',port:0
+    }),
+    /UDP peer requires/u
+);
+
+const oneFragment=fragmentMessage(createMessage(64,44),'q')[0];
+const completedDuplicateReassembler=createFragmentReassembler({direction:'q'});
+assert.ok(completedDuplicateReassembler.accept(oneFragment,udpPeer));
+assert.ok(completedDuplicateReassembler.accept(oneFragment,udpPeer));
+assert.equal(completedDuplicateReassembler.metrics().completedMessages,2);
+assert.equal(completedDuplicateReassembler.metrics().duplicateFragments,0);
+
+assert.throws(
+    () => assertFragment({...duplicatedFragments[0],i:duplicatedFragments[0].n},'q'),
+    /index is invalid/u
+);
+assert.throws(
+    () => assertFragment({...duplicatedFragments[0],n:duplicatedFragments[0].n+1},'q'),
+    /count must be/u
+);
+assert.throws(
+    () => assertFragment({...duplicatedFragments[0],c:duplicatedFragments[0].c.slice(1)},'q'),
+    /chunk must contain/u
+);
+assert.throws(
+    () => assertFragment(duplicatedFragments[0],'r'),
+    /expected UDP fragment direction r/u
+);
+
+function syntheticClient(factory,startSequence,responseOffsets){
+    const sent=new Set;
+    const offsets=[...responseOffsets];
+    return {
+        send(message){
+            sent.add(message.sequence);
+        },
+        async receive(){
+            const offset=offsets.shift();
+            const message=factory(startSequence+offset);
+            assert.ok(sent.has(message.sequence),`synthetic response ${message.sequence} was not sent`);
+            return message;
+        },
+        sent
+    };
+}
+
+const unorderedFactory=createMessageFactory(64);
+const unorderedStart=0x300000;
+const unorderedClient=syntheticClient(unorderedFactory,unorderedStart,[2,0,1,4,3,5]);
+const unorderedWindow=await windowed(
+    unorderedClient,
+    unorderedFactory,
+    64,
+    6,
+    unorderedStart,
+    3,
+    8*1024*1024,
+    {orderIndependent:true,transportId:'udp4'}
+);
+assert.equal(unorderedWindow.received,6);
+assert.equal(unorderedWindow.sent,6);
+assert.equal(unorderedWindow.maximumInFlight,3);
+assert.equal(unorderedWindow.window,3);
+assert.equal(unorderedClient.sent.size,6);
+
+const orderedClient=syntheticClient(unorderedFactory,unorderedStart,[2]);
+await assert.rejects(
+    windowed(
+        orderedClient,
+        unorderedFactory,
+        64,
+        3,
+        unorderedStart,
+        3,
+        8*1024*1024
+    ),
+    /expected sequence 00300000/u
+);
+const duplicateResponseClient=syntheticClient(unorderedFactory,unorderedStart,[0,0]);
+await assert.rejects(
+    windowed(
+        duplicateResponseClient,
+        unorderedFactory,
+        64,
+        3,
+        unorderedStart,
+        3,
+        8*1024*1024,
+        {orderIndependent:true,transportId:'udp4'}
+    ),
+    /duplicate response sequence 00300000/u
+);
+
 assert.deepEqual(baseWilliamsOrder(6),[0,1,5,2,4,3]);
 assert.equal(cycleLength(1),1);
 assert.equal(cycleLength(5),10);
@@ -127,6 +329,11 @@ for(const moduleId of moduleIds){
     }
 }
 assert.deepEqual(Object.keys(capabilityTransportDefinitions),transportIds);
+assert.deepEqual(transportIds,['process-ipc','tcp','local','tls','udp4','udp6']);
+assert.deepEqual(
+    laneIds.filter(laneId => ['udp4','udp6'].includes(laneDefinitions[laneId].transportId)),
+    ['native-dgram:udp4','native-dgram:udp6','node-ipc:udp4','node-ipc:udp6']
+);
 assert.equal(definitions.length,14);
 assert.equal(matrix['native-net'].parentChild.status,'manual');
 assert.equal(matrix['node-ipc'].queueingBackpressure.status,'profile-dependent');
@@ -147,6 +354,7 @@ const dependencies=await dependencyExposure();
 assert.equal(dependencies['native-child-process'].uniqueResolvedDependencies,0);
 assert.equal(dependencies['native-net'].uniqueResolvedDependencies,0);
 assert.equal(dependencies['native-tls'].uniqueResolvedDependencies,0);
+assert.equal(dependencies['native-dgram'].uniqueResolvedDependencies,0);
 assert.equal(dependencies.ws.uniqueResolvedDependencies,0);
 assert.equal(dependencies.zeromq.directUniqueDependencies,2);
 assert.equal(dependencies['node-ipc'].directUniqueDependencies,3);
@@ -179,14 +387,22 @@ for(const query of Object.values(legacyArtifactData.queries)){
     assert.match(query,/benchmark_result\(\)/u);
 }
 const currentArtifactData=buildArtifactData();
+const trackedTransportResult=JSON.parse(await readFile(currentArtifactData.source.file,'utf8'));
+const trackedLaneCount=Object.keys(
+    trackedTransportResult.dimensions.lanes ?? trackedTransportResult.dimensions.cases
+).length;
+const trackedModuleCount=Object.keys(trackedTransportResult.dependencyExposure).length;
+const trackedTransportCount=Object.keys(
+    trackedTransportResult.capabilities.transportDefinitions
+).length;
 assert.equal(currentArtifactData.source.schemaVersion,2);
-assert.equal(currentArtifactData.datasets.performance.length,laneIds.length*3);
-assert.equal(currentArtifactData.datasets.exposure.length,moduleIds.length);
-assert.equal(currentArtifactData.datasets.capabilities.length,moduleIds.length*definitions.length);
-assert.equal(currentArtifactData.datasets['transport-lanes'].length,laneIds.length);
+assert.equal(currentArtifactData.datasets.performance.length,trackedLaneCount*3);
+assert.equal(currentArtifactData.datasets.exposure.length,trackedModuleCount);
+assert.equal(currentArtifactData.datasets.capabilities.length,trackedModuleCount*definitions.length);
+assert.equal(currentArtifactData.datasets['transport-lanes'].length,trackedLaneCount);
 assert.equal(
     currentArtifactData.datasets['transport-coverage'].length,
-    moduleIds.length*transportIds.length
+    trackedModuleCount*trackedTransportCount
 );
 const legacyResult=JSON.parse(await readFile(
     path.join(directory,'results/windows-node24-20260823.json'),'utf8'
@@ -260,6 +476,65 @@ for(const sample of tlsSamples){
     assert.equal(sample.metrics.tls.authorized,true);
     assert.equal(sample.metrics.tls.protocol,'TLSv1.3');
 }
+const udpLaneIds=laneIds.filter(laneId => ['udp4','udp6'].includes(
+    laneDefinitions[laneId].transportId
+));
+assert.deepEqual(udpLaneIds,[
+    'native-dgram:udp4','native-dgram:udp6','node-ipc:udp4','node-ipc:udp6'
+]);
+const udpSamples=result.samples.filter(sample => ['udp4','udp6'].includes(sample.transportId));
+assert.equal(udpSamples.length,udpLaneIds.length*result.config.workloads.length);
+assert.deepEqual(new Set(udpSamples.map(sample => sample.laneId)),new Set(udpLaneIds));
+for(const sample of udpSamples){
+    const expectedWindow=sample.workload === 'latency' ? 1 : 64;
+    assert.equal(sample.status,'ok');
+    assert.equal(sample.config.effectiveWindowMessages,expectedWindow);
+    assert.equal(sample.metrics.maximumInFlight,expectedWindow);
+    assert.equal(sample.metrics.udp.fragmentCountPerMessage,1);
+    assert.equal(sample.metrics.udp.expectedDatagramsPerDirection,sample.config.frames);
+    assert.equal(sample.metrics.udp.datagramsWritten,sample.config.frames);
+    assert.equal(sample.metrics.udp.acceptedFragments,sample.config.frames);
+    assert.equal(sample.metrics.udp.completedMessages,sample.config.frames);
+    assert.equal(sample.metrics.udp.pendingMessages,0);
+    assert.equal(sample.metrics.udp.conflictingDuplicates,0);
+    assert.equal(sample.metrics.udp.retransmissions,0);
+    assert.ok(sample.metrics.udp.maximumDatagramBytes <= udpDatagramBytes);
+}
+
+const udpSampleIndex=result.samples.findIndex(sample => ['udp4','udp6'].includes(
+    sample.transportId
+));
+assert.notEqual(udpSampleIndex,-1);
+const oversizedUdpDatagram=structuredClone(result);
+oversizedUdpDatagram.samples[udpSampleIndex].metrics.udp.maximumDatagramBytes=udpDatagramBytes+1;
+await assert.rejects(
+    validateResult(oversizedUdpDatagram,{verifyFiles:false}),
+    /UDP maximum datagram exceeds 1200/u
+);
+const pendingUdpAssembly=structuredClone(result);
+pendingUdpAssembly.samples[udpSampleIndex].metrics.udp.pendingMessages=1;
+await assert.rejects(
+    validateResult(pendingUdpAssembly,{verifyFiles:false}),
+    /UDP pending messages/u
+);
+const conflictingUdpDuplicate=structuredClone(result);
+conflictingUdpDuplicate.samples[udpSampleIndex].metrics.udp.conflictingDuplicates=1;
+await assert.rejects(
+    validateResult(conflictingUdpDuplicate,{verifyFiles:false}),
+    /UDP conflicting duplicates/u
+);
+const wrongUdpDatagramCount=structuredClone(result);
+wrongUdpDatagramCount.samples[udpSampleIndex].metrics.udp.datagramsWritten+=1;
+await assert.rejects(
+    validateResult(wrongUdpDatagramCount,{verifyFiles:false}),
+    /UDP written datagrams/u
+);
+const wrongUdpWindow=structuredClone(result);
+wrongUdpWindow.samples[udpSampleIndex].config.effectiveWindowMessages+=1;
+await assert.rejects(
+    validateResult(wrongUdpWindow,{verifyFiles:false}),
+    /UDP effective window/u
+);
 
 const failedSample=structuredClone(result);
 failedSample.samples[0].status='failed';
@@ -423,6 +698,10 @@ try{
     });
     assert.match(fullReport,/one-lane process IPC cohort is a descriptive baseline only/iu);
     assert.match(fullReport,/It has no same-transport comparator, so no ordinal result is calculated/u);
+    assert.match(fullReport,/UDP4 and UDP6 carry those same logical bytes/u);
+    assert.match(fullReport,/1,024-byte canonical-ASCII fragments/u);
+    assert.match(fullReport,/complete compact JSON datagram of at most 1,200 bytes/u);
+    assert.match(fullReport,/adds no acknowledgement, retry, retransmission, authentication, or confidentiality/u);
 }finally{
     await rm(temporaryRoot,{force:true,recursive:true});
 }
