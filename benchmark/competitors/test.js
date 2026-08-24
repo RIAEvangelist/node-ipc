@@ -164,7 +164,9 @@ for(const moduleId of moduleIds){
     assert.match(complexity[moduleId].sourceSha256,/^[0-9a-f]{64}$/u);
 }
 
-const legacyArtifactData=buildArtifactData();
+const legacyArtifactData=buildArtifactData(
+    path.join(directory,'results/windows-node24-20260823.json')
+);
 assert.equal(legacyArtifactData.source.schemaVersion,1);
 assert.match(legacyArtifactData.source.sha256,/^[0-9a-f]{64}$/u);
 assert.equal(legacyArtifactData.datasets.performance.length,subjectIds.length*3);
@@ -176,6 +178,16 @@ for(const query of Object.values(legacyArtifactData.queries)){
     assert.match(query,/^WITH\b/u);
     assert.match(query,/benchmark_result\(\)/u);
 }
+const currentArtifactData=buildArtifactData();
+assert.equal(currentArtifactData.source.schemaVersion,2);
+assert.equal(currentArtifactData.datasets.performance.length,laneIds.length*3);
+assert.equal(currentArtifactData.datasets.exposure.length,moduleIds.length);
+assert.equal(currentArtifactData.datasets.capabilities.length,moduleIds.length*definitions.length);
+assert.equal(currentArtifactData.datasets['transport-lanes'].length,laneIds.length);
+assert.equal(
+    currentArtifactData.datasets['transport-coverage'].length,
+    moduleIds.length*transportIds.length
+);
 const legacyResult=JSON.parse(await readFile(
     path.join(directory,'results/windows-node24-20260823.json'),'utf8'
 ));

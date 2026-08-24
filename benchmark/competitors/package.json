@@ -7,11 +7,12 @@
     "node": ">=22.13.0"
   },
   "scripts": {
-    "artifact-data": "node ./artifact-data.js",
+    "artifact-data": "node ./artifact-data.js ./results/windows-node24-transports-20260824.json",
     "benchmark": "node ./run.js",
     "quick": "node ./run.js --quick",
-    "report": "node ./render-report.js ./results/windows-node24-20260823.json ./REPORT.md",
-    "validate": "node ./validate.js ./results/windows-node24-20260823.json",
+    "report": "node ./render-report.js ./results/windows-node24-transports-20260824.json ./REPORT.md",
+    "validate": "node ./validate.js ./results/windows-node24-transports-20260824.json",
+    "validate:legacy": "node ./validate.js ./results/windows-node24-20260823.json",
     "test": "node ./test.js"
   },
   "dependencies": {

@@ -105,6 +105,7 @@ This proxy does not assess vulnerabilities, maintainers, provenance, signatures,
 ## Schemas, evidence, and reproducible artifact data
 
 - [Technical report](./REPORT.md)
+- [Current Windows / Node 24 transport snapshot](./results/windows-node24-transports-20260824.json)
 - [Immutable schema-v1 Windows / Node 24 snapshot](./results/windows-node24-20260823.json)
 - [Schema v1](./result-schema.json)
 - [Schema v2](./result-schema-v2.json)

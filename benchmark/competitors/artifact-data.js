@@ -18,7 +18,7 @@ function parseQueries(text){
     return queries;
 }
 
-function buildArtifactData(resultFile=path.join(directory,'results/windows-node24-20260823.json')){
+function buildArtifactData(resultFile=path.join(directory,'results/windows-node24-transports-20260824.json')){
     const resolvedResult=path.resolve(resultFile);
     const resultBytes=readFileSync(resolvedResult);
     const resultText=resultBytes.toString('utf8');
@@ -53,7 +53,7 @@ const directInvocation=process.argv[1]
 if(directInvocation){
     const resultFile=process.argv[2]
         ? path.resolve(process.argv[2])
-        : path.join(directory,'results/windows-node24-20260823.json');
+        : path.join(directory,'results/windows-node24-transports-20260824.json');
     const output=buildArtifactData(resultFile);
     process.stdout.write(`${JSON.stringify(output)}\n`);
 }
