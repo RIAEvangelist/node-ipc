@@ -1,0 +1,121 @@
+name: C# CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: .NET 8 · Node ${{ matrix.node }} · ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            node: 22.13.0
+          - os: ubuntu-latest
+            node: 24.18.1
+          - os: macos-latest
+            node: 24.18.1
+          - os: windows-latest
+            node: 24.18.1
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Use .NET 8
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Use Node.js ${{ matrix.node }}
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install exact Node dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Report toolchains
+        working-directory: csharp/node-ipc
+        run: |
+          dotnet --info
+          node --version
+
+      - name: Restore the solution
+        working-directory: csharp/node-ipc
+        run: dotnet restore node-ipc.sln
+
+      - name: Verify formatting
+        if: runner.os == 'Linux'
+        working-directory: csharp/node-ipc
+        run: dotnet format node-ipc.sln --no-restore --verify-no-changes
+
+      - name: Build library, tests, interop peer, and examples
+        working-directory: csharp/node-ipc
+        run: dotnet build node-ipc.sln -c Release --no-restore --nologo
+
+      - name: Run the exact native C# suite
+        working-directory: csharp/node-ipc
+        run: dotnet run --project tests/NodeIpc.Tests/NodeIpc.Tests.csproj -c Release --no-build
+
+      - name: Run exact 2/2 Node and C# interoperability
+        run: node csharp/node-ipc/interop/vanilla-test.js
+
+      - name: Verify the checkout stayed clean
+        shell: bash
+        run: test -z "$(git status --porcelain --untracked-files=all)"
+
+  package:
+    name: NuGet package boundary
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Use .NET 8
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Pack once and smoke the retained package
+        shell: pwsh
+        working-directory: csharp/node-ipc
+        run: ./package-smoke.ps1 -OutputDirectory "$env:RUNNER_TEMP/node-ipc-nuget"
+
+      - name: Verify the retained package checksum
+        shell: bash
+        run: |
+          set -euo pipefail
+          output="$RUNNER_TEMP/node-ipc-nuget"
+          cd "$output"
+          sha256sum -c node-ipc.14.0.0.nupkg.sha256
+
+      - name: Upload verified NuGet artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: csharp-package-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/node-ipc-nuget/node-ipc.14.0.0.nupkg
+            ${{ runner.temp }}/node-ipc-nuget/node-ipc.14.0.0.nupkg.sha256
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Verify the checkout stayed clean
+        shell: bash
+        run: test -z "$(git status --porcelain --untracked-files=all)"

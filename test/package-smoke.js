@@ -67,6 +67,7 @@ try{
     assert.ok(![...files].some((file) => file.startsWith('docs/')));
     assert.ok(![...files].some((file) => file.startsWith('benchmark/results/')));
     assert.ok(![...files].some((file) => file.startsWith('rust/')));
+    assert.ok(![...files].some((file) => file.startsWith('csharp/')));
     assert.ok(![...files].some((file) => file.startsWith('local-node-ipc-certs/')));
     assert.ok(![...files].some((file) => file.startsWith('.codex-')));
     assert.ok(![...files].some((file) => /(?:^|\/)(?:private\/|[^/]+\.(?:key|pem)$)/i.test(file)));

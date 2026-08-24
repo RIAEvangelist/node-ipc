@@ -4,10 +4,10 @@
 
 [![Sponsor RIAEvangelist to help development of node-ipc](https://img.shields.io/static/v1?label=Sponsor%20Me%20On%20Github&message=%E2%9D%A4&logo=GitHub&link=https://github.com/sponsors/RIAEvangelist)](https://github.com/sponsors/RIAEvangelist)
 
-**node-ipc 14.0.0 source for the paired [npm](https://www.npmjs.com/package/node-ipc) and [crates.io](https://crates.io/crates/node-ipc) release**
+**node-ipc 14.0.0 source for the aligned [npm](https://www.npmjs.com/package/node-ipc), [NuGet](https://www.nuget.org/packages/node-ipc), and [crates.io](https://crates.io/crates/node-ipc) release**
 
-Fast local and remote process communication for Node.js and Rust on Linux,
-macOS, and Windows. The paired implementations share the normal node-ipc event
+Fast local and remote process communication for Node.js, C#, and Rust on Linux,
+macOS, and Windows. The aligned implementations share the normal node-ipc event
 envelope and delimiter framing across local sockets, TCP, and UDP.
 
 A great solution for complex multiprocess **Neural Networking** in Node.JS
@@ -16,11 +16,15 @@ A great solution for complex multiprocess **Neural Networking** in Node.JS
 
 Rust: `cargo add node-ipc@14.0.0 --exact`
 
+C#: `dotnet add package node-ipc --version 14.0.0`
+
 Use an exact, reviewed version. Do not use a mutable tag or version range for security-sensitive deployments.
 
 #### Runtime
 
-Version 14 requires Node.js 22.13.0 or newer. Version 12 remains the legacy Node release line; version 13 was never published.
+Version 14 requires Node.js 22.13.0 or newer. The native ports require Rust
+1.85 or newer and .NET 8 or newer. Version 12 remains the legacy Node release
+line; version 13 was never published.
 
 `node-ipc` ships native ES modules only. Node.js loads the same entry point through `import` or synchronous `require()`; no transpiled CommonJS bundle is generated.
 
@@ -67,6 +71,27 @@ verified TLS stream; the crate does not choose or reimplement cryptography.
 See the [Rust engineer guide](https://riaevangelist.github.io/node-ipc/rust/)
 and [native examples](https://github.com/RIAEvangelist/node-ipc/tree/main/rust/node-ipc/examples).
 
+#### C#
+
+The aligned C# package targets .NET 8, has no NuGet dependencies, and mirrors
+the JavaScript facade: `IPCModule`, `config`, `of`, `server`, `serve*`,
+`connect*`, event subscriptions, targeted `emit`, and `broadcast`. It supplies
+async TCP, TLS, UDP4/UDP6, Unix-domain sockets, Windows named pipes, Raw, Fast,
+Guarded, Assured, reconnect, and sync request queues.
+
+```csharp
+using NodeIpc;
+
+await using var ipc = new IPCModule();
+ipc.config.silent = true;
+var client = ipc.connectToNet("service", "127.0.0.1", 9763)!;
+await client.waitForConnectAsync();
+await client.emitAsync("app.message", new { text = "hello" });
+```
+
+See the [C# package guide](https://github.com/RIAEvangelist/node-ipc/tree/main/csharp/node-ipc)
+and [native examples](https://github.com/RIAEvangelist/node-ipc/tree/main/csharp/node-ipc/examples).
+
 #### Use
 
 ESM: `import ipc from 'node-ipc';`
@@ -106,6 +131,24 @@ to `coverage/node/`.
 `cargo test --manifest-path rust/node-ipc/Cargo.toml --all-targets` runs the 38
 Rust-native VanillaTest cases. `node rust/node-ipc/interop/vanilla-test.js` runs
 the separate two-direction Node/Rust interoperability gate.
+
+`dotnet run --project csharp/node-ipc/tests/NodeIpc.Tests -c Release` runs the
+exact C# native case inventory. `node csharp/node-ipc/interop/vanilla-test.js`
+runs the separate two-direction Node/C# interoperability gate, and
+`pwsh -File csharp/node-ipc/package-smoke.ps1` validates the NuGet boundary.
+
+`npm run test:behavioral` runs the shared black-box Fast TCP transcript across
+all nine JavaScript, Rust, and C# server/client pairings. Seven pipelined
+payload-shape and ordering cases must pass before a separate finish handshake
+and two-sided clean stream boundary in every pair, including both Rust/C#
+directions. Each native encoder also has to match one canonical Fast frame byte
+for byte. This gate makes no performance assertions; the deeper
+language-specific profile and transport checks remain in their native suites.
+
+The same command adds 12 raw fault-injection cases: each language, in both
+client and server roles, must reject complete and incomplete frames after the
+finish boundary. Together with the nine positive pairings, the behavioral gate
+contains 21 cases.
 
 #### Performance evidence
 
@@ -1012,6 +1055,6 @@ Writing explicit buffers, int types, doubles, floats etc. as well as big endian 
 ```
 
 #### Licensed under MIT license
-See the [MIT license](https://github.com/RIAEvangelist/node-ipc/blob/main/license) file.
+See the [MIT license](https://github.com/RIAEvangelist/node-ipc/blob/main/licence) file.
 
 I'm sorry.

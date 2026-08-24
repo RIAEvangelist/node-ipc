@@ -231,9 +231,20 @@ const groups=[
                 }
             },
             {
-                name:'ignores an incomplete trailing frame',
+                name:'ignores parse tails and reassembles streaming fragments',
                 run(){
-                    assert.deepEqual(new Parser().parse('complete\fincomplete'),['complete']);
+                    const parser=new Parser;
+                    assert.deepEqual(parser.parse('complete\fincomplete'),['complete']);
+
+                    const frame=parser.encode('unit.fragmented',{value:42});
+                    const split=Math.floor(frame.length/2);
+                    const received=[];
+                    let retained=parser.read('',frame.slice(0,split),(event) => received.push(event));
+                    assert.deepEqual(received,[]);
+                    assert.equal(retained,frame.slice(0,split));
+                    retained=parser.read(retained,frame.slice(split),(event) => received.push(event));
+                    assert.equal(retained,'');
+                    assert.deepEqual(received,[{type:'unit.fragmented',data:{value:42}}]);
                 }
             },
             {

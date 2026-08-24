@@ -1,7 +1,7 @@
 {
   "name": "node-ipc",
   "version": "14.0.0",
-  "description": "Fast local and network IPC for Node.js with a paired dependency-free Rust implementation.",
+  "description": "Fast local and network IPC for Node.js with aligned dependency-free Rust and C# implementations.",
   "type": "module",
   "main": "./node-ipc.js",
   "exports": {
@@ -64,8 +64,12 @@
     "benchmark:validate": "node ./benchmark/validate-results.js",
     "coverage": "echo 'See your coverage report at http://127.0.0.1:8080' && node-http-server host=127.0.0.1 domain=127.0.0.1 port=8080 root=./coverage/node/",
     "test": "npm run test:correctness && npm run test:smoke && npm run benchmark:test && npm run benchmark:rust:test && npm run benchmark:rust:validate:tracked && npm run benchmark:rust:chart:check && npm run benchmark:validate && npm run benchmark:chart:check && npm run benchmark:transport:test && npm run benchmark:transport:evidence:test && npm run benchmark:transport:validate && npm run benchmark:transport:chart:check",
+    "test:behavioral": "node ./test/behavioral/portable-json.test.js && node ./test/behavioral/vanilla-test.js",
     "test:correctness": "npm run test:inventory && vanilla-test coverage node",
     "test:inventory": "node ./test/inventory.js",
+    "test:csharp": "dotnet run --project ./csharp/node-ipc/tests/NodeIpc.Tests/NodeIpc.Tests.csproj -c Release",
+    "test:csharp:interop": "node ./csharp/node-ipc/interop/vanilla-test.js",
+    "test:csharp:package": "pwsh -NoProfile -File ./csharp/node-ipc/package-smoke.ps1",
     "test:smoke": "npm run test:smoke:runtime && npm run test:smoke:transport && npm run test:smoke:package",
     "test:smoke:package": "node ./test/package-smoke.js",
     "test:smoke:runtime": "node ./test/runtime-smoke.js",

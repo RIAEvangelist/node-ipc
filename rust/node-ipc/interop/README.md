@@ -42,11 +42,14 @@ For the focused JavaScript `vanilla-test` interoperability suite, run:
 node ./rust/node-ipc/interop/vanilla-test.js
 ```
 
-It builds the dependency-free Rust example once, then validates five sequential
-ping-pong messages with a 17-byte payload in both directions: Node client to
-Rust server and Rust client to Node server. The suite uses debug builds because
-this is a correctness gate, not performance evidence; the measurement commands
-below still require `--release`.
+It selects the two mixed Node/Rust directions from the shared behavioral runner.
+The client pipelines seven Fast frames covering falsey scalars,
+Unicode/control characters, arrays, and nested objects, then performs a finish
+handshake and a clean half-close/end-of-stream boundary. Both peers validate
+exact order and semantic values. The suite uses debug builds because this is a
+correctness gate, not performance evidence; the measurement commands below
+still require `--release`. Run `npm run test:behavioral` for the full nine-pair
+JavaScript/Rust/C# matrix plus 12 trailing-frame rejection checks.
 
 ## Common command-line contract
 

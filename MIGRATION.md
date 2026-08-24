@@ -33,6 +33,40 @@ language boundaries for malformed JSON, number precision, duplicate object
 members, UTF-16 surrogate escapes, custom delimiters, and incomplete frames
 before treating arbitrary language-specific values as portable.
 
+## Aligned C# implementation
+
+Version 14 also introduces the zero-NuGet-dependency .NET 8 package under the
+same `node-ipc` name and major version:
+
+```console
+dotnet add package node-ipc --version 14.0.0
+```
+
+Unlike the lower-level blocking Rust crate, the C# port mirrors the JavaScript
+facade: isolated `IPCModule` instances, lowercase config and service methods,
+client registries, synchronous event subscriptions, reconnects, sync queues,
+targeted replies, broadcasts, TCP/TLS/UDP, and cross-platform local service.
+Valid Fast messages use the same compact `{type,data}` UTF-8 envelope and form-
+feed delimiter and pass the repository's two-direction Node/C# gate.
+
+C# endpoints capture parser, TLS trust/identity, logging, identification, sync,
+and local-permission choices when constructed. Configure them before calling
+`connect*()` or `serve*()`. Fast malformed input without a string event type
+fails closed before C# event dispatch; normal framed messages are unaffected.
+For Unix Assured clients, the built-in connector does not authenticate socket
+ownership: verify the root and endpoint ownership in the application before
+connecting.
+
+The repository's shared behavioral gate runs one versioned Fast TCP transcript
+through all nine JavaScript, Rust, and C# client/server pairings. It covers
+falsey scalar values, Unicode and control characters, arrays, nested objects,
+pipelined ordering, an exact canonical Fast frame, a separate finish barrier,
+and a clean half-close/end-of-stream boundary in both directions. Run it with
+`npm run test:behavioral`; language-specific malformed-input and security
+boundaries remain in the native suites. The command also runs 12 raw negative
+checks so every client and server language rejects complete and incomplete
+frames after the finish boundary.
+
 ## Event subscriptions
 
 Node-ipc 14 uses `event-pubsub` 6.1.0. Dispatch remains synchronous and live:

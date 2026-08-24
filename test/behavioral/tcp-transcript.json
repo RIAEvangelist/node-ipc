@@ -1,0 +1,76 @@
+{
+  "schema": "node-ipc-behavior-v1",
+  "profile": "fast",
+  "delimiterHex": "0c",
+  "wireProbe": {
+    "type": "behavior.wire",
+    "data": {
+      "value": 42,
+      "text": "ok"
+    },
+    "frame": "{\"type\":\"behavior.wire\",\"data\":{\"value\":42,\"text\":\"ok\"}}\f"
+  },
+  "steps": [
+    {
+      "id": "payload-null",
+      "request": "behavior.case.null",
+      "response": "behavior.case.null.ack",
+      "data": null
+    },
+    {
+      "id": "payload-false",
+      "request": "behavior.case.false",
+      "response": "behavior.case.false.ack",
+      "data": false
+    },
+    {
+      "id": "payload-zero",
+      "request": "behavior.case.zero",
+      "response": "behavior.case.zero.ack",
+      "data": 0
+    },
+    {
+      "id": "payload-empty-string",
+      "request": "behavior.case.empty-string",
+      "response": "behavior.case.empty-string.ack",
+      "data": ""
+    },
+    {
+      "id": "payload-unicode-control",
+      "request": "behavior.case.unicode-control",
+      "response": "behavior.case.unicode-control.ack",
+      "data": "Grüße 雪 😀\f\u0000"
+    },
+    {
+      "id": "payload-array",
+      "request": "behavior.case.array",
+      "response": "behavior.case.array.ack",
+      "data": [1, "two", true, null]
+    },
+    {
+      "id": "payload-nested-object",
+      "request": "behavior.case.nested-object",
+      "response": "behavior.case.nested-object.ack",
+      "data": {
+        "zero": 0,
+        "false": false,
+        "empty": "",
+        "unicode": "λ",
+        "nested": {
+          "ok": true
+        }
+      }
+    }
+  ],
+  "finish": {
+    "id": "finish",
+    "request": "behavior.finish",
+    "requestData": {
+      "expected": 7
+    },
+    "response": "behavior.finished",
+    "responseData": {
+      "received": 7
+    }
+  }
+}

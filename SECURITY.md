@@ -9,7 +9,9 @@
 | 10.1.x  | :white_check_mark: |
 | Other versions | :x: |
 
-Version 14.x pairs the native-ESM Node.js implementation, which requires Node.js 22.13 or newer, with the dependency-free Rust implementation, which requires Rust 1.85 or newer. Version 13 was never published.
+Version 14.x aligns the native-ESM Node.js implementation (Node.js 22.13+), the
+dependency-free Rust implementation (Rust 1.85+), and the zero-NuGet-dependency
+C# implementation (.NET 8+). Version 13 was never published.
 
 ## 14.x Node.js security profiles
 
@@ -38,6 +40,31 @@ arbitrary `Read + Write` transport. The application must supply and verify
 mutual TLS for hostile networks, enforce an owner-only Unix socket boundary,
 or create and verify an appropriate Windows named-pipe ACL. UDP is rejected by
 Rust Assured. See the [Rust security boundary](https://riaevangelist.github.io/node-ipc/rust/#security-boundary) for the exact contract.
+
+## 14.x C# security profiles
+
+C# mirrors the JavaScript Raw, Fast, Guarded, and Assured names and high-level
+service API. Parser choice, TLS material and trust, payload logging, peer
+identification, sync behavior, and local permission flags are captured when an
+endpoint is constructed. Fast has framing but no inbound size or timeout limit;
+use Guarded or Assured for untrusted peers.
+
+C# Assured network service requires mutually authenticated TLS, verified custom
+roots, identities with private keys, hostname and enhanced-key-usage checks,
+and an event allowlist. Certificate AIA downloads and revocation networking are
+disabled. UDP, plain network streams, accept-all validation callbacks, and
+built-in Windows local Assured service fail closed.
+
+On Unix, an Assured server requires a current-user-owned `0700` socket root and
+an endpoint directly inside it. The built-in C# client does not verify root or
+endpoint ownership; Assured local clients must verify ownership themselves
+before connecting. `unlink=true` type- and identity-checks the path but cannot
+prove that another same-user listener is dead, so supervised or multi-instance
+deployments should manage liveness and use `unlink=false`.
+
+As in JavaScript, event and logger callbacks are synchronous application code.
+Do not install handlers that throw on untrusted input; validate payload schemas,
+authorize operations, rate-limit peers, and contain application failures.
 
 See the [profile guide](https://riaevangelist.github.io/node-ipc/profiles/), [parser contract](https://riaevangelist.github.io/node-ipc/parsers/), and [deployment security guide](https://riaevangelist.github.io/node-ipc/security/).
 
