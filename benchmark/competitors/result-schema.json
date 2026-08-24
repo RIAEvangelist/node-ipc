@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://riaevangelist.github.io/node-ipc/data/competitor-benchmarks/result-schema.json",
+  "title": "node-ipc end-to-end competitor benchmark result",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "id",
+    "generatedAt",
+    "classification",
+    "capabilities",
+    "catalog",
+    "complexity",
+    "config",
+    "dependencyExposure",
+    "evidence",
+    "packageLocks",
+    "repository",
+    "samples",
+    "summary",
+    "system",
+    "validation"
+  ],
+  "properties": {
+    "schemaVersion": {"const": 1},
+    "id": {"type": "string", "pattern": "^local-[A-Za-z0-9-]+$"},
+    "generatedAt": {"type": "string", "format": "date-time"},
+    "classification": {"const": "local-snapshot-noisy"},
+    "capabilities": {"type": "object"},
+    "catalog": {"type": "object"},
+    "complexity": {"type": "object"},
+    "config": {
+      "type": "object",
+      "required": ["payloads", "probeFrames", "quick", "samples", "subjects", "timeoutMs", "windowBytes", "windowMessages", "workloads"]
+    },
+    "dependencyExposure": {"type": "object"},
+    "evidence": {
+      "type": "object",
+      "required": ["authority", "commonContract", "rankingEligible", "reasons"],
+      "properties": {
+        "authority": {"const": "snapshot-noisy"},
+        "rankingEligible": {"const": false}
+      }
+    },
+    "packageLocks": {"type": "object"},
+    "repository": {"type": "object"},
+    "samples": {"type": "array", "minItems": 1},
+    "summary": {"type": "array", "minItems": 1},
+    "system": {"type": "object"},
+    "validation": {
+      "type": "object",
+      "required": ["cleanupFailures", "complete", "expectedSamples", "failedSamples", "successfulSamples"]
+    }
+  },
+  "additionalProperties": false
+}

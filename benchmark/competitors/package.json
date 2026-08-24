@@ -1,0 +1,23 @@
+{
+  "name": "node-ipc-competitor-benchmark",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "artifact-data": "node ./artifact-data.js",
+    "benchmark": "node ./run.js",
+    "quick": "node ./run.js --quick",
+    "report": "node ./render-report.js ./results/windows-node24-20260823.json ./REPORT.md",
+    "validate": "node ./validate.js ./results/windows-node24-20260823.json",
+    "test": "node ./test.js"
+  },
+  "dependencies": {
+    "socket.io": "4.8.3",
+    "socket.io-client": "4.8.3",
+    "ws": "8.21.3",
+    "zeromq": "6.6.0"
+  }
+}
