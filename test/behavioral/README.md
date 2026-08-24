@@ -7,6 +7,11 @@ Rust/C# directions and the three same-language baselines. Twelve raw
 fault-injection cases additionally prove that every language rejects complete
 and incomplete trailing frames in both its client and server roles.
 
+The JavaScript peer imports `node-ipc` through the package's bare self-reference
+and exercises the public Node.js entry. The `node-ipc` JavaScript package is
+Node.js-only; this native TCP matrix is not a browser or browser-bundler claim.
+No browser entry, import map, or Chrome lane is part of this suite.
+
 The versioned transcript in `tcp-transcript.json` pipelines seven requests with
 top-level `null`, `false`, zero, empty-string, Unicode/control-character, array,
 and nested-object payloads. Each server must receive them in order and return

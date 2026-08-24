@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import process from 'node:process';
 
-import {FastParser,IPCModule} from '../../node-ipc.js';
+import {FastParser,IPCModule} from 'node-ipc';
 import {parsePortableJson} from './portable-json.js';
 
 const language='node';

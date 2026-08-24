@@ -1,3 +1,4 @@
+// Documentation UI only: this browser script never imports the Node.js-only node-ipc runtime.
 const SITE_ROOT = new URL('../', document.currentScript?.src ?? window.location.href);
 const BENCHMARK_ADAPTER_NAMES = new Map([
   ['node-net', 'node:net baseline'],

@@ -11,7 +11,7 @@
 <body>
 <a class="skip-link" href="#content">Skip to content</a>
 <header class="site-header"><div class="shell header-inner">
-  <a class="brand" href="../" aria-label="node-ipc documentation home"><span class="brand-mark" aria-hidden="true">IPC</span><span>node-ipc<small>main documentation</small></span></a>
+  <a class="brand" href="../" aria-label="node-ipc documentation home"><span class="brand-mark" aria-hidden="true">IPC</span><span>node-ipc<small>main documentation · JavaScript: Node.js only</small></span></a>
   <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="site-nav">Menu</button>
   <nav class="site-nav" id="site-nav" data-site-nav aria-label="Primary navigation">
     <a href="../">Home</a><a href="./" aria-current="page">Quick start</a><a href="../config/">Config</a><a href="../api/">API</a><a href="../rust/">Rust</a>
@@ -26,7 +26,7 @@
   <header class="page-hero compact"><p class="eyebrow">14.x · Node.js 22.13+</p><h1>Send the first local message</h1><p class="lead">Create a Node.js server and client on one machine. Rust has a separate native guide with the same normal framed event contract.</p></header>
   <div class="content-grid">
     <div>
-      <section class="section" id="requirements"><h2>1. Confirm the runtime</h2><div class="callout"><strong>Version 14 uses native ES modules.</strong><p>Use Node.js 22.13 or newer. Version 12 remains a separate legacy line for older runtimes.</p></div><pre><code>node --version
+      <section class="section" id="requirements"><h2>1. Confirm the runtime</h2><div class="callout"><strong>Version 14 uses native ES modules in Node.js only.</strong><p>Use Node.js 22.13 or newer. The <code>node-ipc</code> JavaScript package does not run in web browsers, whether bundled or unbundled. “Native ESM” means Node.js ESM without a transpiler, not native browser ESM. Version 12 remains a separate legacy line for older Node runtimes.</p></div><pre><code>node --version
 # v22.13.0 or newer</code></pre></section>
       <section class="section" id="install"><h2>2. Pin the release</h2><pre><code>npm install --save-exact node-ipc@14.0.0</code></pre><p class="mini-note">These examples describe the 14.x Node.js package. Pin the exact numeric release rather than a mutable tag or version range.</p></section>
       <section class="section" id="server"><h2>3. Create <code>server.js</code></h2><pre><code>import ipc from 'node-ipc';

@@ -26,7 +26,7 @@
   <header class="site-header">
     <div class="shell header-inner">
       <a class="brand" href="./" aria-label="node-ipc documentation home">
-        <span class="brand-mark" aria-hidden="true">IPC</span><span>node-ipc<small>14.x documentation</small></span>
+        <span class="brand-mark" aria-hidden="true">IPC</span><span>node-ipc<small>14.x documentation · JavaScript: Node.js only</small></span>
       </a>
       <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="site-nav">Menu</button>
       <nav class="site-nav" id="site-nav" data-site-nav aria-label="Primary navigation">
@@ -58,6 +58,7 @@
       <h1>Move messages between any processes.</h1>
       <p class="lead"><code>node-ipc</code> 14 pairs a native-ESM Node.js package with a dependency-free Rust crate. They share the normal event envelope and delimiter framing while each runtime keeps a direct transport implementation.</p>
       <p class="mini-note">Node.js covers Unix sockets, Windows named pipes, TCP, TLS, and UDP. Rust covers native local sockets, TCP, and UDP; applications supply a verified TLS stream.</p>
+      <div class="callout warning"><strong>JavaScript runtime boundary.</strong><p>The <code>node-ipc</code> JavaScript package is <strong>Node.js-only</strong>. It does not run in web browsers, whether bundled or unbundled. “Native ESM” here means Node.js ESM, not native browser ESM; this documentation site's browser code is separate from the npm runtime.</p></div>
       <div class="hero-actions">
         <a class="button primary" href="./quick-start/">Start in five minutes</a>
         <a class="button" href="./profiles/">Choose a runtime profile</a>

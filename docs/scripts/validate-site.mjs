@@ -10,6 +10,16 @@ const docs=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const inventory=createInventory();
 const expectedRoutes=routesForInventory(inventory);
 const generatedOutputs=buildOutputs(inventory);
+const nodeOnlyMarker='JavaScript: Node.js only';
+const fullNodeOnlyPages=new Set([
+    'api/index.html',
+    'examples/index.html',
+    'index.html',
+    'parsers/index.html',
+    'quick-start/index.html',
+    'security/index.html',
+    'testing/index.html'
+]);
 const stagedPaths=new Set([
     'assets/node-ipc-header.png',
     'assets/node-ipc-performance-tiers.png',
@@ -45,6 +55,15 @@ function routeFor(file){
 
 function check(condition,message){
     if(!condition) errors.push(message);
+}
+
+function visibleText(source){
+    return source
+        .replace(/<script\b[\s\S]*?<\/script>/giu,' ')
+        .replace(/<style\b[\s\S]*?<\/style>/giu,' ')
+        .replace(/<[^>]+>/gu,' ')
+        .replace(/\s+/gu,' ')
+        .trim();
 }
 
 function localTarget(file,value){
@@ -102,6 +121,16 @@ for(const file of htmlFiles){
         }
         check(/aria-label="Breadcrumb"/.test(source),`${relative}: missing breadcrumb`);
     }
+    check(
+        visibleText(source).includes(nodeOnlyMarker),
+        `${relative}: missing visible Node-only marker ${nodeOnlyMarker}`
+    );
+    if(fullNodeOnlyPages.has(relative)){
+        const text=visibleText(source);
+        check(/\bNode[.]js(?:-|\s+)only\b/u.test(text),`${relative}: missing full Node.js-only runtime statement`);
+        check(/\b(?:does|do) not run in web browsers\b/u.test(text),`${relative}: missing explicit browser-execution exclusion`);
+        check(text.includes('bundled or unbundled'),`${relative}: missing bundled and unbundled browser exclusion`);
+    }
 
     const links=[...source.matchAll(/\b(?:href|src)="([^"]+)"/g)].map(match => match[1]);
     for(const link of links){
@@ -118,6 +147,11 @@ for(const file of htmlFiles){
 }
 
 const siteScript=readFileSync(path.join(docs,'assets','site.js'),'utf8');
+check(siteScript.includes('Documentation UI only'),'assets/site.js must identify itself as documentation UI only');
+check(
+    !/(?:\bfrom\s+|\bimport\s*\(\s*|\brequire\s*\(\s*|\bimport\s+)["']node-ipc(?:\/[^"']*)?["']/u.test(siteScript),
+    'assets/site.js must not import the Node-only node-ipc runtime'
+);
 check((siteScript.match(/\bfetch\s*\(/gu) ?? []).length === 2,'assets/site.js must fetch only the selected data source and linked benchmark manifest');
 check(
     siteScript.includes("const TRANSPORT_ORDER = ['local', 'tcp', 'tls', 'udp4', 'udp6'];"),

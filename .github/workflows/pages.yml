@@ -192,6 +192,18 @@ jobs:
 
           mkdir -p "$artifact_root/coverage/report"
           cp -a "$coverage_root"/. "$artifact_root/coverage/report/"
+          node --input-type=module - "$artifact_root/coverage/report/index.html" <<'NODE'
+          import assert from 'node:assert/strict';
+          import {readFileSync,writeFileSync} from 'node:fs';
+
+          const file = process.argv[2];
+          const source = readFileSync(file, 'utf8');
+          const anchor = '<header>';
+          const boundary = '<p class="native"><strong>JavaScript: Node.js only.</strong> This report covers the Node runtime; it does not execute the package in a web browser.</p>';
+          assert.equal(source.includes(boundary), false, `${file}: duplicate Node-only boundary`);
+          assert.equal(source.split(anchor).length, 2, `${file}: expected one coverage header`);
+          writeFileSync(file, source.replace(anchor, `${anchor}${boundary}`));
+          NODE
 
           mkdir -p "$artifact_root/data"
           cp "$coverage_root/coverage-summary.json" "$artifact_root/data/coverage-summary.json"
@@ -225,6 +237,7 @@ jobs:
           cmp -s "$header_asset" "$artifact_root/assets/node-ipc-header.png"
           cmp -s "$performance_asset" "$artifact_root/assets/node-ipc-performance-tiers.png"
           test -s "$artifact_root/coverage/report/index.html"
+          grep -F 'JavaScript: Node.js only.' "$artifact_root/coverage/report/index.html" >/dev/null
           test -s "$artifact_root/data/coverage-summary.json"
           test -s "$artifact_root/data/test-results.json"
           test -s "$artifact_root/data/benchmarks/index.json"
@@ -483,8 +496,15 @@ jobs:
               ? process.env.LIVE_BASE_URL
               : `${process.env.LIVE_BASE_URL}/`);
           assert.equal(base.href, 'https://riaevangelist.github.io/node-ipc/');
+          const nodeOnlyMarker = 'JavaScript: Node.js only';
 
           const wait = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
+          const visibleText = source => source
+              .replace(/<script\b[\s\S]*?<\/script>/giu, ' ')
+              .replace(/<style\b[\s\S]*?<\/style>/giu, ' ')
+              .replace(/<[^>]+>/gu, ' ')
+              .replace(/\s+/gu, ' ')
+              .trim();
           const live = async (path, expectedType) => {
               const url = new URL(path, base);
               url.searchParams.set('pages-run', process.env.LIVE_CACHE_KEY);
@@ -520,8 +540,19 @@ jobs:
           assert.equal(new Set(routeManifest.routes).size, routeManifest.routes.length);
           const routes = routeManifest.routes.map(route => route === '/' ? '' : route.replace(/^\//u, ''));
 
-          await Promise.all(routes.map(route => live(route, /^text\/html\b/u)));
-          await live('coverage/report/', /^text\/html\b/u);
+          await Promise.all(routes.map(async route => {
+              const response = await live(route, /^text\/html\b/u);
+              const source = await response.text();
+              assert.ok(
+                  visibleText(source).includes(nodeOnlyMarker),
+                  `${route || '/'}: live page is missing visible Node-only marker ${nodeOnlyMarker}`
+              );
+          }));
+          const coverageReport = await live('coverage/report/', /^text\/html\b/u);
+          assert.ok(
+              visibleText(await coverageReport.text()).includes(nodeOnlyMarker),
+              'coverage/report/: live page is missing visible Node-only marker'
+          );
           const inventory = await json('data/test-inventory.json');
           const testResults = await json('data/test-results.json');
           assert.ok(inventory.total >= 140);

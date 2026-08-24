@@ -13,6 +13,12 @@ const ipc = require('node-ipc').default;
 The generated `node-ipc.cjs` bundle and its esbuild step are gone. Both
 `import` and `require()` now load the same source.
 
+The `node-ipc` JavaScript package is **Node.js-only**. It directly uses Node's
+raw TCP, TLS, UDP, Unix-domain socket, Windows named-pipe, filesystem, OS,
+process, and `Buffer` APIs. It is not supported in browsers, with or without a
+bundler. “Native ESM” describes the one implementation loaded by Node without a
+transpiler; it is not a native-browser entry.
+
 ## Paired Rust implementation
 
 Version 14 introduces the dependency-free Rust crate under the same
@@ -69,7 +75,7 @@ frames after the finish boundary.
 
 ## Event subscriptions
 
-Node-ipc 14 uses `event-pubsub` 6.1.0. Dispatch remains synchronous and live:
+Node-ipc 14 uses `event-pubsub` 6.1.1. Dispatch remains synchronous and live:
 wildcard listeners run before typed listeners, and listeners appended during a
 dispatch can run in that same dispatch. A `once` registration is removed before
 its handler is invoked, so nested emission cannot invoke it twice. `list`
@@ -79,9 +85,11 @@ public registration spelling remains the literal `'*'`.
 
 Invalid public arguments still throw `TypeError`, but applications must not
 depend on exact error text. Event-pubsub's sole runtime dependency remains
-exact `strong-type` 2.0.0, and clean package installs verify its package-shaped
-Node and unbundled-browser sibling import. The old runtime `copyfiles`
-dependency is gone.
+exact `strong-type` 2.0.0 and loads through the bare `strong-type` package name,
+preserving that dependency's own Node, bundler, and native-browser import-map
+resolution boundary. That browser contract belongs to `event-pubsub`; it does
+not make the Node.js-only `node-ipc` runtime browser-compatible. The old runtime
+`copyfiles` dependency is gone.
 
 ## Select a parser
 

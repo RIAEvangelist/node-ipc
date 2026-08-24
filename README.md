@@ -28,6 +28,13 @@ line; version 13 was never published.
 
 `node-ipc` ships native ES modules only. Node.js loads the same entry point through `import` or synchronous `require()`; no transpiled CommonJS bundle is generated.
 
+The `node-ipc` JavaScript package is **Node.js-only**. It uses Node's raw TCP,
+TLS, UDP, Unix-domain socket, Windows named-pipe, filesystem, OS, process, and
+`Buffer` APIs. It is not supported in browsers, with or without a bundler.
+“Native ESM” means that Node loads the one JavaScript implementation without a
+transpiler; it does not mean native-browser ESM. The documentation website's
+browser code is separate and is not part of the npm package runtime.
+
 #### Node.js runtime profiles
 
 The Node.js implementation selects its parser and hot-path handlers once, when each client or server is created. It does not poll a security flag for every message. Set the profile before calling `connect*()` or `serve*()`.

@@ -13,6 +13,12 @@ Version 14.x aligns the native-ESM Node.js implementation (Node.js 22.13+), the
 dependency-free Rust implementation (Rust 1.85+), and the zero-NuGet-dependency
 C# implementation (.NET 8+). Version 13 was never published.
 
+The `node-ipc` JavaScript package is **Node.js-only**. It does not run in web
+browsers, whether bundled or unbundled, because browsers and browser-targeted
+bundles cannot supply its raw TCP, TLS, UDP, Unix-domain socket, Windows
+named-pipe, filesystem, OS, process, or `Buffer` contracts. The documentation
+website's browser code is separate from the npm runtime.
+
 ## 14.x Node.js security profiles
 
 Security and performance are selected once when a client or server is created. Changing `ipc.config.parser` or a related limit after `connect*()` or `serve*()` does not reconfigure an existing endpoint.
