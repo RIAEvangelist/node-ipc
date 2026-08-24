@@ -2,7 +2,7 @@ import {createHash} from 'node:crypto';
 import {readFile} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {subjectIds} from './subjects.js';
+import {moduleIds} from './lanes.js';
 
 const directory=path.dirname(fileURLToPath(import.meta.url));
 
@@ -29,11 +29,11 @@ function sourceLines(text){
 
 async function complexityReport(){
     const result={};
-    for(const subject of subjectIds){
-        const file=`adapters/${subject}.js`;
-        const bytes=await readFile(path.join(directory,file));
-        const text=bytes.toString('utf8');
-        result[subject]={
+    for(const moduleId of moduleIds){
+        const file=`adapters/${moduleId}.js`;
+        const text=(await readFile(path.join(directory,file),'utf8')).replaceAll('\r\n','\n');
+        const bytes=Buffer.from(text,'utf8');
+        result[moduleId]={
             implementationBytes:bytes.length,
             implementationFiles:1,
             source:file,

@@ -1,7 +1,11 @@
 import readline from 'node:readline';
-import {loadSubject} from './subjects.js';
+import {loadLane} from './lanes.js';
 
-const subjectId=process.argv[2];
+const laneId=process.argv[2];
+const runtime={
+    platform:process.platform,
+    temporaryRoot:process.cwd()
+};
 let server;
 let closePromise;
 
@@ -49,11 +53,11 @@ process.stderr.on('error',() => {});
 process.once('disconnect',closeOnControlLoss);
 
 try{
-    const subject=await loadSubject(subjectId);
-    server=await subject.createServer({onError:fail});
+    const lane=await loadLane(laneId);
+    server=await lane.createServer({lane,onError:fail,runtime});
     send({
         endpoint:server.endpoint,
-        metadata:subject.metadata,
+        metadata:lane.metadata,
         pid:process.pid,
         type:'ready'
     });

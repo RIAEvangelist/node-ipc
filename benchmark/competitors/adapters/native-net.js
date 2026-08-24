@@ -1,5 +1,6 @@
 import net from 'node:net';
 import {once} from 'node:events';
+import {localEndpoint,verifyStreamCleanup} from '../lib/endpoints.js';
 import {createInbox} from '../lib/inbox.js';
 import {decodeMessage,encodeMessage} from '../protocol.js';
 
@@ -9,7 +10,7 @@ const metadata={
     packages:[],
     serialization:'canonical JSON with newline framing',
     topology:'unrelated processes',
-    transport:'TCP loopback'
+    transport:'TCP or local IPC stream'
 };
 
 function consumeLines(state,chunk,consume){
@@ -23,7 +24,11 @@ function consumeLines(state,chunk,consume){
     }
 }
 
-async function createServer({onError}){
+function transportId(lane){
+    return lane?.transportId ?? 'tcp';
+}
+
+async function createServer({lane,onError}){
     const sockets=new Set();
     const server=net.createServer(socket => {
         sockets.add(socket);
@@ -44,11 +49,18 @@ async function createServer({onError}){
         socket.on('error',onError);
     });
     server.on('error',onError);
-    server.listen({host:'127.0.0.1',port:0});
+    const requested=transportId(lane);
+    const target=requested === 'local'
+        ? localEndpoint(lane?.id)
+        : {host:'127.0.0.1',port:0};
+    server.listen(target.path ? {path:target.path} : target);
     await once(server,'listening');
     const address=server.address();
+    const endpoint=typeof address === 'string'
+        ? {implementation:target.implementation,path:address}
+        : {host:address.address,port:address.port};
     return {
-        endpoint:{host:address.address,port:address.port},
+        endpoint,
         async close(){
             for(const socket of sockets){
                 socket.destroy();
@@ -103,6 +115,6 @@ async function createClient({endpoint}){
 export {
     createClient,
     createServer,
-    metadata
+    metadata,
+    verifyStreamCleanup as verifyCleanup
 };
-

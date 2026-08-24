@@ -1,0 +1,198 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://riaevangelist.github.io/node-ipc/data/competitor-benchmarks/result-schema-v2.json",
+  "title": "node-ipc transport-lane competitor benchmark result",
+  "type": "object",
+  "required": [
+    "$schema",
+    "schemaVersion",
+    "id",
+    "generatedAt",
+    "classification",
+    "capabilities",
+    "catalog",
+    "complexity",
+    "config",
+    "dependencyExposure",
+    "dimensions",
+    "evidence",
+    "packageLocks",
+    "repository",
+    "samples",
+    "summary",
+    "system",
+    "validation"
+  ],
+  "properties": {
+    "$schema": {"const": "https://riaevangelist.github.io/node-ipc/data/competitor-benchmarks/result-schema-v2.json"},
+    "schemaVersion": {"const": 2},
+    "id": {"type": "string", "pattern": "^local-[A-Za-z0-9-]+$"},
+    "generatedAt": {"type": "string", "format": "date-time"},
+    "classification": {"const": "local-snapshot-noisy"},
+    "capabilities": {"type": "object"},
+    "catalog": {"type": "object"},
+    "complexity": {"type": "object"},
+    "config": {
+      "type": "object",
+      "required": [
+        "laneIds",
+        "moduleIds",
+        "payloads",
+        "probeFrames",
+        "quick",
+        "samplesByCohort",
+        "timeoutMs",
+        "transportIds",
+        "windowBytes",
+        "windowMessages",
+        "workloads"
+      ],
+      "properties": {
+        "laneIds": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}},
+        "moduleIds": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}},
+        "payloads": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "integer", "minimum": 64}},
+        "probeFrames": {"type": "integer", "minimum": 1},
+        "quick": {"type": "boolean"},
+        "samples": {"type": "integer", "minimum": 1},
+        "samplesByCohort": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {"type": "integer", "minimum": 1}
+        },
+        "timeoutMs": {"type": "integer", "minimum": 1},
+        "transportIds": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}},
+        "windowBytes": {"type": "integer", "minimum": 1},
+        "windowMessages": {"type": "integer", "minimum": 1},
+        "workloads": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["throughput", "latency"]}}
+      },
+      "additionalProperties": false
+    },
+    "dependencyExposure": {"type": "object"},
+    "dimensions": {
+      "type": "object",
+      "required": ["transports", "lanes"],
+      "properties": {
+        "transports": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {"$ref": "#/$defs/transport"}
+        },
+        "lanes": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {"$ref": "#/$defs/lane"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["authority", "commonContract", "comparison", "rankingEligible", "reasons"],
+      "properties": {
+        "authority": {"const": "snapshot-noisy"},
+        "commonContract": {"type": "string", "minLength": 1},
+        "comparison": {
+          "type": "object",
+          "required": [
+            "unit",
+            "crossTransportRankingEligible",
+            "withinTransportRankingEligible",
+            "transportEffectEligible"
+          ],
+          "properties": {
+            "unit": {"const": "transport-lane"},
+            "crossTransportRankingEligible": {"const": false},
+            "withinTransportRankingEligible": {"const": false},
+            "transportEffectEligible": {"const": false}
+          },
+          "additionalProperties": false
+        },
+        "rankingEligible": {"const": false},
+        "reasons": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+      },
+      "additionalProperties": false
+    },
+    "packageLocks": {"type": "object"},
+    "repository": {"type": "object"},
+    "samples": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/sample"}},
+    "summary": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/summary"}},
+    "system": {"type": "object"},
+    "validation": {
+      "type": "object",
+      "required": ["cleanupFailures", "complete", "expectedSamples", "failedSamples", "successfulSamples"]
+    }
+  },
+  "$defs": {
+    "transport": {
+      "type": "object",
+      "required": ["id", "label", "family", "implementation", "scope", "securityMode"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "label": {"type": "string", "minLength": 1},
+        "family": {"type": "string", "minLength": 1},
+        "implementation": {"type": "string", "minLength": 1},
+        "scope": {"type": "string", "minLength": 1},
+        "securityMode": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "lane": {
+      "type": "object",
+      "required": [
+        "id",
+        "label",
+        "moduleId",
+        "transportId",
+        "cohortId",
+        "protocolStack",
+        "topology",
+        "serialization",
+        "securityMode",
+        "sourceFiles"
+      ],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "label": {"type": "string", "minLength": 1},
+        "moduleId": {"type": "string", "minLength": 1},
+        "transportId": {"type": "string", "minLength": 1},
+        "cohortId": {"type": "string", "minLength": 1},
+        "protocolStack": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "topology": {"type": "string", "minLength": 1},
+        "serialization": {"type": "string", "minLength": 1},
+        "securityMode": {"type": "string", "minLength": 1},
+        "sourceFiles": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+      },
+      "additionalProperties": false
+    },
+    "sample": {
+      "type": "object",
+      "required": ["block", "cohortId", "laneId", "moduleId", "orderIndex", "payloadBytes", "status", "transportId", "workload"],
+      "properties": {
+        "block": {"type": "integer", "minimum": 0},
+        "cohortId": {"type": "string", "minLength": 1},
+        "laneId": {"type": "string", "minLength": 1},
+        "moduleId": {"type": "string", "minLength": 1},
+        "orderIndex": {"type": "integer", "minimum": 0},
+        "payloadBytes": {"type": "integer", "minimum": 64},
+        "status": {"enum": ["ok", "failed"]},
+        "transportId": {"type": "string", "minLength": 1},
+        "workload": {"enum": ["throughput", "latency"]}
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["cohortId", "failures", "laneId", "moduleId", "payloadBytes", "samples", "transportId", "workload"],
+      "properties": {
+        "cohortId": {"type": "string", "minLength": 1},
+        "failures": {"type": "integer", "minimum": 0},
+        "laneId": {"type": "string", "minLength": 1},
+        "moduleId": {"type": "string", "minLength": 1},
+        "payloadBytes": {"type": "integer", "minimum": 64},
+        "samples": {"type": "integer", "minimum": 0},
+        "transportId": {"type": "string", "minLength": 1},
+        "workload": {"enum": ["throughput", "latency"]}
+      }
+    }
+  },
+  "additionalProperties": false
+}

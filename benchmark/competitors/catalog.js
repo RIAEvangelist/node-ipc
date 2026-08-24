@@ -12,6 +12,11 @@ const catalog={
         packages:[],
         selectionReason:'Native TCP and local socket capability from Node.js core'
     },
+    'native-tls':{
+        label:'Node tls',
+        packages:[],
+        selectionReason:'Native authenticated TLS stream baseline from Node.js core'
+    },
     'node-ipc':{
         benchmarkProfile:'fast',
         benchmarkVersion:'14.0.0',
@@ -61,6 +66,7 @@ const sources={
     socketIo:'https://socket.io/docs/v4/',
     socketIoClientOptions:'https://socket.io/docs/v4/client-options/',
     socketIoEvents:'https://socket.io/docs/v4/emitting-events/',
+    socketIoEngineClient:'https://github.com/socketio/socket.io/blob/socket.io%404.8.3/packages/engine.io-client/lib/socket.ts',
     socketIoManifest:'https://github.com/socketio/socket.io/blob/socket.io%404.8.3/packages/socket.io/package.json',
     socketIoOffline:'https://socket.io/docs/v4/client-offline-behavior/',
     socketIoProtocol:'https://socket.io/docs/v4/socket-io-protocol/',
@@ -70,8 +76,10 @@ const sources={
     socketIoTransports:'https://socket.io/docs/v4/client-options/#transports',
     ws:'https://github.com/websockets/ws/blob/8.21.3/README.md',
     wsIpc:'https://github.com/websockets/ws/blob/8.21.3/doc/ws.md#ipc-connections',
+    wsTls:'https://github.com/websockets/ws/blob/8.21.3/README.md#external-https-server',
     zeromq:'https://github.com/zeromq/zeromq.js/tree/v6.6.0',
-    zeromqApi:'https://zeromq.github.io/zeromq.js/classes/Socket.html',
+    zeromqApi:'https://github.com/zeromq/zeromq.js/blob/v6.6.0/src/index.ts',
+    zeromqCurve:'https://github.com/zeromq/libzmq/blob/v4.3.5/doc/zmq_curve.txt',
     zeromqIpc:'https://github.com/zeromq/libzmq/blob/v4.3.5/doc/zmq_ipc.txt',
     zeromqManifest:'https://github.com/zeromq/zeromq.js/blob/v6.6.0/package.json',
     zeromqSocket:'https://github.com/zeromq/libzmq/blob/v4.3.5/doc/zmq_socket.txt',

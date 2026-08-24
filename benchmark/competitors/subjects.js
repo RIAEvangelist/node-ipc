@@ -1,3 +1,5 @@
+import {legacySubjectLanes,loadLane} from './lanes.js';
+
 const loaders={
     'native-child-process':() => import('./adapters/native-child-process.js'),
     'native-net':() => import('./adapters/native-net.js'),
@@ -17,7 +19,21 @@ function loadSubject(id){
     return loader();
 }
 
+function laneIdForSubject(id){
+    const laneId=legacySubjectLanes[id];
+    if(!laneId){
+        throw new Error(`available subjects: ${subjectIds.join(', ')}`);
+    }
+    return laneId;
+}
+
+function loadSubjectLane(id){
+    return loadLane(laneIdForSubject(id));
+}
+
 export {
+    laneIdForSubject,
     loadSubject,
+    loadSubjectLane,
     subjectIds
 };

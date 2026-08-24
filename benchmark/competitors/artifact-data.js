@@ -1,11 +1,10 @@
 import {readFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
 import path from 'node:path';
 import {DatabaseSync} from 'node:sqlite';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 
 const directory=path.dirname(fileURLToPath(import.meta.url));
-const repositoryRoot=path.resolve(directory,'../..');
-const defaultResult='benchmark/competitors/results/windows-node24-20260823.json';
 
 function parseQueries(text){
     const chunks=text.split(/^-- query: ([a-z][a-z-]*)\s*$/gmu);
@@ -20,21 +19,29 @@ function parseQueries(text){
 }
 
 function buildArtifactData(resultFile=path.join(directory,'results/windows-node24-20260823.json')){
+    const resolvedResult=path.resolve(resultFile);
+    const resultBytes=readFileSync(resolvedResult);
+    const resultText=resultBytes.toString('utf8');
+    const result=JSON.parse(resultText);
     const sql=readFileSync(path.join(directory,'artifact-queries.sql'),'utf8');
     const queries=parseQueries(sql);
     const database=new DatabaseSync(':memory:');
-    database.function('readfile',requested => {
-        if(requested === defaultResult){
-            return readFileSync(resultFile,'utf8');
-        }
-        return readFileSync(path.resolve(repositoryRoot,requested),'utf8');
-    });
+    database.function('benchmark_result',() => resultText);
     try{
         const datasets={};
         for(const [name,query] of Object.entries(queries)){
             datasets[name]=database.prepare(query).all();
         }
-        return {datasets,queries};
+        return {
+            datasets,
+            queries,
+            source:{
+                file:resolvedResult,
+                id:result.id ?? null,
+                schemaVersion:result.schemaVersion,
+                sha256:createHash('sha256').update(resultBytes).digest('hex')
+            }
+        };
     }finally{
         database.close();
     }

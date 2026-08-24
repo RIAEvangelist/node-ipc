@@ -1,6 +1,15 @@
+import {createServer as createHttpServer} from 'node:http';
+import {createServer as createHttpsServer} from 'node:https';
 import {once} from 'node:events';
 import WebSocket,{WebSocketServer} from 'ws';
+import {localEndpoint,verifyStreamCleanup} from '../lib/endpoints.js';
 import {createInbox} from '../lib/inbox.js';
+import {
+    assertAuthenticatedTls,
+    clientTlsOptions,
+    serverTlsOptions,
+    tlsSessionMetadata
+} from '../lib/tls.js';
 import {decodeMessage,encodeMessage} from '../protocol.js';
 
 const metadata={
@@ -9,15 +18,22 @@ const metadata={
     packages:['ws'],
     serialization:'canonical JSON over WebSocket text messages',
     topology:'unrelated processes',
-    transport:'WebSocket over TCP loopback'
+    transport:'WebSocket over TCP, local IPC, or mutual TLS loopback'
 };
 
-async function createServer({onError}){
+function transportId(lane){
+    return lane?.transportId ?? 'tcp';
+}
+
+async function createServer({lane,onError}){
+    const selected=transportId(lane);
     const sockets=new Set();
+    const networkServer=selected === 'tls'
+        ? createHttpsServer(serverTlsOptions())
+        : createHttpServer();
     const server=new WebSocketServer({
-        host:'127.0.0.1',
+        server:networkServer,
         perMessageDeflate:false,
-        port:0
     });
     server.on('connection',socket => {
         sockets.add(socket);
@@ -35,22 +51,50 @@ async function createServer({onError}){
         socket.on('error',onError);
     });
     server.on('error',onError);
-    await once(server,'listening');
-    const address=server.address();
+    networkServer.on('error',onError);
+    if(selected === 'tls'){
+        networkServer.on('secureConnection',socket => {
+            try{
+                assertAuthenticatedTls(socket,'ws server');
+            }catch(error){
+                socket.destroy(error);
+                onError(error);
+            }
+        });
+    }
+    const target=selected === 'local'
+        ? localEndpoint(lane?.id)
+        : {host:'127.0.0.1',port:0};
+    networkServer.listen(target.path ? {path:target.path} : target);
+    await once(networkServer,'listening');
+    const address=networkServer.address();
+    const endpoint=typeof address === 'string'
+        ? {implementation:target.implementation,path:address}
+        : {host:'127.0.0.1',port:address.port};
     return {
-        endpoint:{host:'127.0.0.1',port:address.port},
+        endpoint,
         async close(){
             for(const socket of sockets){
                 socket.terminate();
             }
             await new Promise((resolve,reject) => server.close(error => error ? reject(error) : resolve()));
+            if(networkServer.listening){
+                await new Promise((resolve,reject) => networkServer.close(error => error ? reject(error) : resolve()));
+            }
         }
     };
 }
 
-async function createClient({endpoint}){
+async function createClient({endpoint,lane}){
     const inbox=createInbox();
-    const socket=new WebSocket(`ws://${endpoint.host}:${endpoint.port}`,{
+    const selected=transportId(lane);
+    const url=selected === 'local'
+        ? `ws+unix:${endpoint.path}:/`
+        : selected === 'tls'
+            ? `wss://localhost:${endpoint.port}`
+            : `ws://${endpoint.host}:${endpoint.port}`;
+    const socket=new WebSocket(url,{
+        ...(selected === 'tls' ? clientTlsOptions() : {}),
         perMessageDeflate:false
     });
     let maximumBufferedBytes=0;
@@ -63,6 +107,9 @@ async function createClient({endpoint}){
     });
     socket.on('error',error => inbox.fail(error));
     await once(socket,'open');
+    if(selected === 'tls'){
+        assertAuthenticatedTls(socket._socket,'ws client');
+    }
     return {
         send(value){
             socket.send(encodeMessage(value),{binary:false,compress:false});
@@ -72,6 +119,7 @@ async function createClient({endpoint}){
         metrics:() => ({
             backpressureEvents:0,
             maximumBufferedBytes,
+            tls:selected === 'tls' ? tlsSessionMetadata(socket._socket) : null,
             wireBytesRead:socket._socket?.bytesRead ?? null,
             wireBytesWritten:socket._socket?.bytesWritten ?? null
         }),
@@ -89,6 +137,6 @@ async function createClient({endpoint}){
 export {
     createClient,
     createServer,
-    metadata
+    metadata,
+    verifyStreamCleanup as verifyCleanup
 };
-

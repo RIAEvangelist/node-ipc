@@ -5,12 +5,16 @@ import path from 'node:path';
 import readline from 'node:readline';
 import {fileURLToPath} from 'node:url';
 import {createInbox} from './lib/inbox.js';
+import {loadLane} from './lanes.js';
 import {createMessageFactory,verifyMessage} from './protocol.js';
 import {latencySummary} from './stats.js';
-import {loadSubject} from './subjects.js';
 
 const directory=path.dirname(fileURLToPath(import.meta.url));
 const config=JSON.parse(process.argv[2]);
+const runtime={
+    platform:process.platform,
+    temporaryRoot:process.cwd()
+};
 let activeClient;
 let activePeerState;
 let shutdownPromise;
@@ -63,16 +67,16 @@ function controlChannel(peer){
     };
 }
 
-async function startPeer(subjectId,subject){
+async function startPeer(lane){
     const peerFile=path.join(directory,'peer.js');
     const options={
         cwd:process.cwd(),
         env:process.env
     };
     const started=process.hrtime.bigint();
-    const peer=subject.launchPeer
-        ? subject.launchPeer(peerFile,subjectId,options)
-        : spawn(process.execPath,[peerFile,subjectId],{
+    const peer=lane.launchPeer
+        ? lane.launchPeer(peerFile,lane.id,options,{lane,runtime})
+        : spawn(process.execPath,[peerFile,lane.id],{
             ...options,
             stdio:['pipe','pipe','pipe']
         });
@@ -288,14 +292,16 @@ function completeParentControl(){
 }
 
 async function run(){
-    const subject=await loadSubject(config.subject);
-    const peerState=await startPeer(config.subject,subject);
+    const lane=await loadLane(config.laneId);
+    const peerState=await startPeer(lane);
     const {control,peer,ready}=peerState;
     let client;
     try{
-        client=await deadline(subject.createClient({
+        client=await deadline(lane.createClient({
             endpoint:ready.endpoint,
-            peer
+            lane,
+            peer,
+            runtime
         }),config.timeoutMs,'client connect');
         activeClient=client;
         const connected=process.hrtime.bigint();
@@ -353,6 +359,7 @@ async function run(){
             latencyNs:measured.samples ? latencySummary(measured.samples) : null,
             maximumInFlight:measured.maximumInFlight ?? 1,
             roundTripsPerSecond:config.frames/elapsedSeconds,
+            tls:after.tls ?? null,
             wireBytesRead:metricDifference(after,before,'wireBytesRead'),
             wireBytesWritten:metricDifference(after,before,'wireBytesWritten')
         };
@@ -368,9 +375,17 @@ async function run(){
         if(activePeerState === peerState){
             activePeerState=undefined;
         }
-        const cleanup=await endpointCleanup(ready.endpoint);
+        const verifiedCleanup=lane.verifyCleanup
+            ? await lane.verifyCleanup({endpoint:ready.endpoint,lane,runtime})
+            : await endpointCleanup(ready.endpoint);
+        const cleanup={
+            artifactRemoved:verifiedCleanup.artifactRemoved ?? null,
+            closed:verifiedCleanup.endpointClosed ?? verifiedCleanup.closed ?? null,
+            reusable:verifiedCleanup.endpointReusable ?? verifiedCleanup.reusable ?? null
+        };
         return {
             cleanup:{
+                artifactRemoved:cleanup.artifactRemoved,
                 endpointClosed:cleanup.closed,
                 endpointReusable:cleanup.reusable,
                 naturalExit:exitCode === 0 && signal === null
@@ -394,8 +409,9 @@ async function run(){
             },
             metrics,
             peer:{exitCode,signal},
+            lane:lane.metadata,
             status:'ok',
-            subject:subject.metadata,
+            subject:lane.moduleMetadata,
             warmupElapsedNs:warmup.elapsedNs.toString()
         };
     }catch(error){
@@ -419,8 +435,9 @@ try{
 }catch(error){
     process.stdout.write(`${JSON.stringify({
         error:error.stack ?? String(error),
+        laneId:config.laneId,
         status:'failed',
-        subject:config.subject
+        moduleId:config.moduleId
     })}\n`);
     process.exitCode=1;
 }finally{

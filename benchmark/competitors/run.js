@@ -5,13 +5,25 @@ import {lstat,mkdir,mkdtemp,readFile,readdir,rm,writeFile} from 'node:fs/promise
 import os from 'node:os';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {definitions as capabilityDefinitions,matrix as capabilities} from './capabilities.js';
+import {
+    definitions as capabilityDefinitions,
+    matrix as capabilities,
+    transportDefinitions as capabilityTransportDefinitions,
+    transportMatrix
+} from './capabilities.js';
 import {asOf,catalog,popularityWindow,sources} from './catalog.js';
 import {complexityReport} from './complexity.js';
 import {dependencyExposure} from './dependencies.js';
-import {buildPlan} from './plan.js';
+import {
+    laneDefinition,
+    laneIds,
+    lanesForTransports,
+    legacySubjectLanes,
+    serializeLaneDefinitions,
+    serializeTransportDefinitions
+} from './lanes.js';
+import {buildCohortPlan,cycleLength} from './plan.js';
 import {distribution} from './stats.js';
-import {subjectIds} from './subjects.js';
 
 const directory=path.dirname(fileURLToPath(import.meta.url));
 const repositoryRoot=path.resolve(directory,'../..');
@@ -54,32 +66,67 @@ const workloadOverrides={
     throughputFrames:optionalInteger('throughput-messages'),
     warmupFrames:optionalInteger('warmup')
 };
+const selectorNames=['lanes','transports','subjects'].filter(name => option(name,null) !== null);
+if(selectorNames.length > 1){
+    throw new Error('--lanes, --transports, and legacy --subjects are mutually exclusive');
+}
+let selectedLaneIds;
+if(selectorNames[0] === 'lanes'){
+    selectedLaneIds=names('lanes','');
+}else if(selectorNames[0] === 'transports'){
+    selectedLaneIds=lanesForTransports(names('transports',''));
+}else if(selectorNames[0] === 'subjects'){
+    const subjects=names('subjects','');
+    const unknown=subjects.filter(subject => !legacySubjectLanes[subject]);
+    if(unknown.length){
+        throw new Error(`available legacy subjects: ${Object.keys(legacySubjectLanes).join(', ')}`);
+    }
+    selectedLaneIds=[...new Set(subjects.map(subject => legacySubjectLanes[subject]))];
+    process.stderr.write('warning: --subjects is deprecated; use --lanes or --transports\n');
+}else{
+    selectedLaneIds=[...laneIds];
+}
+const unknownLanes=selectedLaneIds.filter(id => !laneIds.includes(id));
+if(unknownLanes.length){
+    throw new Error(`available lanes: ${laneIds.join(', ')}`);
+}
+if(selectedLaneIds.length === 0){
+    throw new Error('at least one lane is required');
+}
+const selectedLanes=selectedLaneIds.map(laneDefinition);
+const selectedTransportIds=[...new Set(selectedLanes.map(({transportId}) => transportId))];
+const selectedModuleIds=[...new Set(selectedLanes.map(({moduleId}) => moduleId))];
+const explicitSamples=optionalInteger('samples');
+if(quick && explicitSamples !== null && explicitSamples !== 1){
+    throw new Error('--quick uses exactly one block per transport cohort');
+}
+const samplesByCohort={};
+for(const cohortId of selectedTransportIds){
+    const size=selectedLanes.filter(lane => lane.cohortId === cohortId).length;
+    const cycle=cycleLength(size);
+    if(!quick && explicitSamples !== null && explicitSamples%cycle !== 0){
+        throw new Error(
+            `--samples must be divisible by the ${cohortId} cohort cycle (${cycle})`
+        );
+    }
+    samplesByCohort[cohortId]=quick ? 1 : (explicitSamples ?? cycle);
+}
+const commonSamples=[...new Set(Object.values(samplesByCohort))];
 const config={
+    laneIds:selectedLaneIds,
+    moduleIds:selectedModuleIds,
     payloads:integers('payloads',quick ? '64' : '64,4096,65536'),
     probeFrames:integer('probe',quick ? 8 : 64),
     quick,
-    samples:integer('samples',quick ? 1 : 6),
-    subjects:names('subjects',subjectIds.join(',')),
+    ...(commonSamples.length === 1 ? {samples:commonSamples[0]} : {}),
+    samplesByCohort,
     timeoutMs:integer('timeout',quick ? 30000 : 180000),
+    transportIds:selectedTransportIds,
     windowBytes:integer('window-bytes',8*1024*1024),
     windowMessages:integer('window',64),
     workloads:names('workloads','throughput,latency')
 };
 
-if(config.subjects.some(subject => !subjectIds.includes(subject))){
-    throw new Error(`available subjects: ${subjectIds.join(', ')}`);
-}
-if(config.subjects.length%2 !== 0){
-    throw new Error('the balanced benchmark plan requires an even number of subjects');
-}
-if(config.subjects.length === 0){
-    throw new Error('at least one subject is required');
-}
-if(!quick && config.samples%config.subjects.length !== 0){
-    throw new Error(
-        `--samples must be a multiple of the selected subject count (${config.subjects.length}) for balanced ordering`
-    );
-}
 if(config.workloads.some(workload => !['latency','throughput'].includes(workload))){
     throw new Error('available workloads: throughput, latency');
 }
@@ -218,15 +265,15 @@ async function runTrial(entry){
         }catch(error){
             result={
                 error:`invalid worker output: ${error.message}\nstdout: ${stdout}\nstderr: ${stderr}`,
+                laneId:entry.laneId,
                 status:'failed',
-                subject:entry.subject
+                moduleId:entry.moduleId
             };
         }
         const leftovers=await inventory(temporaryRoot);
         return {
             ...entry,
             ...result,
-            subjectId:entry.subject,
             cleanup:{
                 ...(result.cleanup ?? {}),
                 temporaryBytes:leftovers.bytes,
@@ -240,9 +287,10 @@ async function runTrial(entry){
         return {
             ...entry,
             error:error.stack ?? String(error),
+            laneId:entry.laneId,
+            moduleId:entry.moduleId,
             status:'failed',
-            subject:entry.subject,
-            subjectId:entry.subject
+            transportId:entry.transportId
         };
     }finally{
         let terminationError;
@@ -266,18 +314,22 @@ async function runTrial(entry){
 
 function groupSummary(samples){
     const summary=[];
-    for(const subject of config.subjects){
+    for(const laneId of config.laneIds){
+        const lane=laneDefinition(laneId);
         for(const payloadBytes of config.payloads){
             for(const workload of config.workloads){
-                const cell=samples.filter(sample => sample.subjectId === subject
+                const cell=samples.filter(sample => sample.laneId === laneId
                     && sample.payloadBytes === payloadBytes
                     && sample.workload === workload);
                 const successful=cell.filter(sample => sample.status === 'ok');
                 const row={
+                    cohortId:lane.cohortId,
                     failures:cell.length-successful.length,
+                    laneId,
+                    moduleId:lane.moduleId,
                     payloadBytes,
                     samples:successful.length,
-                    subject,
+                    transportId:lane.transportId,
                     workload
                 };
                 if(successful.length){
@@ -325,16 +377,22 @@ function repositoryState(){
 }
 
 async function fileSha256(file){
-    return createHash('sha256').update(await readFile(file)).digest('hex');
+    const normalized=(await readFile(file,'utf8')).replaceAll('\r\n','\n');
+    return createHash('sha256').update(normalized).digest('hex');
 }
 
 async function main(){
-    const plan=buildPlan(config.subjects,config.payloads,config.workloads,config.samples);
+    const plan=buildCohortPlan(
+        selectedLanes,
+        config.payloads,
+        config.workloads,
+        config.samplesByCohort
+    );
     const samples=[];
     for(let index=0;index<plan.length;index+=1){
         const entry=plan[index];
         process.stderr.write(
-            `[${index+1}/${plan.length}] ${entry.workload} ${entry.payloadBytes} B ${entry.subject}\n`
+            `[${index+1}/${plan.length}] ${entry.workload} ${entry.payloadBytes} B ${entry.laneId}\n`
         );
         samples.push(await runTrial(entry));
     }
@@ -343,6 +401,7 @@ async function main(){
         sample.cleanup.naturalExit !== true
         || sample.cleanup.workerNaturalExit !== true
         || sample.cleanup.temporaryEntries !== 0
+        || sample.cleanup.artifactRemoved === false
         || sample.cleanup.endpointClosed === false
         || sample.cleanup.endpointReusable === false
     ));
@@ -353,25 +412,39 @@ async function main(){
         fileSha256(path.join(repositoryRoot,'package-lock.json'))
     ]);
     const result={
-        schemaVersion:1,
+        $schema:'https://riaevangelist.github.io/node-ipc/data/competitor-benchmarks/result-schema-v2.json',
+        schemaVersion:2,
         id:`local-${new Date().toISOString().replace(/[-:.]/gu,'')}-${randomUUID()}`,
         generatedAt:new Date().toISOString(),
         classification:'local-snapshot-noisy',
         capabilities:{
             asOf,
             definitions:capabilityDefinitions,
-            matrix:capabilities
+            matrix:capabilities,
+            transportDefinitions:capabilityTransportDefinitions,
+            transportMatrix
         },
         catalog:{asOf,popularityWindow,sources,subjects:catalog},
         complexity,
         config,
         dependencyExposure:dependencies,
+        dimensions:{
+            lanes:serializeLaneDefinitions(),
+            transports:serializeTransportDefinitions()
+        },
         evidence:{
             authority:'snapshot-noisy',
+            comparison:{
+                crossTransportRankingEligible:false,
+                transportEffectEligible:false,
+                unit:'transport-lane',
+                withinTransportRankingEligible:false
+            },
             commonContract:'exact canonical JSON request/echo in fresh two-process trials',
             rankingEligible:false,
             reasons:[
-                'The native child channel, TCP, WebSocket, Socket.IO, and ZMTP transports have different semantics.',
+                'Descriptive performance comparisons must remain within a single transport cohort; no ordinal rank is eligible.',
+                'The native child channel, TCP, local IPC, TLS, WebSocket, Socket.IO, and ZMTP transports have different semantics.',
                 'Local host load, scheduler state, power state, and page cache are not controlled.',
                 'Results are descriptive snapshots, not certification or a universal ranking.'
             ]
